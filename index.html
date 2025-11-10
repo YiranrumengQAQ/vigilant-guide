@@ -2,769 +2,323 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高级图片编辑器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Minecraft Bedrock UI 风格</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
     <style>
-        :root {
-            /* 亮色主题变量 */
-            --primary-color: #0078d4;
-            --primary-hover: #106ebe;
-            --background-color: #f3f2f1;
-            --surface-color: #ffffff;
-            --text-primary: #323130;
-            --text-secondary: #605e5c;
-            --border-color: #d2d0ce;
-            --shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.08);
-            --shadow-large: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                /* 暗色主题变量 */
-                --primary-color: #0086f0;
-                --primary-hover: #0078d4;
-                --background-color: #1e1e1e;
-                --surface-color: #2d2d2d;
-                --text-primary: #ffffff;
-                --text-secondary: #cccccc;
-                --border-color: #424242;
-                --shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
-                --shadow-large: 0 4px 8px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.4);
-            }
-        }
-
-        * {
+        /* 1. 全局和基础样式 */
+        body, html {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
-        }
-
-        body {
-            background-color: var(--background-color);
-            color: var(--text-primary);
-            transition: background-color 0.3s, color 0.3s;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 24px;
-            background-color: var(--surface-color);
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background-color: var(--primary-color);
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* 隐藏滚动条，模拟全屏游戏 */
+            background-color: #000;
+            font-family: 'Press Start 2P', cursive;
             color: white;
-            font-weight: bold;
+            /* 禁用默认的触摸高亮和选择 */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .logo-text {
-            font-size: 20px;
-            font-weight: 600;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .btn-secondary {
-            background-color: transparent;
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-
-        .main-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .sidebar {
-            width: 280px;
-            background-color: var(--surface-color);
-            border-right: 1px solid var(--border-color);
-            padding: 16px;
-            overflow-y: auto;
-            transition: width 0.3s;
-        }
-
-        .sidebar-section {
-            margin-bottom: 24px;
-        }
-
-        .sidebar-title {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .tool-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-
-        .tool-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            padding: 12px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            border: none;
-            background: transparent;
-            color: var(--text-primary);
-        }
-
-        .tool-btn:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-
-        .tool-btn.active {
-            background-color: rgba(0, 120, 212, 0.1);
-            color: var(--primary-color);
-        }
-
-        .tool-icon {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        .tool-name {
-            font-size: 12px;
-            text-align: center;
-        }
-
-        .canvas-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            overflow: auto;
-            background-color: var(--background-color);
-        }
-
-        .canvas-wrapper {
+        /* 2. 游戏主容器 */
+        .game-container {
             position: relative;
-            box-shadow: var(--shadow-large);
-            border-radius: 8px;
-            overflow: hidden;
-            max-width: 100%;
-            max-height: 100%;
+            width: 100vw;
+            height: 100vh;
+            /* 使用一个简单的渐变作为风景背景 */
+            background: linear-gradient(to bottom, #74b9ff 0%, #a2d2ff 60%, #55a630 60%, #588157 100%);
+            /* 如果你想用图片，取消注释下面这行 */
+            /* background-image: url('https://placehold.co/1920x1080/87CEEB/78C850.png?text=Minecraft+Landscape'); */
+            background-size: cover;
+            background-position: center;
+            /* 保持像素风的锐利 */
+            image-rendering: pixelated;
         }
 
-        #canvas {
-            background-color: white;
-            display: block;
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        .watermark-overlay {
+        /* 3. UI 覆盖层 */
+        .ui-overlay {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            color: rgba(0, 0, 0, 0.5);
-            font-size: 18px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 关键：让覆盖层本身不接收点击，但子元素可以 */
             pointer-events: none;
         }
 
-        .properties-panel {
-            width: 300px;
-            background-color: var(--surface-color);
-            border-left: 1px solid var(--border-color);
-            padding: 16px;
-            overflow-y: auto;
-            transition: width 0.3s;
-        }
-
-        .property-group {
-            margin-bottom: 24px;
-        }
-
-        .property-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .property-item {
-            margin-bottom: 16px;
-        }
-
-        .property-label {
-            display: block;
-            font-size: 14px;
-            margin-bottom: 6px;
-            color: var(--text-secondary);
-        }
-
-        .slider-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        input[type="range"] {
-            flex: 1;
-            height: 4px;
-            border-radius: 2px;
-            background: var(--border-color);
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            cursor: pointer;
-        }
-
-        .value-display {
-            width: 40px;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .color-picker {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .color-preview {
-            width: 32px;
-            height: 32px;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-        }
-
-        .dropdown {
-            width: 100%;
-            padding: 8px 12px;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            background-color: var(--surface-color);
-            color: var(--text-primary);
-            cursor: pointer;
-        }
-
-        .text-input {
-            width: 100%;
-            padding: 8px 12px;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            background-color: var(--surface-color);
-            color: var(--text-primary);
-        }
-
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: var(--border-color);
-            transition: .4s;
-            border-radius: 24px;
-        }
-
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .toggle-slider {
-            background-color: var(--primary-color);
-        }
-
-        input:checked + .toggle-slider:before {
-            transform: translateX(20px);
-        }
-
-        .footer {
-            padding: 16px 24px;
-            background-color: var(--surface-color);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .status-info {
-            display: flex;
-            gap: 16px;
-        }
-
-        .zoom-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .zoom-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 4px;
-            border: 1px solid var(--border-color);
-            background-color: var(--surface-color);
-            color: var(--text-primary);
+        /* 4. 通用 UI 按钮样式 (Minecraft 风格) */
+        .ui-button {
+            pointer-events: auto; /* 重新启用按钮的点击事件 */
+            background-color: #707070;
+            border: 2px solid #000000;
+            /* 核心：使用 inset box-shadow 模拟 3D 浮雕效果 */
+            box-shadow: inset 3px 3px 0px 0px rgba(255, 255, 255, 0.5), /* 顶部和左侧的亮边 */
+                        inset -3px -3px 0px 0px rgba(0, 0, 0, 0.5); /* 底部和右侧的暗边 */
+            color: white;
+            font-family: 'Press Start 2P', cursive;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            /* 禁用按钮的默认外观 */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
 
-        .zoom-level {
-            min-width: 60px;
-            text-align: center;
+        /* 按钮按下时的样式：反转阴影 */
+        .ui-button:active {
+            background-color: #606060;
+            box-shadow: inset -3px -3px 0px 0px rgba(255, 255, 255, 0.5),
+                        inset 3px 3px 0px 0px rgba(0, 0, 0, 0.5);
+            transform: scale(0.98); /* 轻微缩小 */
         }
 
-        /* 移动端适配 */
-        @media (max-width: 768px) {
-            .main-container {
-                flex-direction: column;
-            }
-
-            .sidebar, .properties-panel {
-                width: 100%;
-                max-height: 200px;
-                border-right: none;
-                border-bottom: 1px solid var(--border-color);
-            }
-
-            .properties-panel {
-                border-left: none;
-                border-top: 1px solid var(--border-color);
-            }
-
-            .tool-grid {
-                grid-template-columns: repeat(6, 1fr);
-            }
-
-            .header-actions .btn span {
-                display: none;
-            }
-
-            .footer {
-                flex-direction: column;
-                gap: 12px;
-                align-items: flex-start;
-            }
-
-            .zoom-controls {
-                align-self: flex-end;
-            }
+        /* 5. 左侧 D-pad (方向键) */
+        .dpad-container {
+            position: absolute;
+            bottom: 70px;
+            left: 30px;
+            display: grid;
+            grid-template-areas:
+                ".   up   ."
+                "left . right"
+                ".  down  .";
+            width: 180px;
+            height: 180px;
         }
 
-        /* 小屏幕手机适配 */
-        @media (max-width: 480px) {
-            .tool-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-
-            .header {
-                padding: 8px 16px;
-            }
-
-            .logo-text {
-                font-size: 18px;
-            }
-
-            .canvas-container {
-                padding: 16px;
-            }
+        .dpad-button {
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            /* 基岩版特有的半透明按钮 */
+            background-color: rgba(100, 100, 100, 0.7);
+            border-width: 3px;
         }
+
+        /* 分配网格区域 */
+        #dpad-up    { grid-area: up; }
+        #dpad-down  { grid-area: down; }
+        #dpad-left  { grid-area: left; }
+        #dpad-right { grid-area: right; }
+
+        /* 6. 右侧动作按钮 (跳跃) */
+        .action-buttons {
+            position: absolute;
+            bottom: 70px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .action-button {
+            width: 80px;
+            height: 80px;
+            /* 基岩版标志性的圆形按钮 */
+            border-radius: 50%;
+            font-size: 14px;
+            background-color: rgba(100, 100, 100, 0.7);
+            border-width: 3px;
+        }
+        
+        #jump-button {
+            /* 简单的跳跃图标 (或文字) */
+            content: "Jump";
+        }
+        
+        /* 7. 顶部 UI (暂停按钮和日志) */
+        .top-bar {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .pause-button {
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            padding: 0;
+            margin-left: auto; /* 推到最右侧 */
+        }
+
+        .log-output {
+            font-size: 14px;
+            text-shadow: 2px 2px #000;
+            padding: 5px;
+            min-height: 1.2em; /* 保持高度稳定 */
+        }
+
+        /* 8. 底部快捷栏 (Hotbar) */
+        .hotbar-container {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%); /* 水平居中 */
+            display: flex;
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 2px solid #333;
+            padding: 2px;
+            pointer-events: auto; /* 快捷栏容器可点击 */
+        }
+
+        .hotbar-slot {
+            width: 44px;
+            height: 44px;
+            background-color: #8B8B8B;
+            border: 2px solid #373737;
+            margin: 2px;
+            box-shadow: inset 2px 2px 0px 0px #585858; /* 快捷栏格子的内阴影 */
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+        
+        /* 快捷栏选中状态 */
+        .hotbar-slot.active::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border: 3px solid white;
+            image-rendering: pixelated; /* 保持边框锐利 */
+            pointer-events: none; /* 确保不影响点击 */
+        }
+
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="logo">
-            <div class="logo-icon">PE</div>
-            <div class="logo-text">图片编辑器</div>
+
+    <div class="game-container">
+        
+        <div class="ui-overlay">
+
+            <div class="top-bar">
+                <div class="log-output" id="log-output">Welcome!</div>
+                
+                <button class="ui-button pause-button" id="pause-button">||</button>
+            </div>
+
+            <div class="dpad-container">
+                <button class="ui-button dpad-button" id="dpad-up">▲</button>
+                <button class="ui-button dpad-button" id="dpad-left">◀</button>
+                <button class="ui-button dpad-button" id="dpad-right">▶</button>
+                <button class="ui-button dpad-button" id="dpad-down">▼</button>
+            </div>
+
+            <div class="action-buttons">
+                <button class="ui-button action-button" id="jump-button">JUMP</button>
+            </div>
+
+            <div class="hotbar-container" id="hotbar">
+                <div class="hotbar-slot active" data-index="1">Slot 1</div>
+                <div class="hotbar-slot" data-index="2">Slot 2</div>
+                <div class="hotbar-slot" data-index="3">Slot 3</div>
+                <div class="hotbar-slot" data-index="4">Slot 4</div>
+                <div class="hotbar-slot" data-index="5">Slot 5</div>
+                <div class="hotbar-slot" data-index="6">Slot 6</div>
+            </div>
+
         </div>
-        <div class="header-actions">
-            <button class="btn btn-secondary">
-                <span>导入</span>
-            </button>
-            <button class="btn btn-secondary">
-                <span>保存</span>
-            </button>
-            <button class="btn btn-primary">
-                <span>导出</span>
-            </button>
-        </div>
-    </header>
-
-    <div class="main-container">
-        <aside class="sidebar">
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">编辑工具</h3>
-                <div class="tool-grid">
-                    <button class="tool-btn active">
-                        <div class="tool-icon">✏️</div>
-                        <div class="tool-name">画笔</div>
-                    </button>
-                    <button class="tool-btn">
-                        <div class="tool-icon">🧽</div>
-                        <div class="tool-name">橡皮</div>
-                    </button>
-                    <button class="tool-btn">
-                        <div class="tool-icon">🅰️</div>
-                        <div class="tool-name">文字</div>
-                    </button>
-                    <button class="tool-btn">
-                        <div class="tool-icon">⬜</div>
-                        <div class="tool-name">形状</div>
-                    </button>
-                    <button class="tool-btn">
-                        <div class="tool-icon">🎯</div>
-                        <div class="tool-name">选择</div>
-                    </button>
-                    <button class="tool-btn">
-                        <div class="tool-icon">🌅</div>
-                        <div class="tool-name">滤镜</div>
-                    </button>
-                    <button class="tool-btn">
-                        <div class="tool-icon">✂️</div>
-                        <div class="tool-name">裁剪</div>
-                    </button>
-                    <button class="tool-btn">
-                        <div class="tool-icon">🔄</div>
-                        <div class="tool-name">旋转</div>
-                    </button>
-                    <button class="tool-btn">
-                        <div class="tool-icon">🎨</div>
-                        <div class="tool-name">调色</div>
-                    </button>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">图层</h3>
-                <div class="property-item">
-                    <div class="property-label">背景图层</div>
-                    <div class="slider-container">
-                        <input type="range" min="0" max="100" value="100" class="opacity-slider">
-                        <span class="value-display">100%</span>
-                    </div>
-                </div>
-                <div class="property-item">
-                    <div class="property-label">水印图层</div>
-                    <div class="slider-container">
-                        <input type="range" min="0" max="100" value="30" class="opacity-slider">
-                        <span class="value-display">30%</span>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <main class="canvas-container">
-            <div class="canvas-wrapper">
-                <canvas id="canvas" width="800" height="600"></canvas>
-                <div class="watermark-overlay">我的水印</div>
-            </div>
-        </main>
-
-        <aside class="properties-panel">
-            <div class="property-group">
-                <h3 class="property-title">画笔设置</h3>
-                <div class="property-item">
-                    <label class="property-label">画笔大小</label>
-                    <div class="slider-container">
-                        <input type="range" min="1" max="50" value="5" class="brush-size-slider">
-                        <span class="value-display">5px</span>
-                    </div>
-                </div>
-                <div class="property-item">
-                    <label class="property-label">画笔颜色</label>
-                    <div class="color-picker">
-                        <div class="color-preview" style="background-color: #000000;"></div>
-                        <input type="color" value="#000000" class="color-input">
-                    </div>
-                </div>
-                <div class="property-item">
-                    <label class="property-label">画笔不透明度</label>
-                    <div class="slider-container">
-                        <input type="range" min="1" max="100" value="100" class="opacity-slider">
-                        <span class="value-display">100%</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="property-group">
-                <h3 class="property-title">水印设置</h3>
-                <div class="property-item">
-                    <label class="property-label">水印文本</label>
-                    <input type="text" class="text-input" value="我的水印">
-                </div>
-                <div class="property-item">
-                    <label class="property-label">水印颜色</label>
-                    <div class="color-picker">
-                        <div class="color-preview" style="background-color: #ffffff;"></div>
-                        <input type="color" value="#ffffff" class="color-input">
-                    </div>
-                </div>
-                <div class="property-item">
-                    <label class="property-label">水印不透明度</label>
-                    <div class="slider-container">
-                        <input type="range" min="1" max="100" value="30" class="opacity-slider">
-                        <span class="value-display">30%</span>
-                    </div>
-                </div>
-                <div class="property-item">
-                    <label class="property-label">水印位置</label>
-                    <select class="dropdown">
-                        <option>右下角</option>
-                        <option>左下角</option>
-                        <option>右上角</option>
-                        <option>左上角</option>
-                        <option>居中</option>
-                    </select>
-                </div>
-                <div class="property-item">
-                    <label class="property-label">
-                        <span>启用水印</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </label>
-                </div>
-            </div>
-
-            <div class="property-group">
-                <h3 class="property-title">图像调整</h3>
-                <div class="property-item">
-                    <label class="property-label">亮度</label>
-                    <div class="slider-container">
-                        <input type="range" min="-100" max="100" value="0" class="adjustment-slider">
-                        <span class="value-display">0</span>
-                    </div>
-                </div>
-                <div class="property-item">
-                    <label class="property-label">对比度</label>
-                    <div class="slider-container">
-                        <input type="range" min="-100" max="100" value="0" class="adjustment-slider">
-                        <span class="value-display">0</span>
-                    </div>
-                </div>
-                <div class="property-item">
-                    <label class="property-label">饱和度</label>
-                    <div class="slider-container">
-                        <input type="range" min="-100" max="100" value="0" class="adjustment-slider">
-                        <span class="value-display">0</span>
-                    </div>
-                </div>
-            </div>
-        </aside>
     </div>
 
-    <footer class="footer">
-        <div class="status-info">
-            <span>尺寸: 800 × 600</span>
-            <span>格式: PNG</span>
-        </div>
-        <div class="zoom-controls">
-            <button class="zoom-btn">-</button>
-            <span class="zoom-level">100%</span>
-            <button class="zoom-btn">+</button>
-        </div>
-    </footer>
-
     <script>
-        // 初始化画布
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        // 设置初始画布背景
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // 绘制示例内容
-        ctx.fillStyle = '#0078d4';
-        ctx.fillRect(50, 50, 200, 150);
-        
-        ctx.fillStyle = '#107c10';
-        ctx.beginPath();
-        ctx.arc(400, 150, 80, 0, Math.PI * 2);
-        ctx.fill();
-        
-        ctx.fillStyle = '#e81123';
-        ctx.font = 'bold 36px Arial';
-        ctx.fillText('图片编辑器', 200, 400);
-        
-        // 更新滑块值显示
-        document.querySelectorAll('input[type="range"]').forEach(slider => {
-            const valueDisplay = slider.parentElement.querySelector('.value-display');
-            
-            // 设置初始值
-            if (slider.classList.contains('brush-size-slider')) {
-                valueDisplay.textContent = slider.value + 'px';
-            } else if (slider.classList.contains('opacity-slider') || slider.classList.contains('adjustment-slider')) {
-                valueDisplay.textContent = slider.value + (slider.classList.contains('opacity-slider') ? '%' : '');
+        document.addEventListener('DOMContentLoaded', () => {
+            const logOutput = document.getElementById('log-output');
+            let logTimer;
+
+            // 1. 日志输出函数
+            function logAction(message) {
+                // 清除上一个计时器（如果存在）
+                if (logTimer) {
+                    clearTimeout(logTimer);
+                }
+                
+                logOutput.textContent = message;
+                
+                // 2 秒后清除日志
+                logTimer = setTimeout(() => {
+                    logOutput.textContent = '';
+                }, 2000);
             }
-            
-            // 添加事件监听器
-            slider.addEventListener('input', () => {
-                if (slider.classList.contains('brush-size-slider')) {
-                    valueDisplay.textContent = slider.value + 'px';
-                } else if (slider.classList.contains('opacity-slider') || slider.classList.contains('adjustment-slider')) {
-                    valueDisplay.textContent = slider.value + (slider.classList.contains('opacity-slider') ? '%' : '');
+
+            // 2. 为所有 UI 按钮添加点击事件
+            document.querySelectorAll('.ui-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    let action = 'Unknown Action';
+                    
+                    switch (e.currentTarget.id) {
+                        case 'dpad-up':
+                            action = 'Move: Forward';
+                            break;
+                        case 'dpad-down':
+                            action = 'Move: Backward';
+                            break;
+                        case 'dpad-left':
+                            action = 'Move: Left';
+                            break;
+                        case 'dpad-right':
+                            action = 'Move: Right';
+                            break;
+                        case 'jump-button':
+                            action = 'Action: Jump!';
+                            break;
+                        case 'pause-button':
+                            action = 'Game Paused';
+                            break;
+                    }
+                    logAction(action);
+                });
+            });
+
+            // 3. 为快捷栏添加点击事件
+            const hotbar = document.getElementById('hotbar');
+            hotbar.addEventListener('click', (e) => {
+                // 检查点击的是否是 slot
+                if (e.target.classList.contains('hotbar-slot')) {
+                    const clickedSlot = e.target;
+                    
+                    // 移除所有格子的 active 状态
+                    hotbar.querySelectorAll('.hotbar-slot').forEach(slot => {
+                        slot.classList.remove('active');
+                    });
+                    
+                    // 为被点击的格子添加 active 状态
+                    clickedSlot.classList.add('active');
+                    
+                    // 在日志中显示
+                    logAction(`Selected Hotbar Slot ${clickedSlot.dataset.index}`);
                 }
             });
-        });
-        
-        // 工具按钮交互
-        document.querySelectorAll('.tool-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            });
-        });
-        
-        // 颜色预览更新
-        document.querySelectorAll('.color-input').forEach(input => {
-            const preview = input.parentElement.querySelector('.color-preview');
+
+            // 4. 阻止在控件上滑动时页面滚动 (移动端优化)
+            document.querySelector('.ui-overlay').addEventListener('touchmove', (e) => {
+                if (e.target.classList.contains('ui-button') || e.target.classList.contains('hotbar-slot')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
             
-            input.addEventListener('input', () => {
-                preview.style.backgroundColor = input.value;
-            });
+            // 初始日志
+            logAction('UI Loaded. Ready!');
         });
-        
-        // 缩放控制
-        const zoomLevel = document.querySelector('.zoom-level');
-        const zoomInBtn = document.querySelector('.zoom-controls .zoom-btn:last-child');
-        const zoomOutBtn = document.querySelector('.zoom-controls .zoom-btn:first-child');
-        
-        let currentZoom = 100;
-        
-        zoomInBtn.addEventListener('click', () => {
-            if (currentZoom < 200) {
-                currentZoom += 10;
-                zoomLevel.textContent = currentZoom + '%';
-                updateCanvasScale();
-            }
-        });
-        
-        zoomOutBtn.addEventListener('click', () => {
-            if (currentZoom > 50) {
-                currentZoom -= 10;
-                zoomLevel.textContent = currentZoom + '%';
-                updateCanvasScale();
-            }
-        });
-        
-        function updateCanvasScale() {
-            const scale = currentZoom / 100;
-            canvas.style.transform = `scale(${scale})`;
-        }
-        
-        // 响应式画布调整
-        function resizeCanvas() {
-            const container = document.querySelector('.canvas-wrapper');
-            const containerWidth = container.clientWidth;
-            const containerHeight = container.clientHeight;
-            
-            // 保持画布比例，但限制最大尺寸
-            const aspectRatio = canvas.width / canvas.height;
-            
-            if (containerWidth / aspectRatio <= containerHeight) {
-                canvas.style.width = containerWidth + 'px';
-                canvas.style.height = (containerWidth / aspectRatio) + 'px';
-            } else {
-                canvas.style.height = containerHeight + 'px';
-                canvas.style.width = (containerHeight * aspectRatio) + 'px';
-            }
-        }
-        
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
     </script>
+
 </body>
 </html>

@@ -82,7 +82,7 @@
             opacity: 0.8;
         }
         
-        /* **修复：滚石提示框样式 (使用 display 切换)** */
+        /* 滚石提示框样式 */
         #rock-hint, #omega-unlock-hint {
             position: fixed;
             top: 50%;
@@ -321,6 +321,10 @@
         const KEY_TRIGGER_THRESHOLD = 10;
         const VEIL_TRIGGER_THRESHOLD = 10; 
         
+        // **V7.0 修复：连击计时器**
+        let clickTimer = null;
+        const CLICK_TIMEOUT = 500; // 连击的最大间隔时间 (毫秒)
+        
         // --- 手柄变量 ---
         let gamepadIndex = null;
         let gamepadInterval;
@@ -346,17 +350,40 @@
         const omegaUnlockHint = document.getElementById('omega-unlock-hint');
 
 
-        // --- 1. 隐蔽触发机制 V2.2 (最终修复) ---
+        // --- 1. 隐蔽触发机制 V2.3 (触控/连击修复) ---
         
-        triggerChar.addEventListener('click', function(event) {
-            event.stopPropagation(); 
+        function handleTriggerClick(event) {
+            // V7.0：阻止默认事件，特别是移动端的触摸滚动和PC端的拖拽
+            event.stopPropagation();
+            event.preventDefault(); 
+            
             if (omegaCore.style.display !== 'none' || stygianKey.style.display === 'block') return; 
 
+            // **连击计时器逻辑：如果间隔过长，则重置计数器**
+            if (clickTimer) {
+                clearTimeout(clickTimer);
+            } else {
+                if (veilClickCount >= VEIL_TRIGGER_THRESHOLD) {
+                    veilClickCount = 0; // 状态异常保护
+                }
+            }
+            clickTimer = setTimeout(() => {
+                // 计时器超时，重置计数器
+                veilClickCount = 0; 
+                clickTimer = null;
+                console.log("Click sequence timed out. Resetting count.");
+            }, CLICK_TIMEOUT);
+            
             veilClickCount++;
             console.log("'寂' Char Click:", veilClickCount);
             
             if (veilClickCount === VEIL_TRIGGER_THRESHOLD) {
                 
+                // 触发成功，清除连击计时器
+                clearTimeout(clickTimer);
+                clickTimer = null;
+                veilClickCount = 0; // 立即重置，防止误触发
+
                 // V6.0 修复：显示提示框
                 rockHint.style.display = 'block'; 
                 setTimeout(() => { rockHint.style.opacity = '1'; }, 10); // 触发CSS过渡
@@ -370,8 +397,13 @@
                 stygianKey.style.display = 'block'; 
                 stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD})`;
             }
-        });
+        }
         
+        // V7.0 修复：同时监听 click (PC) 和 touchend (PE/Touch)
+        triggerChar.addEventListener('click', handleTriggerClick);
+        triggerChar.addEventListener('touchend', handleTriggerClick);
+
+
         // 确保点击其他地方不会干扰触发
         veilContainer.addEventListener('click', function(event) {
              if (omegaCore.style.display !== 'none') return;

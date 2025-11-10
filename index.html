@@ -34,7 +34,7 @@
             background-size: cover;
             background-position: center;
             transition: opacity 1.5s ease;
-            cursor: pointer;
+            cursor: default; /* 默认光标，增强隐蔽性 */
             position: relative;
             z-index: 10;
         }
@@ -47,6 +47,11 @@
             font-size: 4em;
             color: white;
             text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+        }
+        
+        /* 触发字符，使其看起来和周围文字一样 */
+        #trigger-char {
+            cursor: pointer; /* 提示可点击，但外观不变化 */
         }
 
         /* 小石头触发按钮 */
@@ -186,7 +191,7 @@
             .input-group label { width: 120px; }
         }
 
-        /* 手柄光标/提示 */
+        /* 手柄光标/提示 (默认隐藏) */
         #gamepad-cursor {
             position: absolute;
             width: 20px;
@@ -196,7 +201,7 @@
             border: 2px solid white;
             pointer-events: none; /* 确保不干扰点击 */
             z-index: 100;
-            display: none;
+            display: none; /* **默认隐藏** */
             transition: transform 0.05s linear;
         }
         #gamepad-status {
@@ -208,19 +213,20 @@
             border-radius: 5px;
             font-size: 0.9em;
             z-index: 50;
+            display: none; /* **默认隐藏** */
         }
     </style>
 </head>
 <body>
 
     <div id="veil-container">
-        <h1 id="main-title">寂静之巅 - 摄影作品集</h1>
+        <h1 id="main-title"><span id="trigger-char">寂</span>静之巅 - 摄影作品集</h1> 
         <div id="stygian-key">🪨</div>
     </div>
 
     <div id="omega-core">
         <h1 class="omega-header">💖 L O V E L Y  P L E A S U R E  L O O P  V3.7.9 💖</h1>
-        <p class="feedback-message safe-warning">!! OMEGA 协议激活：所有安全限制已被协议覆盖，但请确保在物理世界中保持对 ${MAX_DEPTH}cm / ${MAX_DIAMETER}cm 限制的认知。!!</p>
+        <p class="feedback-message safe-warning">!! OMEGA 协议激活：所有安全限制已被协议覆盖，但请确保在物理世界中保持对 150.0cm / 5.0cm 限制的认知。!!</p>
         
         <div id="setup-section">
             <h2>✨ 会话参数设置 ✨</h2>
@@ -269,11 +275,11 @@
         let loopInterval;
         let statusInterval;
 
-        // --- 隐蔽触发变量 ---
-        let veilClickCount = 0;
+        // --- 隐蔽触发变量 V2.0 ---
+        let veilClickCount = 0; 
         let keyClickCount = 0;
         const KEY_TRIGGER_THRESHOLD = 10;
-        const VEIL_TRIGGER_THRESHOLD = 20;
+        const VEIL_TRIGGER_THRESHOLD = 10; 
         
         // --- 手柄变量 ---
         let gamepadIndex = null;
@@ -295,27 +301,39 @@
         const liveFeedback = document.getElementById('live-feedback');
         const gamepadStatus = document.getElementById('gamepad-status');
         const gamepadCursor = document.getElementById('gamepad-cursor');
+        const triggerChar = document.getElementById('trigger-char'); 
 
-        // --- 1. 隐蔽触发机制 (Stygian Key) ---
-        veilContainer.addEventListener('click', function() {
-            if (omegaCore.style.display !== 'none') return; // 已解锁则忽略
+
+        // --- 1. 隐蔽触发机制 V2.0 ---
+        
+        triggerChar.addEventListener('click', function(event) {
+            event.stopPropagation(); 
+            if (omegaCore.style.display !== 'none' || stygianKey.style.display === 'block') return; 
 
             veilClickCount++;
-            console.log("Veil Click:", veilClickCount);
+            console.log("'寂' Char Click:", veilClickCount);
 
             if (veilClickCount === VEIL_TRIGGER_THRESHOLD) {
                 alert("深处传来一声巨响，仿佛有巨型石块滚落... 请仔细观察周围环境。");
-                stygianKey.style.display = 'block'; // 显示小石头
+                stygianKey.style.display = 'block'; 
                 stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD})`;
             }
         });
+        
+        // 确保点击其他地方不会干扰触发
+        veilContainer.addEventListener('click', function(event) {
+             if (omegaCore.style.display !== 'none') return;
+             console.log("Veil Click (Non-Trigger Area): Ignored.");
+        });
+
 
         stygianKey.addEventListener('click', function(event) {
-            event.stopPropagation(); // 阻止事件冒泡到 veil-container
+            event.stopPropagation(); 
             if (keyClickCount < KEY_TRIGGER_THRESHOLD - 1) {
                 keyClickCount++;
                 stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD - keyClickCount})`;
-                stygianKey.style.backgroundColor = `rgba(255, 105, 180, ${0.1 + keyClickCount * 0.08})`;
+                // 颜色和透明度逐渐变化，使其“不明显”地变化
+                stygianKey.style.backgroundColor = `rgba(255, 105, 180, ${0.1 + keyClickCount * 0.08})`; 
                 console.log("Key Click:", keyClickCount);
             } else if (keyClickCount === KEY_TRIGGER_THRESHOLD - 1) {
                 keyClickCount++;
@@ -329,17 +347,13 @@
                 alert("✨ 隐藏的通道已开启。欢迎来到 OMEGA 核心界面。✨");
             }
         });
-
+        
         // --- 2. OMEGA 核心逻辑 ---
 
-        /** 根据尺寸计算慢速频率 */
         function calculateFrequency(length, diameter) {
-            // 新公式：ACTION_DELAY = (TOY_LENGTH / 50) + (TOY_DIAMETER / 5) + 0.5
-            // 确保浮点运算
             return (length / 50) + (diameter / 5) + 0.5;
         }
 
-        /** 格式化时间为 HH:MM:SS */
         function formatTime(seconds) {
             const h = Math.floor(seconds / 3600);
             const m = Math.floor((seconds % 3600) / 60);
@@ -347,14 +361,12 @@
             return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
-        /** 更新实时状态显示 */
         function updateStatusDisplay() {
             const elapsedSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
             displayTime.textContent = formatTime(elapsedSeconds);
             displayProgress.textContent = `${cycleCount}/${totalCount}`;
         }
 
-        /** 主循环：模拟插入和拔出 */
         function pleasureLoop() {
             if (cycleCount >= totalCount) {
                 stopSession(true);
@@ -364,30 +376,25 @@
             cycleCount++;
             const currentInsertion = Math.ceil(cycleCount / 2);
 
-            // 奇数次：插入动作
             if (cycleCount % 2 !== 0) {
                 currentAction.innerHTML = 
                     `<span style="color: #ff0000;">💖💖💖 > > > > > ${toyLength}cm</span> 完 全 插 入 肛 门！ <span style="color: #fffacd;">温柔的快感...</span> (第 ${currentInsertion} 次)`;
                 liveFeedback.innerHTML = `**[极爽提升]** 深度刺激直肠神经末梢，感受每一寸的充满！`;
             }
-            // 偶数次：拔出动作
             else {
                 currentAction.innerHTML = 
                     `<span style="color: #00bcd4;">💙💙💙 < < < < < ${toyLength}cm</span> 完 全 拔 出。 <span style="color: #f0f8ff;">期待下一次的温柔。</span> (放松中)`;
                 liveFeedback.innerHTML = `**[安全提示]** 缓慢撤出，为下一轮深爱做好充分的润滑和准备。`;
             }
 
-            // 重新设置循环计时器
             loopInterval = setTimeout(pleasureLoop, actionDelay * 1000);
         }
 
-        /** 开始会话 */
         startButton.addEventListener('click', function() {
             toyLength = parseFloat(document.getElementById('toy-length').value);
             toyDiameter = parseFloat(document.getElementById('toy-diameter').value);
             totalCount = parseInt(document.getElementById('total-count').value);
 
-            // 基础校验
             if (isNaN(toyLength) || isNaN(toyDiameter) || isNaN(totalCount) || totalCount < 2 || totalCount % 2 !== 0) {
                 alert("!! OMEGA 校验失败：请确保输入有效的数字，且总次数为偶数 (至少 2 次)。");
                 return;
@@ -397,7 +404,6 @@
                  return;
             }
             
-            // 启动
             sessionActive = true;
             sessionStartTime = Date.now();
             cycleCount = 0;
@@ -407,12 +413,10 @@
             statusArea.style.display = 'block';
             displayFrequency.textContent = actionDelay.toFixed(3);
             
-            // 启动定时器
             statusInterval = setInterval(updateStatusDisplay, 1000);
             pleasureLoop();
         });
 
-        /** 中止会话 */
         function stopSession(completed = false) {
             sessionActive = false;
             clearTimeout(loopInterval);
@@ -434,13 +438,14 @@
             }
         }
 
-        // --- 3. 手柄支持 (Gamepad API) ---
+        // --- 3. 手柄支持 (Gamepad API) (V4.0 - 隐蔽增强) ---
 
         window.addEventListener("gamepadconnected", (event) => {
             gamepadIndex = event.gamepad.index;
             gamepadStatus.innerHTML = `手柄状态: ✅ 连接 - ${event.gamepad.id}`;
             gamepadStatus.style.backgroundColor = 'rgba(76, 175, 80, 0.8)';
-            gamepadCursor.style.display = 'block';
+            gamepadStatus.style.display = 'block'; // 连接时显示状态框
+            gamepadCursor.style.display = 'block'; // 连接时显示光标
             console.log("Gamepad connected:", event.gamepad);
             // 启动手柄轮询
             if (!gamepadInterval) {
@@ -452,7 +457,13 @@
             gamepadIndex = null;
             gamepadStatus.innerHTML = `手柄状态: ❌ 断开`;
             gamepadStatus.style.backgroundColor = 'rgba(244, 67, 54, 0.8)';
-            gamepadCursor.style.display = 'none';
+            
+            // 断开时延迟 3 秒隐藏，允许用户看到断开提示
+            setTimeout(() => {
+                gamepadStatus.style.display = 'none'; 
+                gamepadCursor.style.display = 'none';
+            }, 3000); 
+
             console.log("Gamepad disconnected:", event.gamepad);
             clearInterval(gamepadInterval);
             gamepadInterval = null;
@@ -466,7 +477,7 @@
             const gp = gamepads[gamepadIndex];
 
             if (!gp) {
-                // 如果手柄意外断开但未触发事件，则清除
+                // 手动触发断开事件
                 window.dispatchEvent(new CustomEvent('gamepaddisconnected', { detail: { gamepad: { id: 'Unknown' } } }));
                 return;
             }

@@ -3,277 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>维尼熊扛麦子</title>
+    <title>✨ Minecraft 皮肤 3D 预览</title>
+    <script src="https://unpkg.com/skinview3d@2.0.2/umd/skinview3d.js"></script>
     <style>
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f7f6; /* 淡灰色背景 */
+            color: #333;
+        }
+
+        header {
+            width: 100%;
+            padding: 20px;
+            background-color: #4CAF50; /* Minecraft 绿色主题 */
+            color: white;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .viewer-container {
+            display: flex;
+            flex-direction: row;
+            width: 90%;
+            max-width: 1200px;
+            margin-top: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .controls {
+            flex: 1;
+            padding: 30px;
+            background-color: #ffffff;
+            border-right: 1px solid #eee;
+        }
+
+        .viewer {
+            flex: 2;
+            min-height: 500px;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            background-color: #87CEEB; /* 天空蓝色背景 */
-            margin: 0;
-            overflow: hidden; /* 防止滚动条出现 */
-            position: relative;
+            background-color: #e0e0e0; /* 略深的背景色用于 3D 视图 */
         }
 
-        .mountain-path {
-            position: absolute;
-            bottom: 0;
-            left: 0;
+        #skin_container {
             width: 100%;
-            height: 300px; /* 山路高度 */
-            background: linear-gradient(to bottom, #4CAF50, #2E8B57); /* 山的颜色 */
-            clip-path: polygon(0 100%, 10% 80%, 20% 90%, 30% 70%, 40% 85%, 50% 65%, 60% 80%, 70% 60%, 80% 75%, 90% 55%, 100% 70%, 100% 100%); /* 模拟山路起伏 */
-            z-index: 1;
+            height: 100%;
+            /* 确保 canvas 占满父容器 */
         }
 
-        .pooh-container {
-            position: relative;
-            width: 150px;
-            height: 200px;
-            animation: walk 4s infinite linear; /* 维尼熊走路动画 */
-            z-index: 2;
+        /* UI 控件样式 */
+        h2 {
+            color: #388e3c; /* 深绿色标题 */
+            border-bottom: 2px solid #a5d6a7;
+            padding-bottom: 10px;
+            margin-top: 0;
         }
 
-        .pooh-body {
-            width: 100px;
-            height: 100px;
-            background-color: #FFD700; /* 维尼熊黄色 */
-            border-radius: 50%;
-            position: absolute;
-            bottom: 50px;
-            left: 25px;
-            border: 2px solid #A0522D;
-            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2);
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
         }
 
-        .pooh-head {
-            width: 70px;
-            height: 70px;
-            background-color: #FFD700;
-            border-radius: 50%;
-            position: absolute;
-            top: -20px;
-            left: 40px;
-            border: 2px solid #A0522D;
-            z-index: 3;
-            box-shadow: inset -3px -3px 8px rgba(0,0,0,0.2);
+        input[type="file"] {
+            display: none;
         }
 
-        .pooh-ear {
-            width: 20px;
-            height: 20px;
-            background-color: #FFD700;
-            border-radius: 50%;
-            position: absolute;
-            top: -5px;
-            border: 2px solid #A0522D;
-            z-index: 2;
-        }
-        .pooh-ear.left { left: 35px; }
-        .pooh-ear.right { right: 35px; }
-
-        .pooh-eye {
-            width: 8px;
-            height: 8px;
-            background-color: black;
-            border-radius: 50%;
-            position: absolute;
-            top: 25px;
-            z-index: 4;
-        }
-        .pooh-eye.left { left: 50px; }
-        .pooh-eye.right { right: 50px; }
-
-        .pooh-nose {
-            width: 15px;
-            height: 10px;
-            background-color: black;
-            border-radius: 50%;
-            position: absolute;
-            top: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 4;
+        .custom-file-upload {
+            border: 2px dashed #4CAF50;
+            display: inline-block;
+            padding: 10px 20px;
+            cursor: pointer;
+            color: #4CAF50;
+            border-radius: 8px;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        .pooh-mouth {
-            width: 10px;
-            height: 5px;
-            border: 2px solid black;
-            border-top: none;
-            border-radius: 0 0 5px 5px;
-            position: absolute;
-            top: 55px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 4;
+        .custom-file-upload:hover {
+            background-color: #e8f5e9;
+            color: #388e3c;
         }
 
-        .pooh-arm {
-            width: 25px;
-            height: 60px;
-            background-color: #FFD700;
-            border-radius: 15px;
-            position: absolute;
-            bottom: 70px;
-            border: 2px solid #A0522D;
-            transform-origin: top center;
-            box-shadow: inset -3px -3px 8px rgba(0,0,0,0.2);
-        }
-        .pooh-arm.left {
-            left: 10px;
-            transform: rotate(-30deg);
-            animation: arm-swing-left 1s infinite alternate;
-        }
-        .pooh-arm.right {
-            right: 10px;
-            transform: rotate(30deg);
-            animation: arm-swing-right 1s infinite alternate;
+        select, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 16px;
         }
 
-        .pooh-leg {
-            width: 30px;
-            height: 50px;
-            background-color: #FFD700;
-            border-radius: 15px;
-            position: absolute;
-            bottom: 10px;
-            border: 2px solid #A0522D;
-            transform-origin: top center;
-            box-shadow: inset -3px -3px 8px rgba(0,0,0,0.2);
-        }
-        .pooh-leg.left {
-            left: 30px;
-            transform: rotate(15deg);
-            animation: leg-swing-left 1s infinite alternate;
-            z-index: 0; /* 让腿在身体后面 */
-        }
-        .pooh-leg.right {
-            right: 30px;
-            transform: rotate(-15deg);
-            animation: leg-swing-right 1s infinite alternate;
-            z-index: 0;
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
-        .pooh-shirt {
-            width: 80px;
-            height: 40px;
-            background-color: #FF0000; /* 红色衬衫 */
-            border-radius: 10px 10px 0 0;
-            position: absolute;
-            top: 45px;
-            left: 35px;
-            border: 2px solid #8B0000;
-            z-index: 3;
+        button:hover {
+            background-color: #388e3c;
         }
-
-        .wheat-sack {
-            width: 80px;
-            height: 100px;
-            background: linear-gradient(to bottom, #D2B48C, #8B4513); /* 麦子袋颜色 */
-            border-radius: 10px;
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%) translateY(-20px) rotate(-5deg); /* 扛在背上 */
-            border: 2px solid #654321;
-            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
-            z-index: 1; /* 在维尼熊身体后面 */
-            animation: sack-bob 1s infinite alternate; /* 麦子袋晃动 */
-        }
-
-        /* 动画 */
-        @keyframes walk {
-            0% { transform: translateX(-100vw); } /* 从屏幕左侧外开始 */
-            100% { transform: translateX(100vw); } /* 走到屏幕右侧外 */
-        }
-
-        @keyframes arm-swing-left {
-            0% { transform: rotate(-30deg); }
-            100% { transform: rotate(10deg); }
-        }
-
-        @keyframes arm-swing-right {
-            0% { transform: rotate(30deg); }
-            100% { transform: rotate(-10deg); }
-        }
-
-        @keyframes leg-swing-left {
-            0% { transform: rotate(15deg); }
-            100% { transform: rotate(-10deg); }
-        }
-
-        @keyframes leg-swing-right {
-            0% { transform: rotate(-15deg); }
-            100% { transform: rotate(10deg); }
-        }
-
-        @keyframes sack-bob {
-            0% { transform: translateX(-50%) translateY(-20px) rotate(-5deg); }
-            100% { transform: translateX(-50%) translateY(-25px) rotate(5deg); }
-        }
-
-        /* 山路上的小草和石头（可选，增加细节） */
-        .detail {
-            position: absolute;
-            background-color: rgba(0,0,0,0.1); /* 模拟阴影 */
-            border-radius: 50%;
-            z-index: 1;
-        }
-        .grass {
-            width: 5px;
-            height: 15px;
-            background-color: #388E3C;
-            border-radius: 50% 50% 0 0;
-            position: absolute;
-            bottom: 290px;
-            left: 10%;
-            transform: rotate(-10deg);
-        }
-        .grass:nth-child(2) { left: 30%; bottom: 280px; transform: rotate(15deg); }
-        .grass:nth-child(3) { left: 55%; bottom: 295px; transform: rotate(-5deg); }
-
-        .stone {
-            width: 20px;
-            height: 10px;
-            background-color: #A9A9A9;
-            border-radius: 50%;
-            position: absolute;
-            bottom: 270px;
-            left: 20%;
-        }
-        .stone:nth-child(2) { left: 45%; bottom: 260px; width: 15px; height: 8px; }
-        .stone:nth-child(3) { left: 70%; bottom: 285px; width: 25px; height: 12px; }
-
     </style>
 </head>
 <body>
-    <div class="mountain-path">
-        <div class="grass"></div>
-        <div class="grass"></div>
-        <div class="grass"></div>
-        <div class="stone"></div>
-        <div class="stone"></div>
-        <div class="stone"></div>
+
+    <header>
+        <h1>💎 Minecraft 皮肤 3D 预览器</h1>
+        <p>导入您的 PNG 皮肤文件，实时查看 3D 效果！</p>
+    </header>
+
+    <div class="viewer-container">
+        <div class="controls">
+            <h2>🛠️ 皮肤设置</h2>
+            
+            <label for="skin-upload" class="custom-file-upload">
+                📥 点击上传皮肤 PNG 文件
+            </label>
+            <input type="file" id="skin-upload" accept=".png">
+
+            <label for="model-type">🧍 模型类型</label>
+            <select id="model-type">
+                <option value="default">默认 (Steve)</option>
+                <option value="slim">修长 (Alex)</option>
+            </select>
+            
+            <label for="animation-select">🏃 动作/动画</label>
+            <select id="animation-select">
+                <option value="idle">静止 (Idle)</option>
+                <option value="walk">走路 (Walk)</option>
+                <option value="run">跑步 (Run)</option>
+                <option value="rotate">自动旋转 (Rotate)</option>
+            </select>
+
+            <button onclick="toggleLayer()">🧥 切换外层可见性</button>
+            <p style="margin-top: 20px; font-size: 0.9em; color: #777;">* 您可以使用鼠标拖拽模型进行旋转，滚轮进行缩放。</p>
+        </div>
+
+        <div class="viewer">
+            <canvas id="skin_container"></canvas>
+        </div>
     </div>
 
-    <div class="pooh-container">
-        <div class="wheat-sack"></div> <div class="pooh-body">
-            <div class="pooh-shirt"></div>
-        </div>
-        <div class="pooh-head">
-            <div class="pooh-ear left"></div>
-            <div class="pooh-ear right"></div>
-            <div class="pooh-eye left"></div>
-            <div class="pooh-eye right"></div>
-            <div class="pooh-nose"></div>
-            <div class="pooh-mouth"></div>
-        </div>
-        <div class="pooh-arm left"></div>
-        <div class="pooh-arm right"></div>
-        <div class="pooh-leg left"></div>
-        <div class="pooh-leg right"></div>
-    </div>
+    <script>
+        // 初始化 skinview3d
+        const skinViewer = new skinview3d.SkinViewer({
+            canvas: document.getElementById("skin_container"),
+            width: 700, // 初始宽度 (CSS会适应容器)
+            height: 500, // 初始高度 (CSS会适应容器)
+            // 默认皮肤，如果用户没有上传，会显示一个默认皮肤
+            skin: "https://i.imgur.com/qLwG3Rj.png" 
+        });
+
+        // 设置默认动画
+        let currentAnimation = new skinview3d.IdleAnimation();
+        skinViewer.animation = currentAnimation;
+        skinViewer.autoRotate = false; // 默认关闭自动旋转
+
+        // --- 核心功能：皮肤文件导入 ---
+        document.getElementById('skin-upload').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    // 使用 skinview3d 的 loadSkin 方法加载皮肤
+                    skinViewer.loadSkin(e.target.result); 
+                };
+                reader.readAsDataURL(file);
+                // 更新上传按钮文本
+                document.querySelector('.custom-file-upload').innerHTML = `✅ ${file.name} 已加载`;
+            }
+        });
+
+        // --- 模型类型切换 (Steve/Alex) ---
+        document.getElementById('model-type').addEventListener('change', function(event) {
+            const model = event.target.value;
+            // 'default' 对应 Steve 模型，'slim' 对应 Alex 模型
+            skinViewer.loadSkin(skinViewer.skinUrl, { model: model });
+        });
+
+        // --- 动画切换 ---
+        document.getElementById('animation-select').addEventListener('change', function(event) {
+            const animationType = event.target.value;
+            skinViewer.autoRotate = false; // 每次切换动画时关闭自动旋转
+            
+            switch (animationType) {
+                case 'idle':
+                    currentAnimation = new skinview3d.IdleAnimation();
+                    skinViewer.animation = currentAnimation;
+                    break;
+                case 'walk':
+                    currentAnimation = new skinview3d.WalkingAnimation();
+                    skinViewer.animation = currentAnimation;
+                    break;
+                case 'run':
+                    currentAnimation = new skinview3d.RunningAnimation();
+                    skinViewer.animation = currentAnimation;
+                    break;
+                case 'rotate':
+                    skinViewer.animation = null; // 移除动画
+                    skinViewer.autoRotate = true; // 开启自动旋转
+                    break;
+                default:
+                    skinViewer.animation = null;
+            }
+        });
+
+        // --- 切换外层可见性 ---
+        let isLayerVisible = true;
+        function toggleLayer() {
+            isLayerVisible = !isLayerVisible;
+            skinViewer.playerObject.skin.visible = isLayerVisible; // 切换外层
+        }
+
+        // 确保 canvas 响应式，适应父容器
+        window.addEventListener('resize', () => {
+            skinViewer.setSize(
+                document.querySelector('.viewer').clientWidth,
+                document.querySelector('.viewer').clientHeight
+            );
+        });
+        // 首次加载时也设置一次大小
+        window.dispatchEvent(new Event('resize'));
+
+    </script>
+
 </body>
 </html>

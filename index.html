@@ -56,17 +56,19 @@
         }
         
         #trigger-char {
-            cursor: pointer; /* (已修改) 改为可点击指针 */
-            transition: text-shadow 0.1s ease-out; /* (已添加) 用于点击反馈 */
+            cursor: pointer; /* 改为可点击指针 */
+            transition: all 0.1s ease-out; /* (已修改) 用于点击反馈 */
         }
 
-        /* (已添加) "寂"字点击反馈的闪烁效果 */
+        /* (已修改) "寂"字点击反馈的闪烁效果 (更明显) */
         #trigger-char.clicked {
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
-            color: #f0f8ff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 1), 0 0 10px rgba(255, 255, 255, 0.8);
+            color: #fff;
+            opacity: 0.8;
+            transform: scale(1.05);
         }
 
-        /* (已移除) 进度条相关 CSS (progress-container, progress-bar) */
+        /* (已移除) 进度条相关 CSS */
         
         #stygian-key {
             position: absolute;
@@ -315,12 +317,10 @@
         let loopInterval;
         let statusInterval;
 
-        // --- (已修改) 隐蔽触发变量 ---
+        // --- 隐蔽触发变量 ---
         let keyClickCount = 0;
         const KEY_TRIGGER_THRESHOLD = 10; // "寂"字和"石头"都需要点击10次
-        let triggerCharClickCount = 0; // (已添加) "寂"字点击计数器
-        
-        // (已移除) 长按相关的变量 (pressTimer, startTime, animationFrameId)
+        let triggerCharClickCount = 0; // "寂"字点击计数器
         
         // --- 手柄变量 ---
         let gamepadIndex = null;
@@ -345,17 +345,14 @@
         const triggerChar = document.getElementById('trigger-char'); 
         const rockHint = document.getElementById('rock-hint'); 
         const omegaUnlockHint = document.getElementById('omega-unlock-hint');
-        // (已移除) 进度条 DOM 引用
 
 
-        // --- 1. (已修改) 隐蔽触发机制 (点击10次) ---
+        // --- 1. (已修复) 隐蔽触发机制 (点击10次) ---
 
-        // (已移除) "startPress", "endPress", "updateProgress" 函数
-
-        // (已添加) "寂"字点击事件
+        // (已修复) "寂"字点击事件
         triggerChar.addEventListener('click', function(event) {
-            event.stopPropagation(); // 阻止事件冒泡到 veilContainer
-
+            // (已移除) event.stopPropagation(); 这行代码是导致点击无效的元凶
+            
             // 如果石头已显示或核心已打开，则不执行任何操作
             if (stygianKey.style.display === 'block' || omegaCore.style.display === 'flex') {
                 return;
@@ -364,7 +361,7 @@
             triggerCharClickCount++;
             console.log(`Trigger Char Click: ${triggerCharClickCount}/${KEY_TRIGGER_THRESHOLD}`);
 
-            // (已添加) 点击反馈：闪烁
+            // 点击反馈：闪烁 (更明显的 CSS)
             triggerChar.classList.add('clicked');
             setTimeout(() => {
                 triggerChar.classList.remove('clicked');
@@ -381,12 +378,19 @@
         // 确保点击其他地方不会干扰触发
         veilContainer.addEventListener('click', function(event) {
              if (omegaCore.style.display !== 'none') return;
+             // (已修复) 检查点击目标是否为 "寂" 字，如果是则忽略，因为 "寂" 有自己的监听器
+             if (event.target === triggerChar) return;
+             
              console.log("Veil Click (Non-Trigger Area): Ignored.");
+             // (已添加) 重置 "寂" 字的点击计数，防止误触
+             triggerCharClickCount = 0;
+             console.log("Trigger Char Count Reset.");
         });
 
         // "石头"点击事件 (保持不变，阈值为10)
         stygianKey.addEventListener('click', function(event) {
-            event.stopPropagation(); 
+            event.stopPropagation(); // 在这里阻止冒泡是正确的，防止点石头重置计数
+            
             if (keyClickCount < KEY_TRIGGER_THRESHOLD - 1) {
                 keyClickCount++;
                 stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD - keyClickCount})`;
@@ -417,7 +421,6 @@
         // --- 2. OMEGA 核心逻辑 (保持不变) ---
 
         function calculateFrequency(length, diameter) {
-            // Bash 脚本逻辑：ACTION_DELAY = (TOY_LENGTH / 50) + (TOY_DIAMETER / 5) + 0.5
             return (length / 50) + (diameter / 5) + 0.5;
         }
 
@@ -443,13 +446,11 @@
             cycleCount++;
             const currentInsertion = Math.ceil(cycleCount / 2);
 
-            // 奇数次：插入动作 (Bash 脚本中的红色/插入)
             if (cycleCount % 2 !== 0) {
                 currentAction.innerHTML = 
                     `<span style="color: #ff0000;">💖💖💖 > > > > > ${toyLength}cm</span> 完 全 插 入 肛 门！ <span style="color: #fffacd;">温柔的快感...</span> (第 ${currentInsertion} 次)`;
                 liveFeedback.innerHTML = `**[极爽提升]** 深度刺激直肠神经末梢，感受每一寸的充满！`;
             }
-            // 偶数次：拔出动作 (Bash 脚本中的青色/拔出)
             else {
                 currentAction.innerHTML = 
                     `<span style="color: #00bcd4;">💙💙💙 < < < < < ${toyLength}cm</span> 完 全 拔 出。 <span style="color: #f0f8ff;">期待下一次的温柔。</span> (放松中)`;
@@ -464,12 +465,10 @@
             toyDiameter = parseFloat(document.getElementById('toy-diameter').value);
             totalCount = parseInt(document.getElementById('total-count').value);
 
-            // 校验：确保总次数为偶数 (Bash 脚本要求)
             if (isNaN(toyLength) || isNaN(toyDiameter) || isNaN(totalCount) || totalCount < 2 || totalCount % 2 !== 0) {
                 alert("!! OMEGA 校验失败：请确保输入有效的数字，且总次数为偶数 (至少 2 次)。");
                 return;
             }
-            // 校验：安全限制 (Bash 脚本要求)
             if (toyLength > MAX_DEPTH || toyDiameter > MAX_DIAMETER) {
                  alert(`!! 🚨 深度警告：尺寸超过最大限制 (${MAX_DEPTH}cm / ${MAX_DIAMETER}cm)。请修改。`);
                  return;

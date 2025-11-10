@@ -25,6 +25,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            
+            /* **核心修复：禁用文本选择/复制** */
+            -webkit-user-select: none;  
+            -moz-user-select: none;     
+            -ms-user-select: none;      
+            user-select: none;          
+            cursor: default;
         }
 
         #veil-container {
@@ -34,7 +41,6 @@
             background-size: cover;
             background-position: center;
             transition: opacity 1.5s ease;
-            cursor: default; /* 默认光标，增强隐蔽性 */
             position: relative;
             z-index: 10;
         }
@@ -51,7 +57,7 @@
         
         /* 触发字符，使其看起来和周围文字一样 */
         #trigger-char {
-            cursor: pointer; /* 提示可点击，但外观不变化 */
+            cursor: pointer; 
         }
 
         /* 小石头触发按钮 */
@@ -64,7 +70,7 @@
             background-color: var(--trigger-color);
             border-radius: 50%;
             cursor: pointer;
-            display: none; /* 初始隐藏 */
+            display: none; 
             opacity: 0.5;
             transition: background-color 0.3s, opacity 0.3s;
             z-index: 11;
@@ -77,6 +83,25 @@
         #stygian-key:hover {
             opacity: 0.8;
         }
+        
+        /* **新增：滚石提示框样式 (用于替代 alert)** */
+        #rock-hint {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 30px;
+            background-color: rgba(0, 0, 0, 0.9);
+            color: #ffb74d; 
+            border: 2px solid #ffb74d;
+            border-radius: 10px;
+            font-size: 1.5em;
+            opacity: 0; 
+            visibility: hidden;
+            transition: opacity 0.5s, visibility 0.5s;
+            z-index: 1000;
+            text-align: center;
+        }
 
         /* --- 核心应用 CSS：OMEGA Core --- */
         #omega-core {
@@ -86,7 +111,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0, 0, 0, 0.95);
-            display: none; /* 初始隐藏 */
+            display: none; 
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -174,14 +199,14 @@
         .feedback-message {
             margin-top: 10px;
             font-size: 1.1em;
-            color: #ffb74d; /* 橙色 - 提示 */
+            color: #ffb74d; 
         }
         .safe-warning {
-            color: #ef5350; /* 红色 - 警告 */
+            color: #ef5350; 
             font-weight: bold;
         }
         .pleasure-boost {
-            color: #81c784; /* 绿色 - 提升 */
+            color: #81c784; 
             font-style: italic;
         }
         
@@ -196,10 +221,10 @@
             position: absolute;
             width: 20px;
             height: 20px;
-            background-color: rgba(135, 206, 250, 0.8); /* 天蓝色 */
+            background-color: rgba(135, 206, 250, 0.8); 
             border-radius: 50%;
             border: 2px solid white;
-            pointer-events: none; /* 确保不干扰点击 */
+            pointer-events: none; 
             z-index: 100;
             display: none; /* **默认隐藏** */
             transition: transform 0.05s linear;
@@ -223,6 +248,8 @@
         <h1 id="main-title"><span id="trigger-char">寂</span>静之巅 - 摄影作品集</h1> 
         <div id="stygian-key">🪨</div>
     </div>
+    
+    <div id="rock-hint">深处传来一声巨响，仿佛有巨型石块滚落...</div>
 
     <div id="omega-core">
         <h1 class="omega-header">💖 L O V E L Y  P L E A S U R E  L O O P  V3.7.9 💖</h1>
@@ -269,7 +296,7 @@
         let totalCount = 0;
         let toyLength = 0;
         let toyDiameter = 0;
-        let actionDelay = 0.5; // 默认基础延迟
+        let actionDelay = 0.5; 
         let sessionActive = false;
         let sessionStartTime;
         let loopInterval;
@@ -302,9 +329,10 @@
         const gamepadStatus = document.getElementById('gamepad-status');
         const gamepadCursor = document.getElementById('gamepad-cursor');
         const triggerChar = document.getElementById('trigger-char'); 
+        const rockHint = document.getElementById('rock-hint'); 
 
 
-        // --- 1. 隐蔽触发机制 V2.0 ---
+        // --- 1. 隐蔽触发机制 V2.1 (修复后的寂字点击) ---
         
         triggerChar.addEventListener('click', function(event) {
             event.stopPropagation(); 
@@ -312,10 +340,23 @@
 
             veilClickCount++;
             console.log("'寂' Char Click:", veilClickCount);
+            
+            // 实时更新提示，让用户知道点击正在生效（尽管是隐蔽的）
+            if (veilClickCount <= VEIL_TRIGGER_THRESHOLD) {
+                console.log(`Remaining: ${VEIL_TRIGGER_THRESHOLD - veilClickCount}`);
+            }
 
             if (veilClickCount === VEIL_TRIGGER_THRESHOLD) {
-                alert("深处传来一声巨响，仿佛有巨型石块滚落... 请仔细观察周围环境。");
-                stygianKey.style.display = 'block'; 
+                // 显示美观的 CSS 动画提示
+                rockHint.style.opacity = '1';
+                rockHint.style.visibility = 'visible';
+                
+                setTimeout(() => {
+                    rockHint.style.opacity = '0';
+                    rockHint.style.visibility = 'hidden';
+                }, 3000); // 提示持续 3 秒
+
+                stygianKey.style.display = 'block'; // 显示小石头
                 stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD})`;
             }
         });

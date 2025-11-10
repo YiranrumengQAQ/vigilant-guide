@@ -3,451 +3,768 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>现代图片编辑器 UI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
-
+    <title>高级图片编辑器</title>
     <style>
-        /* --- 1. 核心变量 (实现暗色/亮色模式) --- */
         :root {
-            /* 亮色模式 (默认) */
-            --bg-color: #f3f3f3;
+            /* 亮色主题变量 */
+            --primary-color: #0078d4;
+            --primary-hover: #106ebe;
+            --background-color: #f3f2f1;
             --surface-color: #ffffff;
-            --surface-secondary-color: #f9f9f9;
-            --text-color: #000000;
-            --text-secondary-color: #555555;
-            --accent-color: #0078d4;
-            --border-color: #e0e0e0;
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.1);
+            --text-primary: #323130;
+            --text-secondary: #605e5c;
+            --border-color: #d2d0ce;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.08);
+            --shadow-large: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
         }
 
         @media (prefers-color-scheme: dark) {
-            /* 暗色模式 (自动识别) */
             :root {
-                --bg-color: #121212;
-                --surface-color: #1e1e1e;
-                --surface-secondary-color: #252525;
-                --text-color: #ffffff;
-                --text-secondary-color: #bbbbbb;
-                --accent-color: #4a90e2;
-                --border-color: #333333;
-                --shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-                --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.3);
+                /* 暗色主题变量 */
+                --primary-color: #0086f0;
+                --primary-hover: #0078d4;
+                --background-color: #1e1e1e;
+                --surface-color: #2d2d2d;
+                --text-primary: #ffffff;
+                --text-secondary: #cccccc;
+                --border-color: #424242;
+                --shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+                --shadow-large: 0 4px 8px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.4);
             }
         }
 
-        /* --- 2. 全局样式 (流畅感) --- */
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
         }
 
-        html, body {
-            height: 100%;
-            font-family: 'Roboto', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            /* 关键：所有颜色变化都带过渡，实现“非常流畅” */
-            transition: background-color 0.3s ease, color 0.3s ease;
-            overflow: hidden; /* 防止页面滚动 */
-        }
-
-        .material-icons-outlined {
-            font-size: 20px;
-        }
-
-        /* --- 3. 整体布局 --- */
-        .app-container {
+        body {
+            background-color: var(--background-color);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            height: 100vh;
         }
 
-        /* --- 4. 顶部导航栏 --- */
-        .app-header {
+        .header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 0 20px;
-            height: 50px;
+            align-items: center;
+            padding: 12px 24px;
             background-color: var(--surface-color);
-            border-bottom: 1px solid var(--border-color);
             box-shadow: var(--shadow);
-            flex-shrink: 0;
-        }
-        .app-header .logo {
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: var(--accent-color);
-        }
-        .app-header nav a {
-            color: var(--text-secondary-color);
-            text-decoration: none;
-            padding: 8px 12px;
-            margin-left: 8px;
-            border-radius: 5px;
-            transition: all 0.2s ease;
-        }
-        .app-header nav a:hover {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
-        .mobile-menu-toggle {
-            display: none; /* 默认隐藏，仅在PE模式显示 */
-            cursor: pointer;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        /* --- 5. 功能区 (Ribbon / "图纸条") --- */
-        .app-ribbon {
-            background-color: var(--surface-secondary-color);
-            padding: 10px 20px;
-            border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0;
-            overflow-x: auto; /* 在手机上可以横向滚动 */
-        }
-        .ribbon-tabs {
+        .logo {
             display: flex;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 10px;
+            align-items: center;
+            gap: 12px;
         }
-        .ribbon-tab {
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
             padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
             font-weight: 500;
-            color: var(--text-secondary-color);
-        }
-        .ribbon-tab.active {
-            color: var(--accent-color);
-            border-bottom-color: var(--accent-color);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .ribbon-content {
-            display: none; /* 默认隐藏所有功能面板 */
-            align-items: center;
-            gap: 20px;
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
         }
-        .ribbon-content.active {
-            display: flex; /* 只显示激活的面板 */
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
         }
-        .ribbon-group {
-            display: flex;
-            gap: 5px;
-            padding-right: 20px;
-            border-right: 1px solid var(--border-color);
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
         }
-        .ribbon-group:last-child {
-            border-right: none;
-        }
-        .ribbon-button {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: none;
-            border: none;
-            padding: 8px;
-            border-radius: 5px;
-            cursor: pointer;
-            color: var(--text-color);
-            transition: background-color 0.2s ease;
-        }
-        .ribbon-button:hover {
+
+        .btn-secondary:hover {
             background-color: rgba(0, 0, 0, 0.05);
         }
-        @media (prefers-color-scheme: dark) {
-            .ribbon-button:hover {
-                background-color: rgba(255, 255, 255, 0.05);
-            }
-        }
-        .ribbon-button span {
-            font-size: 0.75rem;
-            margin-top: 4px;
-        }
 
-        /* --- 6. 主内容区 (PC布局：左侧画布，右侧侧边栏) --- */
-        .main-content {
+        .main-container {
             display: flex;
-            flex: 1; /* 占据剩余所有空间 */
-            overflow: hidden; /* 关键：防止主内容区滚动 */
-        }
-
-        /* 6.1 画布/预览区 */
-        .editor-canvas {
             flex: 1;
-            padding: 20px;
-            display: grid;
-            place-items: center;
-            overflow: auto; /* 画布本身可以滚动 */
-        }
-        .preview-area {
-            width: 90%;
-            max-width: 800px;
-            aspect-ratio: 16 / 9; /* 保持16:9比例 */
-            background-color: var(--surface-color);
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            display: grid;
-            place-items: center;
-            color: var(--text-secondary-color);
-            font-size: 1.2rem;
-            background-image: linear-gradient(45deg, var(--border-color) 25%, transparent 25%), 
-                              linear-gradient(-45deg, var(--border-color) 25%, transparent 25%), 
-                              linear-gradient(45deg, transparent 75%, var(--border-color) 75%), 
-                              linear-gradient(-45deg, transparent 75%, var(--border-color) 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            overflow: hidden;
         }
 
-        /* 6.2 侧边栏 (自定义功能) */
-        .editor-sidebar {
+        .sidebar {
+            width: 280px;
+            background-color: var(--surface-color);
+            border-right: 1px solid var(--border-color);
+            padding: 16px;
+            overflow-y: auto;
+            transition: width 0.3s;
+        }
+
+        .sidebar-section {
+            margin-bottom: 24px;
+        }
+
+        .sidebar-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .tool-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
+        }
+
+        .tool-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .tool-btn.active {
+            background-color: rgba(0, 120, 212, 0.1);
+            color: var(--primary-color);
+        }
+
+        .tool-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .tool-name {
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .canvas-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            overflow: auto;
+            background-color: var(--background-color);
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            box-shadow: var(--shadow-large);
+            border-radius: 8px;
+            overflow: hidden;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        #canvas {
+            background-color: white;
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .watermark-overlay {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: rgba(0, 0, 0, 0.5);
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        .properties-panel {
             width: 300px;
             background-color: var(--surface-color);
             border-left: 1px solid var(--border-color);
-            padding: 20px;
-            overflow-y: auto; /* 侧边栏内容多时可滚动 */
-            flex-shrink: 0;
-            transition: width 0.3s ease, transform 0.3s ease;
+            padding: 16px;
+            overflow-y: auto;
+            transition: width 0.3s;
         }
-        .sidebar-section {
-            margin-bottom: 25px;
+
+        .property-group {
+            margin-bottom: 24px;
         }
-        .sidebar-section h3 {
-            font-size: 1rem;
-            font-weight: 500;
-            margin-bottom: 15px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid var(--border-color);
+
+        .property-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
         }
-        .form-group {
-            margin-bottom: 15px;
+
+        .property-item {
+            margin-bottom: 16px;
         }
-        .form-group label {
+
+        .property-label {
             display: block;
-            font-size: 0.9rem;
-            color: var(--text-secondary-color);
-            margin-bottom: 8px;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
         }
-        .form-group input[type="range"] {
-            width: 100%;
-            cursor: pointer;
-        }
-        .form-group input[type="text"], .form-group select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            border-radius: 5px;
-        }
-        .action-buttons {
+
+        .slider-container {
             display: flex;
-            gap: 10px;
+            align-items: center;
+            gap: 12px;
         }
-        .btn {
+
+        input[type="range"] {
             flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--border-color);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary-color);
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s ease;
         }
-        .btn-primary {
-            background-color: var(--accent-color);
-            color: white;
+
+        .value-display {
+            width: 40px;
+            text-align: center;
+            font-size: 14px;
         }
-        .btn-primary:hover {
-            opacity: 0.85;
+
+        .color-picker {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        .btn-secondary {
-            background-color: var(--surface-secondary-color);
-            color: var(--text-color);
+
+        .color-preview {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
             border: 1px solid var(--border-color);
+            cursor: pointer;
         }
-        .btn-secondary:hover {
+
+        .dropdown {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--surface-color);
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--surface-color);
+            color: var(--text-primary);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background-color: var(--border-color);
+            transition: .4s;
+            border-radius: 24px;
         }
 
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
 
-        /* --- 7. PE 布局 (响应式 / 手机端) --- */
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .footer {
+            padding: 16px 24px;
+            background-color: var(--surface-color);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .status-info {
+            display: flex;
+            gap: 16px;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .zoom-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--surface-color);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-level {
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* 移动端适配 */
         @media (max-width: 768px) {
-            .app-header nav {
-                display: none; /* 隐藏PC导航 */
-            }
-            .mobile-menu-toggle {
-                display: block; /* 显示汉堡菜单图标 */
+            .main-container {
+                flex-direction: column;
             }
 
-            .main-content {
-                flex-direction: column; /* 主区域垂直排列 */
+            .sidebar, .properties-panel {
+                width: 100%;
+                max-height: 200px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
             }
 
-            .editor-sidebar {
-                width: 100%; /* 侧边栏占满宽度 */
-                height: 40%; /* 只占屏幕下方40% */
+            .properties-panel {
                 border-left: none;
                 border-top: 1px solid var(--border-color);
-                flex-shrink: 0;
-                /* 在手机上，侧边栏会变成底部抽屉（这里简化为固定在底部） */
             }
 
-            .editor-canvas {
-                flex: 1; /* 画布占据剩余空间 */
+            .tool-grid {
+                grid-template-columns: repeat(6, 1fr);
             }
 
-            .preview-area {
-                width: 100%;
+            .header-actions .btn span {
+                display: none;
+            }
+
+            .footer {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .zoom-controls {
+                align-self: flex-end;
+            }
+        }
+
+        /* 小屏幕手机适配 */
+        @media (max-width: 480px) {
+            .tool-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .header {
+                padding: 8px 16px;
+            }
+
+            .logo-text {
+                font-size: 18px;
+            }
+
+            .canvas-container {
+                padding: 16px;
             }
         }
     </style>
 </head>
 <body>
-
-    <div class="app-container">
-
-        <header class="app-header">
-            <div class="logo">图片编辑器</div>
-            <nav>
-                <a href="#">文件</a>
-                <a href="#">视图</a>
-                <a href="#">帮助</a>
-            </nav>
-            <div class="mobile-menu-toggle">
-                <span class="material-icons-outlined">menu</span>
-            </div>
-        </header>
-
-        <nav class="app-ribbon">
-            <div class="ribbon-tabs">
-                <div class="ribbon-tab active" data-tab="home">开始</div>
-                <div class="ribbon-tab" data-tab="edit">编辑</div>
-                <div class="ribbon-tab" data-tab="watermark">水印</div>
-            </div>
-
-            <div class="ribbon-content active" id="tab-home">
-                <div class="ribbon-group">
-                    <button class="ribbon-button">
-                        <span class="material-icons-outlined">content_cut</span>
-                        <span>裁剪</span>
-                    </button>
-                    <button class="ribbon-button">
-                        <span class="material-icons-outlined">aspect_ratio</span>
-                        <span>缩放</span>
-                    </button>
-                    <button class="ribbon-button">
-                        <span class="material-icons-outlined">rotate_right</span>
-                        <span>旋转</span>
-                    </button>
-                </div>
-                <div class="ribbon-group">
-                    <button class="ribbon-button">
-                        <span class="material-icons-outlined">undo</span>
-                        <span>撤销</span>
-                    </button>
-                    <button class="ribbon-button">
-                        <span class="material-icons-outlined">redo</span>
-                        <span>重做</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="ribbon-content" id="tab-edit">
-                <div class="ribbon-group">
-                    <button class="ribbon-button">
-                        <span class="material-icons-outlined">filter_b_and_w</span>
-                        <span>滤镜</span>
-                    </button>
-                    <button class="ribbon-button">
-                        <span class="material-icons-outlined">tune</span>
-                        <span>调整</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="ribbon-content" id="tab-watermark">
-                <div class="ribbon-group">
-                    <button class="ribbon-button">
-                        <span class="material-icons-outlined">text_fields</span>
-                        <span>文字水印</span>
-                    </button>
-                    <button class="ribbon-button">
-                        <span class="material-icons-outlined">image</span>
-                        <span>图片水印</span>
-                    </button>
-                </div>
-            </div>
-        </nav>
-
-        <div class="main-content">
-
-            <main class="editor-canvas">
-                <div class="preview-area">
-                    <span>预览区域</span>
-                </div>
-            </main>
-
-            <aside class="editor-sidebar">
-                <div class="sidebar-section">
-                    <h3>图像调整</h3>
-                    <div class="form-group">
-                        <label for="brightness">亮度</label>
-                        <input type="range" id="brightness" min="0" max="100" value="50">
-                    </div>
-                    <div class="form-group">
-                        <label for="contrast">对比度</label>
-                        <input type="range" id="contrast" min="0" max="100" value="50">
-                    </div>
-                </div>
-
-                <div class="sidebar-section">
-                    <h3>水印设置</h3>
-                    <div class="form-group">
-                        <label for="watermark-text">水印文字</label>
-                        <input type="text" id="watermark-text" placeholder="输入您的水印">
-                    </div>
-                    <div class="form-group">
-                        <label for="watermark-font">字体</label>
-                        <select id="watermark-font">
-                            <option>宋体</option>
-                            <option>黑体</option>
-                            <option>Arial</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="sidebar-section">
-                    <h3>操作</h3>
-                    <div class="action-buttons">
-                        <button class="btn btn-secondary">重置</button>
-                        <button class="btn btn-primary">应用</button>
-                    </div>
-                </div>
-            </aside>
-
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">PE</div>
+            <div class="logo-text">图片编辑器</div>
         </div>
+        <div class="header-actions">
+            <button class="btn btn-secondary">
+                <span>导入</span>
+            </button>
+            <button class="btn btn-secondary">
+                <span>保存</span>
+            </button>
+            <button class="btn btn-primary">
+                <span>导出</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">编辑工具</h3>
+                <div class="tool-grid">
+                    <button class="tool-btn active">
+                        <div class="tool-icon">✏️</div>
+                        <div class="tool-name">画笔</div>
+                    </button>
+                    <button class="tool-btn">
+                        <div class="tool-icon">🧽</div>
+                        <div class="tool-name">橡皮</div>
+                    </button>
+                    <button class="tool-btn">
+                        <div class="tool-icon">🅰️</div>
+                        <div class="tool-name">文字</div>
+                    </button>
+                    <button class="tool-btn">
+                        <div class="tool-icon">⬜</div>
+                        <div class="tool-name">形状</div>
+                    </button>
+                    <button class="tool-btn">
+                        <div class="tool-icon">🎯</div>
+                        <div class="tool-name">选择</div>
+                    </button>
+                    <button class="tool-btn">
+                        <div class="tool-icon">🌅</div>
+                        <div class="tool-name">滤镜</div>
+                    </button>
+                    <button class="tool-btn">
+                        <div class="tool-icon">✂️</div>
+                        <div class="tool-name">裁剪</div>
+                    </button>
+                    <button class="tool-btn">
+                        <div class="tool-icon">🔄</div>
+                        <div class="tool-name">旋转</div>
+                    </button>
+                    <button class="tool-btn">
+                        <div class="tool-icon">🎨</div>
+                        <div class="tool-name">调色</div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">图层</h3>
+                <div class="property-item">
+                    <div class="property-label">背景图层</div>
+                    <div class="slider-container">
+                        <input type="range" min="0" max="100" value="100" class="opacity-slider">
+                        <span class="value-display">100%</span>
+                    </div>
+                </div>
+                <div class="property-item">
+                    <div class="property-label">水印图层</div>
+                    <div class="slider-container">
+                        <input type="range" min="0" max="100" value="30" class="opacity-slider">
+                        <span class="value-display">30%</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="canvas-container">
+            <div class="canvas-wrapper">
+                <canvas id="canvas" width="800" height="600"></canvas>
+                <div class="watermark-overlay">我的水印</div>
+            </div>
+        </main>
+
+        <aside class="properties-panel">
+            <div class="property-group">
+                <h3 class="property-title">画笔设置</h3>
+                <div class="property-item">
+                    <label class="property-label">画笔大小</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="50" value="5" class="brush-size-slider">
+                        <span class="value-display">5px</span>
+                    </div>
+                </div>
+                <div class="property-item">
+                    <label class="property-label">画笔颜色</label>
+                    <div class="color-picker">
+                        <div class="color-preview" style="background-color: #000000;"></div>
+                        <input type="color" value="#000000" class="color-input">
+                    </div>
+                </div>
+                <div class="property-item">
+                    <label class="property-label">画笔不透明度</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="100" value="100" class="opacity-slider">
+                        <span class="value-display">100%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="property-group">
+                <h3 class="property-title">水印设置</h3>
+                <div class="property-item">
+                    <label class="property-label">水印文本</label>
+                    <input type="text" class="text-input" value="我的水印">
+                </div>
+                <div class="property-item">
+                    <label class="property-label">水印颜色</label>
+                    <div class="color-picker">
+                        <div class="color-preview" style="background-color: #ffffff;"></div>
+                        <input type="color" value="#ffffff" class="color-input">
+                    </div>
+                </div>
+                <div class="property-item">
+                    <label class="property-label">水印不透明度</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="100" value="30" class="opacity-slider">
+                        <span class="value-display">30%</span>
+                    </div>
+                </div>
+                <div class="property-item">
+                    <label class="property-label">水印位置</label>
+                    <select class="dropdown">
+                        <option>右下角</option>
+                        <option>左下角</option>
+                        <option>右上角</option>
+                        <option>左上角</option>
+                        <option>居中</option>
+                    </select>
+                </div>
+                <div class="property-item">
+                    <label class="property-label">
+                        <span>启用水印</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </label>
+                </div>
+            </div>
+
+            <div class="property-group">
+                <h3 class="property-title">图像调整</h3>
+                <div class="property-item">
+                    <label class="property-label">亮度</label>
+                    <div class="slider-container">
+                        <input type="range" min="-100" max="100" value="0" class="adjustment-slider">
+                        <span class="value-display">0</span>
+                    </div>
+                </div>
+                <div class="property-item">
+                    <label class="property-label">对比度</label>
+                    <div class="slider-container">
+                        <input type="range" min="-100" max="100" value="0" class="adjustment-slider">
+                        <span class="value-display">0</span>
+                    </div>
+                </div>
+                <div class="property-item">
+                    <label class="property-label">饱和度</label>
+                    <div class="slider-container">
+                        <input type="range" min="-100" max="100" value="0" class="adjustment-slider">
+                        <span class="value-display">0</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
     </div>
 
+    <footer class="footer">
+        <div class="status-info">
+            <span>尺寸: 800 × 600</span>
+            <span>格式: PNG</span>
+        </div>
+        <div class="zoom-controls">
+            <button class="zoom-btn">-</button>
+            <span class="zoom-level">100%</span>
+            <button class="zoom-btn">+</button>
+        </div>
+    </footer>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const tabs = document.querySelectorAll('.ribbon-tab');
-            const contents = document.querySelectorAll('.ribbon-content');
-
-            tabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // 移除所有激活状态
-                    tabs.forEach(t => t.classList.remove('active'));
-                    contents.forEach(c => c.classList.remove('active'));
-
-                    // 添加当前点击的激活状态
-                    tab.classList.add('active');
-                    const contentId = 'tab-' + tab.getAttribute('data-tab');
-                    document.getElementById(contentId).classList.add('active');
-                });
+        // 初始化画布
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置初始画布背景
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 绘制示例内容
+        ctx.fillStyle = '#0078d4';
+        ctx.fillRect(50, 50, 200, 150);
+        
+        ctx.fillStyle = '#107c10';
+        ctx.beginPath();
+        ctx.arc(400, 150, 80, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.fillStyle = '#e81123';
+        ctx.font = 'bold 36px Arial';
+        ctx.fillText('图片编辑器', 200, 400);
+        
+        // 更新滑块值显示
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            const valueDisplay = slider.parentElement.querySelector('.value-display');
+            
+            // 设置初始值
+            if (slider.classList.contains('brush-size-slider')) {
+                valueDisplay.textContent = slider.value + 'px';
+            } else if (slider.classList.contains('opacity-slider') || slider.classList.contains('adjustment-slider')) {
+                valueDisplay.textContent = slider.value + (slider.classList.contains('opacity-slider') ? '%' : '');
+            }
+            
+            // 添加事件监听器
+            slider.addEventListener('input', () => {
+                if (slider.classList.contains('brush-size-slider')) {
+                    valueDisplay.textContent = slider.value + 'px';
+                } else if (slider.classList.contains('opacity-slider') || slider.classList.contains('adjustment-slider')) {
+                    valueDisplay.textContent = slider.value + (slider.classList.contains('opacity-slider') ? '%' : '');
+                }
             });
         });
+        
+        // 工具按钮交互
+        document.querySelectorAll('.tool-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+        
+        // 颜色预览更新
+        document.querySelectorAll('.color-input').forEach(input => {
+            const preview = input.parentElement.querySelector('.color-preview');
+            
+            input.addEventListener('input', () => {
+                preview.style.backgroundColor = input.value;
+            });
+        });
+        
+        // 缩放控制
+        const zoomLevel = document.querySelector('.zoom-level');
+        const zoomInBtn = document.querySelector('.zoom-controls .zoom-btn:last-child');
+        const zoomOutBtn = document.querySelector('.zoom-controls .zoom-btn:first-child');
+        
+        let currentZoom = 100;
+        
+        zoomInBtn.addEventListener('click', () => {
+            if (currentZoom < 200) {
+                currentZoom += 10;
+                zoomLevel.textContent = currentZoom + '%';
+                updateCanvasScale();
+            }
+        });
+        
+        zoomOutBtn.addEventListener('click', () => {
+            if (currentZoom > 50) {
+                currentZoom -= 10;
+                zoomLevel.textContent = currentZoom + '%';
+                updateCanvasScale();
+            }
+        });
+        
+        function updateCanvasScale() {
+            const scale = currentZoom / 100;
+            canvas.style.transform = `scale(${scale})`;
+        }
+        
+        // 响应式画布调整
+        function resizeCanvas() {
+            const container = document.querySelector('.canvas-wrapper');
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+            
+            // 保持画布比例，但限制最大尺寸
+            const aspectRatio = canvas.width / canvas.height;
+            
+            if (containerWidth / aspectRatio <= containerHeight) {
+                canvas.style.width = containerWidth + 'px';
+                canvas.style.height = (containerWidth / aspectRatio) + 'px';
+            } else {
+                canvas.style.height = containerHeight + 'px';
+                canvas.style.width = (containerHeight * aspectRatio) + 'px';
+            }
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
     </script>
-
 </body>
 </html>

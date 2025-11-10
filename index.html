@@ -4,537 +4,92 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Minecraft 皮肤 3D 预览</title>
-  <link rel="preconnect" href="https://unpkg.com">
   <style>
-    :root {
-      --bg: #0e0f14;
-      --panel: #151823;
-      --muted: #7b86a2;
-      --text: #e9edf7;
-      --accent: #6aa9ff;
-      --accent-2: #9b6aff;
-      --border: #2a2f3b;
-      --success: #28c58f;
-      --danger: #ff5c7a;
-    }
-
-    * { box-sizing: border-box; }
-    html, body {
-      height: 100%;
+    body {
       margin: 0;
-      background: radial-gradient(1200px 800px at 10% 10%, #121626 0%, #0e0f14 35%, #0b0c12 100%);
-      color: var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK", "Helvetica Neue", Arial, "Noto Sans", "Hiragino Sans", sans-serif;
+      font-family: sans-serif;
+      background: #0e0f14;
+      color: #fff;
     }
-
-    .app {
-      display: grid;
-      grid-template-columns: 360px minmax(300px, 1fr);
-      grid-template-rows: auto 1fr;
-      gap: 18px;
-      padding: 22px;
-      min-height: 100%;
-    }
-
-    header {
-      grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .cube {
-      width: 28px; height: 28px;
-      position: relative;
-      transform: rotateX(25deg) rotateY(-25deg);
-      filter: drop-shadow(0 6px 16px rgba(0,0,0,0.35));
-    }
-    .cube div {
-      position: absolute; inset: 0; border-radius: 6px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    }
-    .cube::before, .cube::after {
-      content: ""; position: absolute;
-      inset: 0; border-radius: 6px;
-      background: linear-gradient(135deg, #385ea8, #5f56a8);
-      transform-origin: center;
-    }
-    .cube::before { transform: translateZ(-10px) rotateX(90deg); opacity: .65; }
-    .cube::after  { transform: translateZ(-10px) rotateY(90deg); opacity: .45; }
-
-    h1 {
-      margin: 0; font-size: 18px; letter-spacing: .3px; font-weight: 640;
-    }
-    .sub {
-      color: var(--muted); font-size: 13px;
-    }
-
     .panel {
-      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0) 40%) , var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      backdrop-filter: blur(6px);
-      box-shadow: 0 10px 24px rgba(0,0,0,.35);
-    }
-
-    .controls {
-      display: grid;
-      gap: 14px;
-    }
-
-    .drop {
-      border: 1px dashed #3a4154;
-      background: rgba(255,255,255,.03);
-      border-radius: 12px;
-      padding: 18px;
-      text-align: center;
-      transition: border-color .25s, background .25s;
-    }
-    .drop.dragover {
-      border-color: var(--accent);
-      background: rgba(106,169,255,.08);
-    }
-    .drop input {
-      display: none;
-    }
-    .drop .actions {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px;
+      padding: 20px;
+      background: #151823;
+      border-radius: 10px;
+      margin: 20px;
     }
     .btn {
-      appearance: none;
-      border: 1px solid #3a4154;
-      color: var(--text);
-      background: linear-gradient(180deg, #1a1f2c, #151823);
-      padding: 10px 14px;
-      border-radius: 10px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
       cursor: pointer;
-      transition: transform .12s ease, box-shadow .25s ease, border-color .25s ease;
-      font-weight: 560;
-      font-size: 13px;
-    }
-    .btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 20px rgba(0,0,0,.35);
-      border-color: var(--accent);
-    }
-    .btn.primary {
-      border-color: transparent;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: white;
-    }
-    .hint {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-    .row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .segmented {
-      display: inline-flex;
-      border: 1px solid #3a4154;
-      border-radius: 10px;
-      overflow: hidden;
-      background: #121522;
-    }
-    .segmented input { display: none; }
-    .segmented label {
-      padding: 8px 12px;
-      cursor: pointer;
-      color: var(--muted);
-      font-size: 13px;
-      border-right: 1px solid #2a2f3b;
-      user-select: none;
-      transition: color .2s, background .2s;
-    }
-    .segmented label:last-child { border-right: none; }
-    .segmented input:checked + label {
-      background: rgba(106,169,255,.16);
-      color: var(--text);
-    }
-
-    .slider {
-      display: grid;
-      grid-template-columns: 110px 1fr 64px;
-      align-items: center;
-      gap: 10px;
-    }
-    .slider input[type="range"] {
-      width: 100%;
-      accent-color: var(--accent);
-    }
-    .slider .value {
-      text-align: right;
-      color: var(--muted);
-      font-variant-numeric: tabular-nums;
-    }
-
-    .preview {
-      position: relative;
-      min-height: 480px;
-      display: grid;
-      place-items: center;
-      overflow: hidden;
+      background: linear-gradient(135deg, #6aa9ff, #9b6aff);
+      color: #fff;
+      font-weight: bold;
     }
     canvas {
       width: 100%;
-      height: 100%;
+      height: 400px;
       display: block;
-      border-radius: 14px;
-    }
-
-    .status {
-      position: absolute;
-      bottom: 12px;
-      left: 12px;
-      background: rgba(0,0,0,.35);
-      border: 1px solid rgba(255,255,255,.08);
+      background: #222;
       border-radius: 10px;
-      padding: 8px 12px;
-      font-size: 12px;
-      color: var(--muted);
-      backdrop-filter: blur(6px);
-    }
-    .status.ready { color: var(--success); }
-    .status.error { color: var(--danger); }
-
-    .grid-bg {
-      position: absolute;
-      inset: -20%;
-      background-image:
-        radial-gradient(circle at 50% 0%, rgba(106,169,255,.12), transparent 40%),
-        linear-gradient(0deg, rgba(255,255,255,.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
-      background-size: 100% 100%, 30px 30px, 30px 30px;
-      background-position: center, center, center;
-      opacity: .35;
-      pointer-events: none;
-    }
-
-    footer {
-      grid-column: 1 / -1;
-      display: flex;
-      justify-content: center;
-      color: var(--muted);
-      font-size: 12px;
-      padding: 4px 0 12px;
-    }
-
-    @media (max-width: 980px) {
-      .app { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <div class="brand">
-        <div class="cube"><div></div></div>
-        <div>
-          <h1>Minecraft 皮肤 3D 预览</h1>
-          <div class="sub">支持导入皮肤文件，选择细手臂或粗手臂，流畅旋转与动画</div>
-        </div>
-      </div>
-    </header>
-
-    <section class="panel">
-      <div class="controls">
-        <div class="drop" id="dropzone">
-          <div>
-            <strong>拖拽皮肤 PNG 到此处</strong>
-          </div>
-          <div class="actions">
-            <button class="btn primary" id="chooseBtn">选择皮肤文件</button>
-            <input type="file" id="fileInput" accept="image/png" />
-            <button class="btn" id="resetBtn" disabled>重置</button>
-          </div>
-          <div class="hint">支持 64×64（首选）或 64×32 经典皮肤格式</div>
-        </div>
-
-        <div class="row" aria-label="模型与动画">
-          <div class="segmented" role="radiogroup" aria-label="手臂类型">
-            <input type="radio" id="armClassic" name="arm" value="classic" checked />
-            <label for="armClassic">粗手臂（Steve）</label>
-            <input type="radio" id="armSlim" name="arm" value="slim" />
-            <label for="armSlim">细手臂（Alex）</label>
-          </div>
-
-          <div class="segmented" role="radiogroup" aria-label="视图模式">
-            <input type="radio" id="viewSkin" name="view" value="skin" checked />
-            <label for="viewSkin">显示皮肤</label>
-            <input type="radio" id="viewModel" name="view" value="model" />
-            <label for="viewModel">线框模型</label>
-          </div>
-        </div>
-
-        <div class="slider">
-          <div>缩放</div>
-          <input id="zoomRange" type="range" min="0.8" max="2.0" step="0.01" value="1.15" />
-          <div class="value" id="zoomValue">1.15×</div>
-        </div>
-
-        <div class="slider">
-          <div>旋转速度</div>
-          <input id="spinRange" type="range" min="0" max="3" step="0.01" value="0.6" />
-          <div class="value" id="spinValue">0.60</div>
-        </div>
-
-        <div class="slider">
-          <div>摆动动画</div>
-          <input id="walkRange" type="range" min="0" max="2" step="0.01" value="0.8" />
-          <div class="value" id="walkValue">0.80</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="panel preview">
-      <div class="grid-bg"></div>
-      <canvas id="skinCanvas" aria-label="3D 皮肤预览" role="img"></canvas>
-      <div class="status" id="status">等待导入皮肤 PNG</div>
-    </section>
-
-    <footer>Made for Minecraft fans · 本地渲染，文件不会上传</footer>
+  <div class="panel">
+    <h1>Minecraft 皮肤 3D 预览</h1>
+    <button class="btn" id="chooseBtn">选择皮肤文件</button>
+    <input type="file" id="fileInput" accept="image/png" style="display:none" />
+    <br><br>
+    <label>
+      <input type="radio" name="arm" value="classic" checked> 粗手臂（Steve）
+    </label>
+    <label>
+      <input type="radio" name="arm" value="slim"> 细手臂（Alex）
+    </label>
+    <br><br>
+    <canvas id="skinCanvas"></canvas>
   </div>
 
-  <!-- Three.js + SkinView3D (轻量渲染 Minecraft 模型) -->
+  <!-- Three.js + SkinView3D -->
   <script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
   <script src="https://unpkg.com/skinview3d@3.0.0-beta.7/bundles/skinview3d.bundle.js"></script>
   <script>
-    // UI elements
-    const fileInput = document.getElementById('fileInput');
-    const chooseBtn = document.getElementById('chooseBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const dropzone = document.getElementById('dropzone');
-    const statusEl = document.getElementById('status');
-    const zoomRange = document.getElementById('zoomRange');
-    const zoomValue = document.getElementById('zoomValue');
-    const spinRange = document.getElementById('spinRange');
-    const spinValue = document.getElementById('spinValue');
-    const walkRange = document.getElementById('walkRange');
-    const walkValue = document.getElementById('walkValue');
-    const armClassic = document.getElementById('armClassic');
-    const armSlim = document.getElementById('armSlim');
-    const viewSkin = document.getElementById('viewSkin');
-    const viewModel = document.getElementById('viewModel');
+    document.addEventListener("DOMContentLoaded", () => {
+      const chooseBtn = document.getElementById("chooseBtn");
+      const fileInput = document.getElementById("fileInput");
+      const canvas = document.getElementById("skinCanvas");
 
-    // Canvas + SkinViewer setup
-    const canvas = document.getElementById('skinCanvas');
-    const viewer = new skinview3d.SkinViewer({
-      canvas,
-      width: canvas.clientWidth,
-      height: Math.max(420, canvas.clientHeight),
-      // 可选：背景透明以配合渐变
-      alpha: true
-    });
+      // 初始化 SkinViewer
+      const viewer = new skinview3d.SkinViewer({
+        canvas: canvas,
+        width: canvas.clientWidth,
+        height: canvas.clientHeight,
+        alpha: true
+      });
 
-    // Orbit controls
-    const controls = skinview3d.createOrbitControls(viewer);
-    controls.enableZoom = false; // 我们用滑块控制缩放
-    controls.enablePan = false;
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
+      // 添加旋转动画
+      viewer.animations.add(skinview3d.createRotatorAnimation());
 
-    // 默认相机位置与缩放
-    viewer.camera.fov = 40;
-    viewer.camera.updateProjectionMatrix();
-    viewer.zoom = parseFloat(zoomRange.value);
+      // 点击按钮触发文件选择
+      chooseBtn.addEventListener("click", () => {
+        fileInput.click();
+      });
 
-    // 平滑旋转与摆动动画
-    const rotator = viewer.animations.add(skinview3d.createRotatorAnimation());
-    rotator.speed = parseFloat(spinRange.value);
-
-    const walk = viewer.animations.add(skinview3d.createWalkingAnimation());
-    walk.speed = parseFloat(walkRange.value);
-    walk.headBobbing = true;
-
-    // 响应式尺寸
-    function resizeCanvas() {
-      const rect = canvas.getBoundingClientRect();
-      viewer.setSize(rect.width, Math.max(420, rect.height));
-    }
-    window.addEventListener('resize', () => {
-      resizeCanvas();
-      controls.update();
-    });
-    // 初始
-    resizeCanvas();
-
-    // UI bindings
-    chooseBtn.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', e => {
-      const file = e.target.files?.[0];
-      if (file) loadSkinFile(file);
-    });
-
-    resetBtn.addEventListener('click', () => {
-      viewer.skin = null;
-      viewer.playerObject.skin.visible = false;
-      viewer.playerObject.layers.forEach(layer => layer.visible = false);
-      status('已重置，等待导入皮肤 PNG');
-      resetBtn.disabled = true;
-    });
-
-    // Drag & Drop
-    ['dragenter', 'dragover'].forEach(evt =>
-      dropzone.addEventListener(evt, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzone.classList.add('dragover');
-      })
-    );
-    ['dragleave', 'drop'].forEach(evt =>
-      dropzone.addEventListener(evt, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzone.classList.remove('dragover');
-      })
-    );
-    dropzone.addEventListener('drop', (e) => {
-      const file = e.dataTransfer?.files?.[0];
-      if (file) loadSkinFile(file);
-    });
-
-    // Arm type toggle
-    armClassic.addEventListener('change', () => {
-      if (armClassic.checked) viewer.playerObject.skin.setModel(skinview3d.ModelType.CLASSIC);
-    });
-    armSlim.addEventListener('change', () => {
-      if (armSlim.checked) viewer.playerObject.skin.setModel(skinview3d.ModelType.SLIM);
-    });
-
-    // View mode toggle (texture vs wireframe)
-    viewSkin.addEventListener('change', () => setWireframe(false));
-    viewModel.addEventListener('change', () => setWireframe(true));
-
-    // Sliders
-    zoomRange.addEventListener('input', () => {
-      viewer.zoom = parseFloat(zoomRange.value);
-      zoomValue.textContent = `${parseFloat(zoomRange.value).toFixed(2)}×`;
-    });
-    spinRange.addEventListener('input', () => {
-      rotator.speed = parseFloat(spinRange.value);
-      spinValue.textContent = parseFloat(spinRange.value).toFixed(2);
-    });
-    walkRange.addEventListener('input', () => {
-      walk.speed = parseFloat(walkRange.value);
-      walkValue.textContent = parseFloat(walkRange.value).toFixed(2);
-    });
-
-    // Helpers
-    function status(message, type='') {
-      statusEl.textContent = message;
-      statusEl.classList.remove('ready', 'error');
-      if (type) statusEl.classList.add(type);
-    }
-
-    function setWireframe(enabled) {
-      const obj = viewer.playerObject;
-      obj.traverse((child) => {
-        if (child.material) {
-          if (Array.isArray(child.material)) {
-            child.material.forEach(m => m.wireframe = enabled);
-          } else {
-            child.material.wireframe = enabled;
-          }
+      // 文件选择后加载皮肤
+      fileInput.addEventListener("change", e => {
+        const file = e.target.files[0];
+        if (file) {
+          const url = URL.createObjectURL(file);
+          // 判断手臂类型
+          const armType = document.querySelector('input[name="arm"]:checked').value;
+          viewer.playerObject.skin.setModel(
+            armType === "slim" ? skinview3d.ModelType.SLIM : skinview3d.ModelType.CLASSIC
+          );
+          viewer.loadSkin(url);
         }
       });
-    }
-
-    function detectModelTypeFromSkin(img) {
-      // 简单检测：在 64x64 新格式中，手臂上层贴图宽度为 3 像素代表 SLIM
-      // 取右臂上层区域（近似位置），判断是否存在 3px 结构。
-      // 为稳妥，若无法判定则默认 CLASSIC。
-      try {
-        const w = img.naturalWidth || img.width;
-        const h = img.naturalHeight || img.height;
-        if (w === 64 && h === 64) {
-          // 基于经验：很多转换器会在 slim 皮肤的几何上层留透明列
-          const cvs = document.createElement('canvas');
-          cvs.width = 64; cvs.height = 64;
-          const ctx = cvs.getContext('2d');
-          ctx.drawImage(img, 0, 0);
-          // 采样右臂第二层贴图上侧一行（x ~ 47..55, y ~ 48）
-          let transparentCount = 0;
-          for (let x = 47; x <= 55; x++) {
-            const data = ctx.getImageData(x, 48, 1, 1).data;
-            if (data[3] < 10) transparentCount++;
-          }
-          // 如果透明较多，倾向于 SLIM（3px）
-          if (transparentCount >= 3) return skinview3d.ModelType.SLIM;
-          return skinview3d.ModelType.CLASSIC;
-        }
-      } catch (e) {}
-      return skinview3d.ModelType.CLASSIC;
-    }
-
-    async function loadSkinFile(file) {
-      if (!file || file.type !== 'image/png') {
-        status('仅支持 PNG 文件', 'error');
-        return;
-      }
-      status('导入中…');
-      const url = URL.createObjectURL(file);
-      const img = await loadImage(url).catch(() => null);
-      if (!img) {
-        status('无法读取图片文件', 'error');
-        URL.revokeObjectURL(url);
-        return;
-      }
-
-      // 适配 64×32：将其转换为 64×64（复制到新画布下半部分），避免显示错误
-      let finalURL = url;
-      const w = img.naturalWidth || img.width;
-      const h = img.naturalHeight || img.height;
-      if (w === 64 && h === 32) {
-        const c = document.createElement('canvas');
-        c.width = 64; c.height = 64;
-        const ctx = c.getContext('2d');
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(img, 0, 0);
-        // 将上半部分复制到下半部分（简单扩展，兼容显示；不做第二层贴图）
-        ctx.drawImage(c, 0, 0, 64, 32, 0, 32, 64, 32);
-        finalURL = c.toDataURL('image/png');
-      }
-
-      // 自动检测模型类型（可被 UI 覆盖）
-      const autoType = detectModelTypeFromSkin(img);
-      const isSlimUI = armSlim.checked;
-      viewer.playerObject.skin.setModel(isSlimUI ? skinview3d.ModelType.SLIM : autoType);
-
-      // 应用皮肤
-      viewer.loadSkin(finalURL).then(() => {
-        viewer.playerObject.skin.visible = true;
-        viewer.playerObject.layers.forEach(layer => layer.visible = true);
-        status('已加载皮肤', 'ready');
-        resetBtn.disabled = false;
-      }).catch(() => {
-        status('加载皮肤失败', 'error');
-      }).finally(() => {
-        URL.revokeObjectURL(url);
-      });
-    }
-
-    function loadImage(src) {
-      return new Promise((resolve, reject) => {
-        const i = new Image();
-        i.crossOrigin = 'anonymous';
-        i.onload = () => resolve(i);
-        i.onerror = reject;
-        i.src = src;
-      });
-    }
+    });
   </script>
 </body>
 </html>

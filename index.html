@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>HTML Minecraft 模拟器</title>
+    <title>HTML Minecraft 模拟器 (带史蒂夫)</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <style>
@@ -14,10 +14,9 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #333; /* 页面背景 */
+            background-color: #333;
             font-family: 'Press Start 2P', cursive;
             color: white;
-            /* 禁用默认选择和右键菜单 */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -30,11 +29,10 @@
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            /* 关键：保持像素的锐利感 */
             image-rendering: pixelated;
             image-rendering: -moz-crisp-edges;
             image-rendering: crisp-edges;
-            cursor: crosshair; /* 游戏准星 */
+            cursor: crosshair;
         }
 
         /* 3. 天空和日夜循环 */
@@ -46,23 +44,19 @@
             height: 100%;
             background-color: #87CEEB; /* 白天天空 */
             z-index: 1;
-            /* 颜色过渡动画 */
             transition: background-color 2s linear;
         }
 
-        /* 太阳和月亮 */
         .celestial-body {
             position: absolute;
             width: 80px;
             height: 80px;
             border-radius: 50%;
             z-index: 2;
-            /* 初始位置 (JS会更新) */
             top: 50%;
             left: -100px;
-            /* 居中定位 */
             transform: translate(-50%, -50%);
-            transition: transform 0.1s linear; /* 平滑移动 */
+            transition: transform 0.1s linear;
         }
 
         .sun {
@@ -80,58 +74,79 @@
             position: relative;
             z-index: 10;
             display: grid;
-            /* JS将设置 grid-template-columns 和 rows */
         }
 
         .block {
             width: 40px;
             height: 40px;
-            box-sizing: border-box; /* 边框包含在大小内 */
-            /* 模拟方块边框 */
+            box-sizing: border-box;
             border: 1px solid rgba(0, 0, 0, 0.2);
         }
 
-        /* 方块类型 */
-        .block.air {
-            background: transparent;
-            border: none;
+        .block.air { background: transparent; border: none; }
+        .block.grass { background-color: #6A994E; border-bottom: 2px solid #5C3A21; }
+        .block.dirt { background-color: #7F5539; border-color: #5C3A21; }
+        .block.stone { background-color: #808080; border-color: #606060; }
+        .block.planks { background-color: #A68A64; border-color: #8C6D46; }
+
+        /* 5. 史蒂夫 (Player) - 新增 */
+        .player {
+            position: absolute;
+            width: 32px; /* 0.8 * 40px block */
+            height: 72px; /* 1.8 * 40px block */
+            z-index: 15; /* 在方块之上 */
+            pointer-events: none; /* 允许点击穿透玩家 */
+            /* JS会设置 transform */
+        }
+        .nametag {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap; /* 防止换行 */
+            color: white;
+            /* MC风格的描边 */
+            text-shadow: 1px 1px #000, -1px -1px #000, 1px -1px #000, -1px 1px #000;
+            font-size: 10px;
+        }
+        .steve-head {
+            width: 100%;
+            height: 32px; /* 0.8 * 40px */
+            background-color: #BC8A66; /* 皮肤 */
+            border: 1px solid #795548;
+            box-sizing: border-box;
+        }
+        .steve-body {
+            width: 100%;
+            height: 28px; /* 0.7 * 40px */
+            background-color: #00AAAA; /* 青色T恤 */
+            border: 1px solid #008888;
+            box-sizing: border-box;
+        }
+        .steve-legs {
+            width: 100%;
+            height: 12px; /* 0.3 * 40px */
+            background-color: #0000AA; /* 蓝色裤子 */
+            border: 1px solid #000088;
+            box-sizing: border-box;
+        }
+        .player.facing-left {
+            transform: scaleX(-1); /* 左右翻转 */
         }
 
-        .block.grass {
-            background-color: #6A994E;
-            border-bottom: 2px solid #5C3A21; /* 底部是泥土 */
-        }
-
-        .block.dirt {
-            background-color: #7F5539;
-            border-color: #5C3A21;
-        }
-
-        .block.stone {
-            background-color: #808080;
-            border-color: #606060;
-        }
-        
-        .block.planks {
-            background-color: #A68A64;
-            border-color: #8C6D46;
-        }
-
-        /* 5. 夜间光照遮罩 */
+        /* 6. 夜间光照遮罩 */
         .night-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #00001E; /* 深蓝色 */
-            opacity: 0; /* 白天透明 */
-            z-index: 20; /* 在方块之上 */
-            pointer-events: none; /* 穿透点击 */
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: #00001E;
+            opacity: 0;
+            z-index: 20; /* 在玩家之上 */
+            pointer-events: none;
             transition: opacity 2s linear;
         }
         
-        /* 6. 底部快捷栏 (Hotbar) */
+        /* 7. 底部快捷栏 (Hotbar) */
         .hotbar-container {
             position: absolute;
             bottom: 20px;
@@ -153,17 +168,13 @@
             box-shadow: inset 2px 2px 0px 0px #585858;
             position: relative;
             cursor: pointer;
-            /* 继承方块样式 */
             box-sizing: border-box; 
         }
         
         .hotbar-slot.active::before {
             content: '';
             position: absolute;
-            top: -5px;
-            left: -5px;
-            right: -5px;
-            bottom: -5px;
+            top: -5px; left: -5px; right: -5px; bottom: -5px;
             border: 3px solid white;
             pointer-events: none;
         }
@@ -180,6 +191,13 @@
         
         <div class="world-grid" id="world-grid">
             </div>
+        
+        <div class="player" id="player">
+            <div class="nametag">summon(猫)</div>
+            <div class="steve-head"></div>
+            <div class="steve-body"></div>
+            <div class="steve-legs"></div>
+        </div>
 
         <div class="night-overlay" id="night-overlay"></div>
 
@@ -195,7 +213,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- 1. 常量和状态 ---
+            // --- 1. 常量和世界状态 ---
             const BLOCK_SIZE = 40;
             const GRID_WIDTH = Math.ceil(window.innerWidth / BLOCK_SIZE);
             const GRID_HEIGHT = Math.ceil(window.innerHeight / BLOCK_SIZE);
@@ -204,58 +222,74 @@
             const hotbar = document.getElementById('hotbar');
             const hotbarSlots = document.querySelectorAll('.hotbar-slot');
             
+            let worldData = []; // 新增：用 2D 数组存储世界, 提高碰撞检测效率
+            let selectedBlockType = 'grass';
+            
+            // --- 2. 日夜循环状态 ---
             const sky = document.getElementById('sky');
             const sun = document.getElementById('sun');
             const moon = document.getElementById('moon');
             const nightOverlay = document.getElementById('night-overlay');
+            let gameTime = 0;
+            const DAY_DURATION = 24000;
+            const TIME_SPEED = 20; // 游戏时间流逝速度 (值越小越快)
 
-            let selectedBlockType = 'grass'; // 默认选择草
-            let gameTime = 0; // 游戏时间 (0-23999)
-            const DAY_DURATION = 24000; // 游戏刻 (约 20 分钟, 这里我们加快)
-            const TICK_SPEED = 20; // 游戏刻的毫秒 (越小越快, 50ms 约等于 20 分钟一天)
+            // --- 3. 玩家状态 (新增) ---
+            const player = document.getElementById('player');
+            const PLAYER_WIDTH = 32;
+            const PLAYER_HEIGHT = 72;
+            const GRAVITY = 0.5;
+            const MOVE_SPEED = 3;
+            const JUMP_FORCE = 10;
+            
+            let playerX = 0;
+            let playerY = 0;
+            let playerVelX = 0;
+            let playerVelY = 0;
+            let isJumping = true;
+            let keys = {}; // 存储按键状态
 
-            // --- 2. 世界生成 ---
+            // --- 4. 世界生成 ---
             function generateWorld() {
-                console.log(`生成世界: ${GRID_WIDTH}x${GRID_HEIGHT}`);
                 worldGrid.style.gridTemplateColumns = `repeat(${GRID_WIDTH}, ${BLOCK_SIZE}px)`;
                 worldGrid.style.gridTemplateRows = `repeat(${GRID_HEIGHT}, ${BLOCK_SIZE}px)`;
 
-                const groundLevel = Math.floor(GRID_HEIGHT * 0.6); // 地平线在 60% 的位置
+                const groundLevel = Math.floor(GRID_HEIGHT * 0.6);
 
                 for (let y = 0; y < GRID_HEIGHT; y++) {
+                    worldData[y] = []; // 初始化行
                     for (let x = 0; x < GRID_WIDTH; x++) {
                         const block = document.createElement('div');
                         let blockType = 'air';
 
                         if (y > groundLevel) {
-                            if (y === groundLevel + 1) {
-                                blockType = 'grass';
-                            } else if (y < groundLevel + 5) {
-                                blockType = 'dirt';
-                            } else {
-                                blockType = 'stone';
-                            }
+                            if (y === groundLevel + 1) blockType = 'grass';
+                            else if (y < groundLevel + 5) blockType = 'dirt';
+                            else blockType = 'stone';
                         }
                         
                         block.className = `block ${blockType}`;
                         block.dataset.x = x;
                         block.dataset.y = y;
                         worldGrid.appendChild(block);
+                        worldData[y][x] = blockType; // 存入 2D 数组
                     }
                 }
+                
+                // 初始化玩家位置
+                playerX = (GRID_WIDTH / 2) * BLOCK_SIZE;
+                // 放在地表之上
+                playerY = (groundLevel + 1) * BLOCK_SIZE - PLAYER_HEIGHT; 
             }
 
-            // --- 3. 交互控制 ---
+            // --- 5. 交互控制 ---
             function setupControls() {
                 // A. 快捷栏点击
                 hotbar.addEventListener('click', (e) => {
                     const clickedSlot = e.target.closest('.hotbar-slot');
                     if (clickedSlot) {
-                        // 移除所有 active
                         hotbarSlots.forEach(slot => slot.classList.remove('active'));
-                        // 添加 active
                         clickedSlot.classList.add('active');
-                        // 更新选中状态
                         selectedBlockType = clickedSlot.dataset.blockType;
                     }
                 });
@@ -264,82 +298,143 @@
                 worldGrid.addEventListener('click', (e) => {
                     if (e.target.classList.contains('block')) {
                         const block = e.target;
-                        // 只能在空气中放置
                         if (block.classList.contains('air')) {
                             block.className = `block ${selectedBlockType}`;
+                            // 更新 worldData
+                            worldData[block.dataset.y][block.dataset.x] = selectedBlockType;
                         }
                     }
                 });
 
                 // C. 破坏方块 (右键)
                 worldGrid.addEventListener('contextmenu', (e) => {
-                    e.preventDefault(); // 阻止右键菜单
+                    e.preventDefault();
                     if (e.target.classList.contains('block')) {
                         const block = e.target;
-                        // 不能破坏空气
                         if (!block.classList.contains('air')) {
                             block.className = 'block air';
+                            // 更新 worldData
+                            worldData[block.dataset.y][block.dataset.x] = 'air';
                         }
                     }
                 });
+                
+                // D. 玩家移动 (按键) - 新增
+                document.addEventListener('keydown', (e) => {
+                    keys[e.key.toLowerCase()] = true;
+                });
+                
+                document.addEventListener('keyup', (e) => {
+                    keys[e.key.toLowerCase()] = false;
+                });
             }
 
-            // --- 4. 日夜循环 ---
+            // --- 6. 游戏主循环 (更新所有内容) ---
             function gameLoop() {
                 // A. 更新游戏时间
                 gameTime = (gameTime + 1) % DAY_DURATION;
                 
                 // B. 更新天空、光照和天体
                 updateCycle(gameTime);
+                
+                // C. 更新玩家位置和物理 (新增)
+                updatePlayer();
 
-                // C. 循环
-                setTimeout(gameLoop, TICK_SPEED);
+                // D. 循环
+                requestAnimationFrame(gameLoop); // 使用 requestAnimationFrame 更平滑
             }
             
+            // --- 7. 日夜循环 (不变) ---
             function updateCycle(time) {
-                const cyclePercent = time / DAY_DURATION; // 0.0 - 1.0
-
-                // B1. 天体位置 (太阳和月亮)
-                // 使用三角函数计算圆形轨迹
-                // -0.25 是为了让 0 点 (cyclePercent=0) 在东边 (x=1, y=0)
+                const cyclePercent = time / DAY_DURATION;
                 const angle = (cyclePercent - 0.25) * 2 * Math.PI;
                 const xPos = Math.cos(angle);
-                const yPos = Math.sin(angle); // y 轴反转 (上方为负)
+                const yPos = Math.sin(angle);
 
-                // 太阳
-                // 50vw 和 60vh 是轨道的半径
                 sun.style.transform = `translate(calc(50vw + ${xPos * 60}vw - 50%), calc(50vh + ${yPos * 60}vh - 50%))`;
                 
-                // 月亮 (在太阳对面)
                 const moonAngle = angle + Math.PI;
-                const moonXPos = Math.cos(moonAngle);
-                const moonYPos = Math.sin(moonAngle);
-                moon.style.transform = `translate(calc(50vw + ${moonXPos * 60}vw - 50%), calc(50vh + ${moonYPos * 60}vh - 50%))`;
-                
+                moon.style.transform = `translate(calc(50vw + ${Math.cos(moonAngle) * 60}vw - 50%), calc(50vh + ${Math.sin(moonAngle) * 60}vh - 50%))`;
 
-                // B2. 天空颜色和光照
-                let skyColor = '#87CEEB'; // 白天
-                let lightOpacity = 0; // 白天
+                let skyColor = '#87CEEB';
+                let lightOpacity = 0;
 
-                if (cyclePercent > 0.95 || cyclePercent < 0.05) { // 日出 (0.95 - 0.05)
-                    skyColor = '#FF8C00'; // 橙色
-                    lightOpacity = 0.3;
-                } else if (cyclePercent > 0.45 && cyclePercent < 0.55) { // 日落 (0.45 - 0.55)
-                    skyColor = '#FF4500'; // 橙红色
-                    lightOpacity = 0.4;
-                } else if (cyclePercent > 0.55 && cyclePercent < 0.95) { // 夜晚 (0.55 - 0.95)
-                    skyColor = '#000033'; // 深蓝色
-                    lightOpacity = 0.7;
+                if (cyclePercent > 0.95 || cyclePercent < 0.05) { // 日出
+                    skyColor = '#FF8C00'; lightOpacity = 0.3;
+                } else if (cyclePercent > 0.45 && cyclePercent < 0.55) { // 日落
+                    skyColor = '#FF4500'; lightOpacity = 0.4;
+                } else if (cyclePercent > 0.55 && cyclePercent < 0.95) { // 夜晚
+                    skyColor = '#000033'; lightOpacity = 0.7;
                 }
                 
                 sky.style.backgroundColor = skyColor;
                 nightOverlay.style.opacity = lightOpacity;
             }
 
-            // --- 5. 启动游戏 ---
+            // --- 8. 玩家更新函数 (新增) ---
+            function updatePlayer() {
+                // A. 处理左右移动
+                if (keys['a']) {
+                    playerVelX = -MOVE_SPEED;
+                    player.classList.add('facing-left'); // 翻转
+                } else if (keys['d']) {
+                    playerVelX = MOVE_SPEED;
+                    player.classList.remove('facing-left'); // 朝右
+                } else {
+                    playerVelX = 0;
+                }
+                
+                // B. 处理跳跃
+                if (keys[' '] && !isJumping) {
+                    playerVelY = -JUMP_FORCE;
+                    isJumping = true;
+                }
+
+                // C. 应用重力
+                playerVelY += GRAVITY;
+                
+                // D. 更新位置
+                playerX += playerVelX;
+                playerY += playerVelY;
+
+                // E. 碰撞检测 (简易版)
+                // 检查玩家脚下
+                let feetY = playerY + PLAYER_HEIGHT;
+                let midX = playerX + (PLAYER_WIDTH / 2);
+
+                let gridX = Math.floor(midX / BLOCK_SIZE);
+                let gridY = Math.floor(feetY / BLOCK_SIZE);
+
+                // 防止越界
+                if (gridY >= 0 && gridY < GRID_HEIGHT && gridX >= 0 && gridX < GRID_WIDTH) {
+                    // 检查脚下的方块
+                    if (playerVelY > 0 && worldData[gridY][gridX] !== 'air') {
+                        // 碰到了地面
+                        playerVelY = 0;
+                        playerY = gridY * BLOCK_SIZE - PLAYER_HEIGHT; // 停在方块顶部
+                        isJumping = false;
+                    }
+                }
+                
+                // 防止掉出世界
+                if (playerY > window.innerHeight) {
+                    // 简单重生
+                    playerY = 0;
+                    playerX = (GRID_WIDTH / 2) * BLOCK_SIZE;
+                }
+
+                // F. 更新玩家的 CSS
+                player.style.transform = `translate3d(${playerX}px, ${playerY}px, 0)`;
+            }
+
+
+            // --- 启动游戏 ---
             generateWorld();
             setupControls();
-            gameLoop();
+            
+            // 使用 requestAnimationFrame 启动游戏循环
+            // 替换之前的 setTimeout(gameLoop, TICK_SPEED);
+            gameLoop(); 
         });
     </script>
 

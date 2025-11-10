@@ -56,35 +56,18 @@
         }
         
         #trigger-char {
-            cursor: default; /* 保持隐蔽性 */
+            cursor: pointer; /* (已修改) 改为可点击指针 */
+            transition: text-shadow 0.1s ease-out; /* (已添加) 用于点击反馈 */
         }
 
-        /* --- V11.0 修改：恢复进度条视觉反馈 --- */
-        #progress-container {
-            position: absolute;
-            top: 30%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px;
-            height: 15px;
-            /* background-color: transparent; */ /* 已修复 */
-            background-color: rgba(255, 255, 255, 0.2); /* 恢复背景板 */
-            border-radius: 7px;
-            overflow: hidden;
-            z-index: 15;
-            /* display: none !important; */ /* 已修复：移除强制隐藏 */
-            display: none; /* 默认隐藏，由 JS 控制显示 */
+        /* (已添加) "寂"字点击反馈的闪烁效果 */
+        #trigger-char.clicked {
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.9);
+            color: #f0f8ff;
         }
-        #progress-bar {
-            height: 100%;
-            width: 0;
-            /* background-color: transparent; */ /* 已修复 */
-            background-color: var(--omega-pink); /* 恢复进度条颜色 */
-            /* transition: none; */ /* 已修复 */
-            transition: width 0.1s linear; /* 恢复平滑过渡 */
-        }
-        /* --- 恢复结束 --- */
 
+        /* (已移除) 进度条相关 CSS (progress-container, progress-bar) */
+        
         #stygian-key {
             position: absolute;
             bottom: 20px;
@@ -108,7 +91,6 @@
             opacity: 0.8;
         }
         
-        /* V11.0 关键：rock-hint 被强制隐藏 (保持) */
         #rock-hint {
             display: none !important;
         }
@@ -275,10 +257,6 @@
     <div id="veil-container">
         <h1 id="main-title"><span id="trigger-char">寂</span>静之巅 - 摄影作品集</h1> 
         
-        <div id="progress-container">
-            <div id="progress-bar"></div>
-        </div>
-        
         <div id="stygian-key">🪨</div>
     </div>
     
@@ -337,13 +315,12 @@
         let loopInterval;
         let statusInterval;
 
-        // --- 隐蔽触发变量 (已修复) ---
+        // --- (已修改) 隐蔽触发变量 ---
         let keyClickCount = 0;
-        const KEY_TRIGGER_THRESHOLD = 10;
-        const LONG_PRESS_DURATION = 20000; // 20 秒
-        let pressTimer = null; 
-        let startTime = 0;
-        let animationFrameId = null;
+        const KEY_TRIGGER_THRESHOLD = 10; // "寂"字和"石头"都需要点击10次
+        let triggerCharClickCount = 0; // (已添加) "寂"字点击计数器
+        
+        // (已移除) 长按相关的变量 (pressTimer, startTime, animationFrameId)
         
         // --- 手柄变量 ---
         let gamepadIndex = null;
@@ -368,84 +345,38 @@
         const triggerChar = document.getElementById('trigger-char'); 
         const rockHint = document.getElementById('rock-hint'); 
         const omegaUnlockHint = document.getElementById('omega-unlock-hint');
-        const progressBarContainer = document.getElementById('progress-container');
-        const progressBar = document.getElementById('progress-bar');
+        // (已移除) 进度条 DOM 引用
 
 
-        // --- 1. 隐蔽触发机制 (已修复) ---
-        
-        // (已修复) 恢复进度条更新逻辑
-        function updateProgress() {
-            if (pressTimer !== null) {
-                const elapsed = Date-now() - startTime;
-                const progress = Math.min(elapsed / LONG_PRESS_DURATION, 1);
-                
-                // (已修复) 更新进度条宽度
-                progressBar.style.width = (progress * 100) + '%';
-                
-                if (elapsed >= LONG_PRESS_DURATION) {
-                    endPress(true);
-                } else {
-                    // (已修复) 移除静默日志，保持计时运行
-                    animationFrameId = requestAnimationFrame(updateProgress);
-                }
+        // --- 1. (已修改) 隐蔽触发机制 (点击10次) ---
+
+        // (已移除) "startPress", "endPress", "updateProgress" 函数
+
+        // (已添加) "寂"字点击事件
+        triggerChar.addEventListener('click', function(event) {
+            event.stopPropagation(); // 阻止事件冒泡到 veilContainer
+
+            // 如果石头已显示或核心已打开，则不执行任何操作
+            if (stygianKey.style.display === 'block' || omegaCore.style.display === 'flex') {
+                return;
             }
-        }
-        
-        // (已修复) 启动计时器 (mousedown / touchstart)
-        function startPress(event) {
-            if (event.type === 'mousedown' && event.button !== 0) return; 
-            
-            event.stopPropagation();
 
-            if (omegaCore.style.display !== 'none' || stygianKey.style.display === 'block') return; 
+            triggerCharClickCount++;
+            console.log(`Trigger Char Click: ${triggerCharClickCount}/${KEY_TRIGGER_THRESHOLD}`);
 
-            // 启动
-            if (pressTimer === null) {
-                startTime = Date.now();
-                pressTimer = 1; // 标记计时器已启动
-                
-                // (已修复) 恢复视觉提示
-                progressBar.style.width = '0%';
-                progressBarContainer.style.display = 'block'; 
-                
-                animationFrameId = requestAnimationFrame(updateProgress);
-                console.log("Press timer started."); // (已修复)
-            }
-        }
-        
-        // (已修复) 结束计时器 (mouseup / touchend / mouseleave)
-        function endPress(triggered = false) {
-            if (pressTimer !== null) {
-                // 清除计时和动画
-                pressTimer = null;
-                cancelAnimationFrame(animationFrameId);
-                
-                // (已修复) 隐藏并重置进度条
-                progressBarContainer.style.display = 'none';
-                progressBar.style.width = '0%';
-                
-                console.log(`Press ended. Triggered: ${triggered}`); // (已修复)
-            }
-            
-            if (triggered) {
+            // (已添加) 点击反馈：闪烁
+            triggerChar.classList.add('clicked');
+            setTimeout(() => {
+                triggerChar.classList.remove('clicked');
+            }, 100); // 闪烁持续 100毫秒
+
+            // 达到阈值
+            if (triggerCharClickCount >= KEY_TRIGGER_THRESHOLD) {
                 // 触发成功，小石头出现
                 stygianKey.style.display = 'block'; 
                 stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD})`;
             }
-        }
-
-        // **V11.0：统一监听 PC 和 PE 的按下和抬起事件**
-        triggerChar.addEventListener('mousedown', startPress);
-        triggerChar.addEventListener('touchstart', startPress);
-        
-        // 抬起时不触发，仅重置
-        triggerChar.addEventListener('mouseup', () => endPress(false)); 
-        triggerChar.addEventListener('touchend', () => endPress(false)); 
-        triggerChar.addEventListener('mouseleave', () => endPress(false)); 
-        window.addEventListener('mouseup', () => endPress(false)); 
-        window.addEventListener('blur', () => endPress(false)); 
-
+        });
 
         // 确保点击其他地方不会干扰触发
         veilContainer.addEventListener('click', function(event) {
@@ -453,7 +384,7 @@
              console.log("Veil Click (Non-Trigger Area): Ignored.");
         });
 
-
+        // "石头"点击事件 (保持不变，阈值为10)
         stygianKey.addEventListener('click', function(event) {
             event.stopPropagation(); 
             if (keyClickCount < KEY_TRIGGER_THRESHOLD - 1) {

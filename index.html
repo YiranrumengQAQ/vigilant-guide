@@ -3,433 +3,451 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>奔跑的小火车</title>
+    <title>现代图片编辑器 UI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+
     <style>
+        /* --- 1. 核心变量 (实现暗色/亮色模式) --- */
+        :root {
+            /* 亮色模式 (默认) */
+            --bg-color: #f3f3f3;
+            --surface-color: #ffffff;
+            --surface-secondary-color: #f9f9f9;
+            --text-color: #000000;
+            --text-secondary-color: #555555;
+            --accent-color: #0078d4;
+            --border-color: #e0e0e0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            /* 暗色模式 (自动识别) */
+            :root {
+                --bg-color: #121212;
+                --surface-color: #1e1e1e;
+                --surface-secondary-color: #252525;
+                --text-color: #ffffff;
+                --text-secondary-color: #bbbbbb;
+                --accent-color: #4a90e2;
+                --border-color: #333333;
+                --shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        /* --- 2. 全局样式 (流畅感) --- */
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
-        body {
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-        }
-
-        .scene {
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 60%, #90EE90 60%, #90EE90 100%);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* 太阳 */
-        .sun {
-            width: 80px;
-            height: 80px;
-            background: radial-gradient(circle, #FFD700, #FFA500);
-            border-radius: 50%;
-            position: absolute;
-            top: 50px;
-            right: 100px;
-            box-shadow: 0 0 50px rgba(255, 215, 0, 0.6);
-            animation: glow 3s ease-in-out infinite;
-        }
-
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 50px rgba(255, 215, 0, 0.6); }
-            50% { box-shadow: 0 0 80px rgba(255, 215, 0, 0.9); }
-        }
-
-        /* 云朵 */
-        .cloud {
-            position: absolute;
-            background: white;
-            border-radius: 100px;
-            opacity: 0.9;
-        }
-
-        .cloud::before,
-        .cloud::after {
-            content: '';
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-        }
-
-        .cloud1 {
-            width: 100px;
-            height: 40px;
-            top: 80px;
-            left: 20%;
-            animation: float 20s linear infinite;
-        }
-
-        .cloud1::before {
-            width: 50px;
-            height: 50px;
-            top: -25px;
-            left: 10px;
-        }
-
-        .cloud1::after {
-            width: 60px;
-            height: 40px;
-            top: -15px;
-            right: 10px;
-        }
-
-        .cloud2 {
-            width: 120px;
-            height: 45px;
-            top: 150px;
-            left: 60%;
-            animation: float 25s linear infinite;
-        }
-
-        .cloud2::before {
-            width: 60px;
-            height: 60px;
-            top: -30px;
-            left: 15px;
-        }
-
-        .cloud2::after {
-            width: 70px;
-            height: 50px;
-            top: -20px;
-            right: 15px;
-        }
-
-        .cloud3 {
-            width: 90px;
-            height: 35px;
-            top: 120px;
-            left: 80%;
-            animation: float 18s linear infinite;
-        }
-
-        .cloud3::before {
-            width: 45px;
-            height: 45px;
-            top: -20px;
-            left: 10px;
-        }
-
-        .cloud3::after {
-            width: 55px;
-            height: 40px;
-            top: -15px;
-            right: 10px;
-        }
-
-        @keyframes float {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(100vw); }
-        }
-
-        /* 山脉 */
-        .mountains {
-            position: absolute;
-            bottom: 35%;
-            width: 100%;
-            height: 200px;
-        }
-
-        .mountain {
-            position: absolute;
-            bottom: 0;
-            width: 0;
-            height: 0;
-            border-left: 150px solid transparent;
-            border-right: 150px solid transparent;
-            border-bottom: 180px solid #8B7355;
-        }
-
-        .mountain1 { left: 10%; }
-        .mountain2 { left: 35%; opacity: 0.8; }
-        .mountain3 { left: 60%; opacity: 0.9; }
-
-        /* 铁轨 */
-        .tracks {
-            position: absolute;
-            bottom: 25%;
-            width: 100%;
-            height: 60px;
-        }
-
-        .rail {
-            position: absolute;
-            width: 100%;
-            height: 4px;
-            background: #444;
-        }
-
-        .rail-top { top: 10px; }
-        .rail-bottom { bottom: 10px; }
-
-        .sleepers {
-            position: absolute;
-            width: 100%;
+        html, body {
             height: 100%;
+            font-family: 'Roboto', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            /* 关键：所有颜色变化都带过渡，实现“非常流畅” */
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow: hidden; /* 防止页面滚动 */
+        }
+
+        .material-icons-outlined {
+            font-size: 20px;
+        }
+
+        /* --- 3. 整体布局 --- */
+        .app-container {
             display: flex;
-            justify-content: space-around;
+            flex-direction: column;
+            height: 100vh;
         }
 
-        .sleeper {
-            width: 80px;
-            height: 12px;
-            background: #8B4513;
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            border-radius: 2px;
-            animation: sleeper-move 2s linear infinite;
-        }
-
-        @keyframes sleeper-move {
-            0% { left: 100%; }
-            100% { left: -100px; }
-        }
-
-        .sleeper:nth-child(1) { animation-delay: 0s; }
-        .sleeper:nth-child(2) { animation-delay: -0.4s; }
-        .sleeper:nth-child(3) { animation-delay: -0.8s; }
-        .sleeper:nth-child(4) { animation-delay: -1.2s; }
-        .sleeper:nth-child(5) { animation-delay: -1.6s; }
-
-        /* 火车 */
-        .train {
-            position: absolute;
-            bottom: 27%;
-            left: 20%;
-            animation: train-bounce 0.3s ease-in-out infinite;
-        }
-
-        @keyframes train-bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
-        }
-
-        /* 火车头 */
-        .locomotive {
-            position: relative;
-            width: 120px;
-            height: 80px;
-        }
-
-        .engine-body {
-            position: absolute;
-            width: 90px;
+        /* --- 4. 顶部导航栏 --- */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
             height: 50px;
-            background: linear-gradient(to bottom, #DC143C, #B22222);
-            border-radius: 10px 10px 5px 5px;
-            bottom: 15px;
-            left: 15px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            flex-shrink: 0;
+        }
+        .app-header .logo {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--accent-color);
+        }
+        .app-header nav a {
+            color: var(--text-secondary-color);
+            text-decoration: none;
+            padding: 8px 12px;
+            margin-left: 8px;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+        }
+        .app-header nav a:hover {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+        .mobile-menu-toggle {
+            display: none; /* 默认隐藏，仅在PE模式显示 */
+            cursor: pointer;
         }
 
-        .cabin {
-            position: absolute;
-            width: 40px;
-            height: 35px;
-            background: linear-gradient(to bottom, #FFD700, #FFA500);
-            border-radius: 5px 5px 0 0;
-            bottom: 65px;
-            left: 40px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        /* --- 5. 功能区 (Ribbon / "图纸条") --- */
+        .app-ribbon {
+            background-color: var(--surface-secondary-color);
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+            overflow-x: auto; /* 在手机上可以横向滚动 */
+        }
+        .ribbon-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 10px;
+        }
+        .ribbon-tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            color: var(--text-secondary-color);
+        }
+        .ribbon-tab.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
         }
 
-        .window {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: #87CEEB;
-            border: 2px solid #333;
-            border-radius: 3px;
-            top: 5px;
-            left: 10px;
+        .ribbon-content {
+            display: none; /* 默认隐藏所有功能面板 */
+            align-items: center;
+            gap: 20px;
         }
-
-        .chimney {
-            position: absolute;
-            width: 15px;
-            height: 25px;
-            background: #333;
-            border-radius: 3px 3px 0 0;
-            bottom: 100px;
-            left: 20px;
+        .ribbon-content.active {
+            display: flex; /* 只显示激活的面板 */
         }
-
-        .smoke {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: #ccc;
-            border-radius: 50%;
-            bottom: 125px;
-            left: 18px;
-            animation: smoke-rise 2s ease-out infinite;
-            opacity: 0;
+        .ribbon-group {
+            display: flex;
+            gap: 5px;
+            padding-right: 20px;
+            border-right: 1px solid var(--border-color);
         }
-
-        .smoke:nth-child(2) { animation-delay: 0.5s; }
-        .smoke:nth-child(3) { animation-delay: 1s; }
-        .smoke:nth-child(4) { animation-delay: 1.5s; }
-
-        @keyframes smoke-rise {
-            0% { 
-                transform: translateY(0) scale(0.5);
-                opacity: 0.8;
+        .ribbon-group:last-child {
+            border-right: none;
+        }
+        .ribbon-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: none;
+            border: none;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: background-color 0.2s ease;
+        }
+        .ribbon-button:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        @media (prefers-color-scheme: dark) {
+            .ribbon-button:hover {
+                background-color: rgba(255, 255, 255, 0.05);
             }
-            100% { 
-                transform: translateY(-80px) scale(1.5);
-                opacity: 0;
-            }
+        }
+        .ribbon-button span {
+            font-size: 0.75rem;
+            margin-top: 4px;
         }
 
-        .wheel {
-            position: absolute;
-            width: 25px;
-            height: 25px;
-            background: #333;
-            border: 4px solid #666;
-            border-radius: 50%;
-            bottom: 0;
-            animation: wheel-spin 0.5s linear infinite;
+        /* --- 6. 主内容区 (PC布局：左侧画布，右侧侧边栏) --- */
+        .main-content {
+            display: flex;
+            flex: 1; /* 占据剩余所有空间 */
+            overflow: hidden; /* 关键：防止主内容区滚动 */
         }
 
-        @keyframes wheel-spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* 6.1 画布/预览区 */
+        .editor-canvas {
+            flex: 1;
+            padding: 20px;
+            display: grid;
+            place-items: center;
+            overflow: auto; /* 画布本身可以滚动 */
         }
-
-        .wheel1 { left: 20px; }
-        .wheel2 { left: 55px; }
-        .wheel3 { left: 85px; }
-
-        /* 车厢 */
-        .carriage {
-            position: relative;
-            width: 100px;
-            height: 60px;
-            background: linear-gradient(to bottom, #4169E1, #0000CD);
+        .preview-area {
+            width: 90%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9; /* 保持16:9比例 */
+            background-color: var(--surface-color);
             border-radius: 8px;
-            margin-left: 10px;
-            bottom: 15px;
-            display: inline-block;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            box-shadow: var(--shadow);
+            display: grid;
+            place-items: center;
+            color: var(--text-secondary-color);
+            font-size: 1.2rem;
+            background-image: linear-gradient(45deg, var(--border-color) 25%, transparent 25%), 
+                              linear-gradient(-45deg, var(--border-color) 25%, transparent 25%), 
+                              linear-gradient(45deg, transparent 75%, var(--border-color) 75%), 
+                              linear-gradient(-45deg, transparent 75%, var(--border-color) 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
 
-        .carriage-window {
-            position: absolute;
-            width: 25px;
-            height: 25px;
-            background: #87CEEB;
-            border: 2px solid #333;
-            border-radius: 3px;
-            top: 15px;
+        /* 6.2 侧边栏 (自定义功能) */
+        .editor-sidebar {
+            width: 300px;
+            background-color: var(--surface-color);
+            border-left: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto; /* 侧边栏内容多时可滚动 */
+            flex-shrink: 0;
+            transition: width 0.3s ease, transform 0.3s ease;
         }
-
-        .carriage-window:nth-child(1) { left: 15px; }
-        .carriage-window:nth-child(2) { right: 15px; }
-
-        .carriage .wheel {
-            bottom: -15px;
+        .sidebar-section {
+            margin-bottom: 25px;
         }
-
-        .carriage .wheel1 { left: 15px; }
-        .carriage .wheel2 { right: 15px; }
-
-        /* 草地装饰 */
-        .grass {
-            position: absolute;
-            bottom: 0;
+        .sidebar-section h3 {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--text-secondary-color);
+            margin-bottom: 8px;
+        }
+        .form-group input[type="range"] {
             width: 100%;
-            height: 25%;
-            background: linear-gradient(to bottom, #90EE90, #228B22);
+            cursor: pointer;
+        }
+        .form-group input[type="text"], .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border-radius: 5px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        .btn-primary:hover {
+            opacity: 0.85;
+        }
+        .btn-secondary {
+            background-color: var(--surface-secondary-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover {
+            background-color: var(--border-color);
         }
 
-        .tree {
-            position: absolute;
-            bottom: 25%;
-            font-size: 60px;
-            animation: sway 3s ease-in-out infinite;
-        }
 
-        @keyframes sway {
-            0%, 100% { transform: rotate(-2deg); }
-            50% { transform: rotate(2deg); }
-        }
+        /* --- 7. PE 布局 (响应式 / 手机端) --- */
+        @media (max-width: 768px) {
+            .app-header nav {
+                display: none; /* 隐藏PC导航 */
+            }
+            .mobile-menu-toggle {
+                display: block; /* 显示汉堡菜单图标 */
+            }
 
-        .tree1 { left: 5%; animation-delay: 0s; }
-        .tree2 { left: 85%; animation-delay: 0.5s; }
-        .tree3 { left: 92%; animation-delay: 1s; }
+            .main-content {
+                flex-direction: column; /* 主区域垂直排列 */
+            }
+
+            .editor-sidebar {
+                width: 100%; /* 侧边栏占满宽度 */
+                height: 40%; /* 只占屏幕下方40% */
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+                flex-shrink: 0;
+                /* 在手机上，侧边栏会变成底部抽屉（这里简化为固定在底部） */
+            }
+
+            .editor-canvas {
+                flex: 1; /* 画布占据剩余空间 */
+            }
+
+            .preview-area {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="scene">
-        <div class="sun"></div>
-        
-        <div class="cloud cloud1"></div>
-        <div class="cloud cloud2"></div>
-        <div class="cloud cloud3"></div>
-        
-        <div class="mountains">
-            <div class="mountain mountain1"></div>
-            <div class="mountain mountain2"></div>
-            <div class="mountain mountain3"></div>
-        </div>
-        
-        <div class="tree tree1">🌲</div>
-        <div class="tree tree2">🌲</div>
-        <div class="tree tree3">🌳</div>
-        
-        <div class="tracks">
-            <div class="rail rail-top"></div>
-            <div class="rail rail-bottom"></div>
-            <div class="sleepers">
-                <div class="sleeper"></div>
-                <div class="sleeper"></div>
-                <div class="sleeper"></div>
-                <div class="sleeper"></div>
-                <div class="sleeper"></div>
+
+    <div class="app-container">
+
+        <header class="app-header">
+            <div class="logo">图片编辑器</div>
+            <nav>
+                <a href="#">文件</a>
+                <a href="#">视图</a>
+                <a href="#">帮助</a>
+            </nav>
+            <div class="mobile-menu-toggle">
+                <span class="material-icons-outlined">menu</span>
             </div>
-        </div>
-        
-        <div class="train">
-            <div class="locomotive">
-                <div class="smoke"></div>
-                <div class="smoke"></div>
-                <div class="smoke"></div>
-                <div class="smoke"></div>
-                <div class="chimney"></div>
-                <div class="cabin">
-                    <div class="window"></div>
+        </header>
+
+        <nav class="app-ribbon">
+            <div class="ribbon-tabs">
+                <div class="ribbon-tab active" data-tab="home">开始</div>
+                <div class="ribbon-tab" data-tab="edit">编辑</div>
+                <div class="ribbon-tab" data-tab="watermark">水印</div>
+            </div>
+
+            <div class="ribbon-content active" id="tab-home">
+                <div class="ribbon-group">
+                    <button class="ribbon-button">
+                        <span class="material-icons-outlined">content_cut</span>
+                        <span>裁剪</span>
+                    </button>
+                    <button class="ribbon-button">
+                        <span class="material-icons-outlined">aspect_ratio</span>
+                        <span>缩放</span>
+                    </button>
+                    <button class="ribbon-button">
+                        <span class="material-icons-outlined">rotate_right</span>
+                        <span>旋转</span>
+                    </button>
                 </div>
-                <div class="engine-body"></div>
-                <div class="wheel wheel1"></div>
-                <div class="wheel wheel2"></div>
-                <div class="wheel wheel3"></div>
+                <div class="ribbon-group">
+                    <button class="ribbon-button">
+                        <span class="material-icons-outlined">undo</span>
+                        <span>撤销</span>
+                    </button>
+                    <button class="ribbon-button">
+                        <span class="material-icons-outlined">redo</span>
+                        <span>重做</span>
+                    </button>
+                </div>
             </div>
-            
-            <div class="carriage">
-                <div class="carriage-window"></div>
-                <div class="carriage-window"></div>
-                <div class="wheel wheel1"></div>
-                <div class="wheel wheel2"></div>
+
+            <div class="ribbon-content" id="tab-edit">
+                <div class="ribbon-group">
+                    <button class="ribbon-button">
+                        <span class="material-icons-outlined">filter_b_and_w</span>
+                        <span>滤镜</span>
+                    </button>
+                    <button class="ribbon-button">
+                        <span class="material-icons-outlined">tune</span>
+                        <span>调整</span>
+                    </button>
+                </div>
             </div>
-            
-            <div class="carriage">
-                <div class="carriage-window"></div>
-                <div class="carriage-window"></div>
-                <div class="wheel wheel1"></div>
-                <div class="wheel wheel2"></div>
+
+            <div class="ribbon-content" id="tab-watermark">
+                <div class="ribbon-group">
+                    <button class="ribbon-button">
+                        <span class="material-icons-outlined">text_fields</span>
+                        <span>文字水印</span>
+                    </button>
+                    <button class="ribbon-button">
+                        <span class="material-icons-outlined">image</span>
+                        <span>图片水印</span>
+                    </button>
+                </div>
             </div>
+        </nav>
+
+        <div class="main-content">
+
+            <main class="editor-canvas">
+                <div class="preview-area">
+                    <span>预览区域</span>
+                </div>
+            </main>
+
+            <aside class="editor-sidebar">
+                <div class="sidebar-section">
+                    <h3>图像调整</h3>
+                    <div class="form-group">
+                        <label for="brightness">亮度</label>
+                        <input type="range" id="brightness" min="0" max="100" value="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="contrast">对比度</label>
+                        <input type="range" id="contrast" min="0" max="100" value="50">
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>水印设置</h3>
+                    <div class="form-group">
+                        <label for="watermark-text">水印文字</label>
+                        <input type="text" id="watermark-text" placeholder="输入您的水印">
+                    </div>
+                    <div class="form-group">
+                        <label for="watermark-font">字体</label>
+                        <select id="watermark-font">
+                            <option>宋体</option>
+                            <option>黑体</option>
+                            <option>Arial</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>操作</h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary">重置</button>
+                        <button class="btn btn-primary">应用</button>
+                    </div>
+                </div>
+            </aside>
+
         </div>
-        
-        <div class="grass"></div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.ribbon-tab');
+            const contents = document.querySelectorAll('.ribbon-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // 移除所有激活状态
+                    tabs.forEach(t => t.classList.remove('active'));
+                    contents.forEach(c => c.classList.remove('active'));
+
+                    // 添加当前点击的激活状态
+                    tab.classList.add('active');
+                    const contentId = 'tab-' + tab.getAttribute('data-tab');
+                    document.getElementById(contentId).classList.add('active');
+                });
+            });
+        });
+    </script>
+
 </body>
 </html>

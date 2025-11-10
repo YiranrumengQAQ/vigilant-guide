@@ -59,7 +59,7 @@
             cursor: pointer; 
         }
 
-        /* V9.0 新增：进度条容器 */
+        /* V9.0：进度条容器 */
         #progress-container {
             position: absolute;
             top: 30%;
@@ -71,15 +71,14 @@
             border-radius: 7px;
             overflow: hidden;
             z-index: 15;
-            display: none; /* 默认隐藏 */
+            display: none; 
         }
         #progress-bar {
             height: 100%;
             width: 0;
             background-color: var(--omega-pink);
-            transition: width 0.1s linear; /* 线性动画 */
+            transition: width 0.1s linear; 
         }
-        /* ---------------------- */
 
         #stygian-key {
             position: absolute;
@@ -104,7 +103,7 @@
             opacity: 0.8;
         }
         
-        /* 滚石提示框样式 */
+        /* 提示框样式 */
         #rock-hint, #omega-unlock-hint {
             position: fixed;
             top: 50%;
@@ -259,7 +258,7 @@
             border: 2px solid white;
             pointer-events: none; 
             z-index: 100;
-            display: none; 
+            display: none; /* **默认隐藏** */
             transition: transform 0.05s linear;
         }
         #gamepad-status {
@@ -271,7 +270,7 @@
             border-radius: 5px;
             font-size: 0.9em;
             z-index: 50;
-            display: none; 
+            display: none; /* **默认隐藏** */
         }
     </style>
 </head>
@@ -346,7 +345,7 @@
         let keyClickCount = 0;
         const KEY_TRIGGER_THRESHOLD = 10;
         const LONG_PRESS_DURATION = 10000; // 10 秒
-        let pressTimer = null; // 用于存储计时器的引用，V9.0 中主要依赖 requestAnimationFrame
+        let pressTimer = null; // 标记计时器是否启动
         let startTime = 0;
         let animationFrameId = null;
         
@@ -394,7 +393,7 @@
             }
         }
         
-        // V9.0: 启动计时器
+        // V9.0: 启动计时器 (mousedown / touchstart)
         function startPress(event) {
             // V9.0: 确保只响应鼠标左键或触摸开始
             if (event.type === 'mousedown' && event.button !== 0) return; 
@@ -419,7 +418,7 @@
             }
         }
         
-        // V9.0: 结束计时器
+        // V9.0: 结束计时器 (mouseup / touchend / mouseleave)
         function endPress(triggered = false) {
             if (pressTimer !== null) {
                 // 清除计时和动画
@@ -492,6 +491,7 @@
         // --- 2. OMEGA 核心逻辑 (保持不变) ---
 
         function calculateFrequency(length, diameter) {
+            // Bash 脚本逻辑：ACTION_DELAY = (TOY_LENGTH / 50) + (TOY_DIAMETER / 5) + 0.5
             return (length / 50) + (diameter / 5) + 0.5;
         }
 
@@ -517,11 +517,13 @@
             cycleCount++;
             const currentInsertion = Math.ceil(cycleCount / 2);
 
+            // 奇数次：插入动作 (Bash 脚本中的红色/插入)
             if (cycleCount % 2 !== 0) {
                 currentAction.innerHTML = 
                     `<span style="color: #ff0000;">💖💖💖 > > > > > ${toyLength}cm</span> 完 全 插 入 肛 门！ <span style="color: #fffacd;">温柔的快感...</span> (第 ${currentInsertion} 次)`;
                 liveFeedback.innerHTML = `**[极爽提升]** 深度刺激直肠神经末梢，感受每一寸的充满！`;
             }
+            // 偶数次：拔出动作 (Bash 脚本中的青色/拔出)
             else {
                 currentAction.innerHTML = 
                     `<span style="color: #00bcd4;">💙💙💙 < < < < < ${toyLength}cm</span> 完 全 拔 出。 <span style="color: #f0f8ff;">期待下一次的温柔。</span> (放松中)`;
@@ -536,10 +538,12 @@
             toyDiameter = parseFloat(document.getElementById('toy-diameter').value);
             totalCount = parseInt(document.getElementById('total-count').value);
 
+            // 校验：确保总次数为偶数 (Bash 脚本要求)
             if (isNaN(toyLength) || isNaN(toyDiameter) || isNaN(totalCount) || totalCount < 2 || totalCount % 2 !== 0) {
                 alert("!! OMEGA 校验失败：请确保输入有效的数字，且总次数为偶数 (至少 2 次)。");
                 return;
             }
+            // 校验：安全限制 (Bash 脚本要求)
             if (toyLength > MAX_DEPTH || toyDiameter > MAX_DIAMETER) {
                  alert(`!! 🚨 深度警告：尺寸超过最大限制 (${MAX_DEPTH}cm / ${MAX_DIAMETER}cm)。请修改。`);
                  return;

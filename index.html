@@ -56,28 +56,28 @@
         }
         
         #trigger-char {
-            cursor: pointer; 
+            cursor: default; /* V11.0：移除点击指针，增强隐蔽性 */
         }
 
-        /* V9.0：进度条容器 */
+        /* V11.0 关键：进度条容器被强制隐藏，无视觉反馈 */
         #progress-container {
             position: absolute;
             top: 30%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             width: 300px;
             height: 15px;
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: transparent; 
             border-radius: 7px;
             overflow: hidden;
             z-index: 15;
-            display: none; 
+            display: none !important; /* 强制隐藏 */
         }
         #progress-bar {
             height: 100%;
             width: 0;
-            background-color: var(--omega-pink);
-            transition: width 0.1s linear; 
+            background-color: transparent;
+            transition: none;
         }
 
         #stygian-key {
@@ -103,36 +103,27 @@
             opacity: 0.8;
         }
         
-        /* 提示框样式 */
-        #rock-hint, #omega-unlock-hint {
+        /* V11.0 关键：rock-hint 被强制隐藏 */
+        #rock-hint {
+            display: none !important;
+        }
+        
+        /* 最终解锁提示 */
+        #omega-unlock-hint {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 1.5em;
-            display: none; 
-            opacity: 0; 
-            transition: opacity 0.5s;
-            z-index: 1000;
-            text-align: center;
-        }
-        
-        #rock-hint {
-            background-color: rgba(0, 0, 0, 0.9);
-            color: #ffb74d; 
-            border: 2px solid #ffb74d;
-        }
-        
-        #omega-unlock-hint {
             padding: 20px 40px;
             background-color: rgba(255, 105, 180, 0.95); 
             color: white; 
             border-radius: 15px;
             font-size: 2em;
+            opacity: 0; 
+            display: none;
             transition: opacity 1s;
             z-index: 2000;
+            text-align: center;
         }
 
         /* --- 核心应用 CSS：OMEGA Core --- */
@@ -258,7 +249,7 @@
             border: 2px solid white;
             pointer-events: none; 
             z-index: 100;
-            display: none; /* **默认隐藏** */
+            display: none; 
             transition: transform 0.05s linear;
         }
         #gamepad-status {
@@ -270,7 +261,7 @@
             border-radius: 5px;
             font-size: 0.9em;
             z-index: 50;
-            display: none; /* **默认隐藏** */
+            display: none; 
         }
     </style>
 </head>
@@ -341,11 +332,11 @@
         let loopInterval;
         let statusInterval;
 
-        // --- 隐蔽触发变量 V9.0 ---
+        // --- 隐蔽触发变量 V11.0 ---
         let keyClickCount = 0;
         const KEY_TRIGGER_THRESHOLD = 10;
-        const LONG_PRESS_DURATION = 10000; // 10 秒
-        let pressTimer = null; // 标记计时器是否启动
+        const LONG_PRESS_DURATION = 20000; // 20 秒
+        let pressTimer = null; 
         let startTime = 0;
         let animationFrameId = null;
         
@@ -376,28 +367,26 @@
         const progressBar = document.getElementById('progress-bar');
 
 
-        // --- 1. 隐蔽触发机制 V3.0 (长按计时修复) ---
+        // --- 1. 隐蔽触发机制 V4.0 (静默长按 20s) ---
         
-        // V9.0: 更新进度条动画
+        // V11.0: 移除进度条更新逻辑，仅保留计时
         function updateProgress() {
             if (pressTimer !== null) {
                 const elapsed = Date.now() - startTime;
-                const progress = Math.min(100, (elapsed / LONG_PRESS_DURATION) * 100);
-                progressBar.style.width = `${progress}%`;
                 
                 if (elapsed >= LONG_PRESS_DURATION) {
                     endPress(true);
                 } else {
+                    // 保持计时运行，但在控制台静默输出，外部无显示
+                    console.log(`Silent Press: ${Math.floor(elapsed/1000)}s / 20s`);
                     animationFrameId = requestAnimationFrame(updateProgress);
                 }
             }
         }
         
-        // V9.0: 启动计时器 (mousedown / touchstart)
+        // V11.0: 启动计时器 (mousedown / touchstart)
         function startPress(event) {
-            // V9.0: 确保只响应鼠标左键或触摸开始
             if (event.type === 'mousedown' && event.button !== 0) return; 
-            if (event.type === 'touchstart') event.preventDefault(); // 阻止移动端滚动/缩放
             
             event.stopPropagation();
 
@@ -406,49 +395,42 @@
             // 启动
             if (pressTimer === null) {
                 startTime = Date.now();
-                pressTimer = 1; // 标记计时器已启动，防止重复启动
+                pressTimer = 1; // 标记计时器已启动
                 
-                // 显示提示和进度条
-                progressBarContainer.style.display = 'block';
-                rockHint.style.display = 'block';
-                setTimeout(() => { rockHint.style.opacity = '1'; }, 10);
+                // V11.0 关键：不显示任何视觉提示
                 
                 animationFrameId = requestAnimationFrame(updateProgress);
-                console.log("Press timer started.");
+                console.log("Silent Press timer started.");
             }
         }
         
-        // V9.0: 结束计时器 (mouseup / touchend / mouseleave)
+        // V11.0: 结束计时器 (mouseup / touchend / mouseleave)
         function endPress(triggered = false) {
             if (pressTimer !== null) {
                 // 清除计时和动画
                 pressTimer = null;
                 cancelAnimationFrame(animationFrameId);
                 
-                // 重置进度条和隐藏提示
-                progressBar.style.width = '0%';
-                progressBarContainer.style.display = 'none';
-
-                rockHint.style.opacity = '0';
-                setTimeout(() => { rockHint.style.display = 'none'; }, 500);
+                // V11.0 关键：不显示任何视觉提示，仅在内部重置状态
+                console.log(`Silent Press ended. Triggered: ${triggered}`);
             }
             
             if (triggered) {
-                // 触发成功逻辑 (小石头出现)
+                // 触发成功，小石头出现 (这是第一个可见的反馈)
                 stygianKey.style.display = 'block'; 
                 stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD})`;
             }
         }
 
-        // **V9.0 修复：统一监听 PC 和 PE 的按下和抬起事件**
+        // **V11.0：统一监听 PC 和 PE 的按下和抬起事件**
         triggerChar.addEventListener('mousedown', startPress);
         triggerChar.addEventListener('touchstart', startPress);
         
         // 抬起时不触发，仅重置
         triggerChar.addEventListener('mouseup', () => endPress(false)); 
-        triggerChar.addEventListener('touchend', (event) => { event.preventDefault(); endPress(false); }); // 触摸抬起需要阻止默认行为
+        triggerChar.addEventListener('touchend', () => endPress(false)); // 触摸抬起时不阻止默认行为，维持隐蔽性
         triggerChar.addEventListener('mouseleave', () => endPress(false)); 
-        window.addEventListener('mouseup', () => endPress(false)); // 确保在元素外抬起鼠标也重置
+        window.addEventListener('mouseup', () => endPress(false)); 
         window.addEventListener('blur', () => endPress(false)); 
 
 

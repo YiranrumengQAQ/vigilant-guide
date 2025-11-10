@@ -3,140 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>奔跑的小火车 (外部图片版)</title>
+    <title>奔跑的小火车</title>
     <style>
-        /* 1. 基础和场景设置 */
-        body, html {
-            height: 100%;
+        * {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            overflow: hidden; /* 隐藏滚动条 */
-            background-color: #87CEEB; /* 天蓝色背景 */
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: Arial, sans-serif;
         }
 
         .scene {
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 60%, #90EE90 60%, #90EE90 100%);
             position: relative;
+            overflow: hidden;
+        }
+
+        /* 太阳 */
+        .sun {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #FFD700, #FFA500);
+            border-radius: 50%;
+            position: absolute;
+            top: 50px;
+            right: 100px;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.6);
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 50px rgba(255, 215, 0, 0.6); }
+            50% { box-shadow: 0 0 80px rgba(255, 215, 0, 0.9); }
+        }
+
+        /* 云朵 */
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 100px;
+            opacity: 0.9;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .cloud1 {
+            width: 100px;
+            height: 40px;
+            top: 80px;
+            left: 20%;
+            animation: float 20s linear infinite;
+        }
+
+        .cloud1::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud1::after {
+            width: 60px;
+            height: 40px;
+            top: -15px;
+            right: 10px;
+        }
+
+        .cloud2 {
+            width: 120px;
+            height: 45px;
+            top: 150px;
+            left: 60%;
+            animation: float 25s linear infinite;
+        }
+
+        .cloud2::before {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            left: 15px;
+        }
+
+        .cloud2::after {
+            width: 70px;
+            height: 50px;
+            top: -20px;
+            right: 15px;
+        }
+
+        .cloud3 {
+            width: 90px;
+            height: 35px;
+            top: 120px;
+            left: 80%;
+            animation: float 18s linear infinite;
+        }
+
+        .cloud3::before {
+            width: 45px;
+            height: 45px;
+            top: -20px;
+            left: 10px;
+        }
+
+        .cloud3::after {
+            width: 55px;
+            height: 40px;
+            top: -15px;
+            right: 10px;
+        }
+
+        @keyframes float {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(100vw); }
+        }
+
+        /* 山脉 */
+        .mountains {
+            position: absolute;
+            bottom: 35%;
+            width: 100%;
+            height: 200px;
+        }
+
+        .mountain {
+            position: absolute;
+            bottom: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-bottom: 180px solid #8B7355;
+        }
+
+        .mountain1 { left: 10%; }
+        .mountain2 { left: 35%; opacity: 0.8; }
+        .mountain3 { left: 60%; opacity: 0.9; }
+
+        /* 铁轨 */
+        .tracks {
+            position: absolute;
+            bottom: 25%;
+            width: 100%;
+            height: 60px;
+        }
+
+        .rail {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: #444;
+        }
+
+        .rail-top { top: 10px; }
+        .rail-bottom { bottom: 10px; }
+
+        .sleepers {
+            position: absolute;
             width: 100%;
             height: 100%;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden; /* 防止内容超出 */
+            justify-content: space-around;
         }
-        
-        h1 {
+
+        .sleeper {
+            width: 80px;
+            height: 12px;
+            background: #8B4513;
             position: absolute;
-            top: 5%;
-            color: white;
-            font-size: 3rem;
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.4);
-            z-index: 100; /* 确保标题在最前面 */
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 2px;
+            animation: sleeper-move 2s linear infinite;
         }
 
-        /* 2. 背景云朵 */
-        .cloud {
+        @keyframes sleeper-move {
+            0% { left: 100%; }
+            100% { left: -100px; }
+        }
+
+        .sleeper:nth-child(1) { animation-delay: 0s; }
+        .sleeper:nth-child(2) { animation-delay: -0.4s; }
+        .sleeper:nth-child(3) { animation-delay: -0.8s; }
+        .sleeper:nth-child(4) { animation-delay: -1.2s; }
+        .sleeper:nth-child(5) { animation-delay: -1.6s; }
+
+        /* 火车 */
+        .train {
             position: absolute;
-            width: 150px; /* 云朵大小 */
-            height: auto;
-            opacity: 0.8;
-            animation: moveClouds 30s linear infinite; /* 缓慢移动 */
-            z-index: 10;
+            bottom: 27%;
+            left: 20%;
+            animation: train-bounce 0.3s ease-in-out infinite;
         }
 
-        .cloud:nth-child(1) { top: 10%; left: -20%; animation-delay: 0s; }
-        .cloud:nth-child(2) { top: 20%; left: -50%; animation-delay: 10s; width: 200px; }
-        .cloud:nth-child(3) { top: 15%; left: -80%; animation-delay: 20s; width: 120px; }
+        @keyframes train-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
 
-        /* 3. 地面 */
-        .ground {
+        /* 火车头 */
+        .locomotive {
+            position: relative;
+            width: 120px;
+            height: 80px;
+        }
+
+        .engine-body {
+            position: absolute;
+            width: 90px;
+            height: 50px;
+            background: linear-gradient(to bottom, #DC143C, #B22222);
+            border-radius: 10px 10px 5px 5px;
+            bottom: 15px;
+            left: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .cabin {
+            position: absolute;
+            width: 40px;
+            height: 35px;
+            background: linear-gradient(to bottom, #FFD700, #FFA500);
+            border-radius: 5px 5px 0 0;
+            bottom: 65px;
+            left: 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .window {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #87CEEB;
+            border: 2px solid #333;
+            border-radius: 3px;
+            top: 5px;
+            left: 10px;
+        }
+
+        .chimney {
+            position: absolute;
+            width: 15px;
+            height: 25px;
+            background: #333;
+            border-radius: 3px 3px 0 0;
+            bottom: 100px;
+            left: 20px;
+        }
+
+        .smoke {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ccc;
+            border-radius: 50%;
+            bottom: 125px;
+            left: 18px;
+            animation: smoke-rise 2s ease-out infinite;
+            opacity: 0;
+        }
+
+        .smoke:nth-child(2) { animation-delay: 0.5s; }
+        .smoke:nth-child(3) { animation-delay: 1s; }
+        .smoke:nth-child(4) { animation-delay: 1.5s; }
+
+        @keyframes smoke-rise {
+            0% { 
+                transform: translateY(0) scale(0.5);
+                opacity: 0.8;
+            }
+            100% { 
+                transform: translateY(-80px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .wheel {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: #333;
+            border: 4px solid #666;
+            border-radius: 50%;
+            bottom: 0;
+            animation: wheel-spin 0.5s linear infinite;
+        }
+
+        @keyframes wheel-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .wheel1 { left: 20px; }
+        .wheel2 { left: 55px; }
+        .wheel3 { left: 85px; }
+
+        /* 车厢 */
+        .carriage {
+            position: relative;
+            width: 100px;
+            height: 60px;
+            background: linear-gradient(to bottom, #4169E1, #0000CD);
+            border-radius: 8px;
+            margin-left: 10px;
+            bottom: 15px;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .carriage-window {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: #87CEEB;
+            border: 2px solid #333;
+            border-radius: 3px;
+            top: 15px;
+        }
+
+        .carriage-window:nth-child(1) { left: 15px; }
+        .carriage-window:nth-child(2) { right: 15px; }
+
+        .carriage .wheel {
+            bottom: -15px;
+        }
+
+        .carriage .wheel1 { left: 15px; }
+        .carriage .wheel2 { right: 15px; }
+
+        /* 草地装饰 */
+        .grass {
             position: absolute;
             bottom: 0;
             width: 100%;
-            height: 35%; /* 占屏幕高度的35% */
-            background-image: url('https://i.ibb.co/L519V1g/grass-texture.png'); /* 草地纹理 */
-            background-repeat: repeat-x; /* 水平重复 */
-            background-size: auto 100%; /* 高度铺满，宽度自适应 */
-            animation: moveGround 20s linear infinite; /* 缓慢移动 */
-            z-index: 20;
+            height: 25%;
+            background: linear-gradient(to bottom, #90EE90, #228B22);
         }
 
-        /* 4. 轨道 */
-        .track {
+        .tree {
             position: absolute;
-            bottom: 25%; /* 轨道在地面上方 */
-            width: 100%;
-            height: 40px; /* 轨道高度 */
-            background-image: url('https://i.ibb.co/q73QkPq/railroad-track.png'); /* 铁轨图片 */
-            background-repeat: repeat-x;
-            background-size: auto 100%;
-            animation: moveTrack 0.8s linear infinite; /* 快速移动 */
-            z-index: 30;
+            bottom: 25%;
+            font-size: 60px;
+            animation: sway 3s ease-in-out infinite;
         }
 
-        /* 5. 火车 */
-        .train-container {
-            position: absolute;
-            bottom: 28%; /* 火车位置调整到轨道上方 */
-            left: 50%; /* 居中 */
-            transform: translateX(-50%) translateY(0); /* 初始位置 */
-            width: 300px; /* 火车图片宽度 */
-            height: auto;
-            animation: trainBobbing 0.4s ease-in-out infinite alternate; /* 火车颠簸动画 */
-            z-index: 40;
+        @keyframes sway {
+            0%, 100% { transform: rotate(-2deg); }
+            50% { transform: rotate(2deg); }
         }
 
-        .train-container img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* 6. 关键帧动画 */
-
-        /* 云朵移动 */
-        @keyframes moveClouds {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(150vw); } /* 移动到屏幕外 */
-        }
-
-        /* 地面移动 */
-        @keyframes moveGround {
-            0% { background-position: 0 0; }
-            100% { background-position: -2000px 0; } /* 移动足够远的距离 */
-        }
-
-        /* 轨道移动 */
-        @keyframes moveTrack {
-            0% { background-position: 0 0; }
-            100% { background-position: -400px 0; } /* 移动一个合适的距离 */
-        }
-
-        /* 火车颠簸 */
-        @keyframes trainBobbing {
-            0% { transform: translateX(-50%) translateY(0px); }
-            50% { transform: translateX(-50%) translateY(-5px); }
-            100% { transform: translateX(-50%) translateY(0px); }
-        }
-
+        .tree1 { left: 5%; animation-delay: 0s; }
+        .tree2 { left: 85%; animation-delay: 0.5s; }
+        .tree3 { left: 92%; animation-delay: 1s; }
     </style>
 </head>
 <body>
-
     <div class="scene">
-        <h1>小火车，呜呜呜...</h1>
-
-        <img src="https://i.ibb.co/WcWz3r9/cloud1.png" alt="云朵" class="cloud" style="top: 10%; left: -20%; animation-delay: 0s; width: 180px;">
-        <img src="https://i.ibb.co/cCtjP8R/cloud2.png" alt="云朵" class="cloud" style="top: 25%; left: -50%; animation-delay: 10s; width: 220px;">
-        <img src="https://i.ibb.co/WcWz3r9/cloud1.png" alt="云朵" class="cloud" style="top: 18%; left: -80%; animation-delay: 20s; width: 150px;">
-
-        <div class="ground"></div>
-        <div class="track"></div>
-
-        <div class="train-container">
-            <img src="https://i.ibb.co/h7g7Q6R/train-cartoon.png" alt="小火车">
+        <div class="sun"></div>
+        
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+        <div class="cloud cloud3"></div>
+        
+        <div class="mountains">
+            <div class="mountain mountain1"></div>
+            <div class="mountain mountain2"></div>
+            <div class="mountain mountain3"></div>
         </div>
-
+        
+        <div class="tree tree1">🌲</div>
+        <div class="tree tree2">🌲</div>
+        <div class="tree tree3">🌳</div>
+        
+        <div class="tracks">
+            <div class="rail rail-top"></div>
+            <div class="rail rail-bottom"></div>
+            <div class="sleepers">
+                <div class="sleeper"></div>
+                <div class="sleeper"></div>
+                <div class="sleeper"></div>
+                <div class="sleeper"></div>
+                <div class="sleeper"></div>
+            </div>
+        </div>
+        
+        <div class="train">
+            <div class="locomotive">
+                <div class="smoke"></div>
+                <div class="smoke"></div>
+                <div class="smoke"></div>
+                <div class="smoke"></div>
+                <div class="chimney"></div>
+                <div class="cabin">
+                    <div class="window"></div>
+                </div>
+                <div class="engine-body"></div>
+                <div class="wheel wheel1"></div>
+                <div class="wheel wheel2"></div>
+                <div class="wheel wheel3"></div>
+            </div>
+            
+            <div class="carriage">
+                <div class="carriage-window"></div>
+                <div class="carriage-window"></div>
+                <div class="wheel wheel1"></div>
+                <div class="wheel wheel2"></div>
+            </div>
+            
+            <div class="carriage">
+                <div class="carriage-window"></div>
+                <div class="carriage-window"></div>
+                <div class="wheel wheel1"></div>
+                <div class="wheel wheel2"></div>
+            </div>
+        </div>
+        
+        <div class="grass"></div>
     </div>
-
 </body>
 </html>

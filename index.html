@@ -1,596 +1,261 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小火车动态之旅</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>宁静山谷 · 心灵休憩处</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            overflow: hidden;
+        /* ====================== 全局美学 ====================== */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body, html { height:100%; overflow:hidden; font-family:"Segoe UI", "Microsoft YaHei", sans-serif; }
+        
+        /* 精美风景背景（渐变 + 模糊层 + 动态云） */
+        #bg {
+            position:fixed; top:0; left:0; width:100%; height:100%; z-index:-3;
+            background:linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            filter:blur(1px);
+        }
+        #clouds {
+            position:fixed; top:0; left:0; width:100%; height:100%; z-index:-2;
+            background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><radialGradient id="c"><stop offset="0%" stop-color="%23fff"/><stop offset="100%" stop-color="%23fff" stop-opacity="0"/></radialGradient></defs><ellipse cx="200" cy="150" rx="180" ry="60" fill="url(%23c)" opacity="0.6"/><ellipse cx="800" cy="120" rx="220" ry="80" fill="url(%23c)" opacity="0.5"/><ellipse cx="500" cy="180" rx="160" ry="50" fill="url(%23c)" opacity="0.7"/></svg>') repeat-x;
+            background-size:400px 200px;
+            animation:cloud 180s linear infinite;
+        }
+        @keyframes cloud { 0%{background-position:0 0;} 100%{background-position:2000px 0;} }
+
+        /* 山体剪影 */
+        #mountains {
+            position:fixed; bottom:0; left:0; width:100%; height:50%; z-index:-1;
+            background:linear-gradient(to top, #6ee7b7 0%, #34d399 100%);
+            clip-path:polygon(0 100%, 0 60%, 10% 55%, 20% 65%, 30% 50%, 40% 60%, 50% 45%, 60% 55%, 70% 50%, 80% 60%, 90% 55%, 100% 65%, 100% 100%);
         }
 
-        body {
-            background: linear-gradient(to bottom, #87CEEB 0%, #E0F7FA 100%);
-            font-family: 'Arial', sans-serif;
-            height: 100vh;
-            position: relative;
+        /* 湖面倒影 */
+        #lake {
+            position:fixed; bottom:0; left:0; width:100%; height:30%; z-index:0;
+            background:linear-gradient(to bottom, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
+            backdrop-filter:blur(8px);
+            animation:ripple 12s ease-in-out infinite;
+        }
+        @keyframes ripple {
+            0%,100%{ transform:scaleY(1); }
+            50%{ transform:scaleY(1.03); }
         }
 
-        /* 天空与云朵 */
-        .sky {
-            position: absolute;
-            width: 100%;
-            height: 60%;
-            top: 0;
-            background: linear-gradient(to bottom, #87CEEB 0%, #B3E5FC 100%);
-            z-index: 1;
-        }
+        /* 隐藏触发区（整页点击20次） */
+        #trigger-area { position:fixed; inset:0; cursor:default; }
 
-        .cloud {
-            position: absolute;
-            background: white;
-            border-radius: 50px;
-            opacity: 0.9;
-            box-shadow: 0 8px 15px rgba(255,255,255,0.3);
-            animation: drift linear infinite;
+        /* 右下角不明显“石头” */
+        #stone {
+            position:fixed; right:15px; bottom:15px; width:28px; height:28px; z-index:5;
+            background:radial-gradient(circle at 30% 30%, #aaa 0%, #777 70%, #555 100%);
+            border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,0.3);
+            opacity:0.22; transition:opacity .4s;
+            cursor:pointer;
         }
+        #stone:hover { opacity:0.45; }
 
-        .cloud1 {
-            width: 180px; height: 60px;
-            top: 80px; left: -200px;
-            animation-duration: 45s;
+        /* ====================== OMEGA 面板（隐藏） ====================== */
+        #omega-panel {
+            position:fixed; inset:0; background:rgba(20,10,30,0.96); color:#fff;
+            display:none; flex-direction:column; align-items:center; justify-content:flex-start;
+            padding-top:2vh; backdrop-filter:blur(12px); z-index:999;
+            font-size:1rem; line-height:1.6; overflow-y:auto;
         }
-        .cloud1::before {
-            content: '';
-            position: absolute;
-            background: white;
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            top: -40px; left: 30px;
+        #omega-header {
+            width:90%; max-width:680px; text-align:center; margin-bottom:1rem;
+            font-size:1.8rem; font-weight:300; letter-spacing:1px;
+            color:#ff99cc; text-shadow:0 0 8px #ff66aa;
         }
-        .cloud1::after {
-            content: '';
-            position: absolute;
-            background: white;
-            width: 100px; height: 70px;
-            border-radius: 50%;
-            top: -30px; right: 20px;
+        .heart { color:#ff69b4; animation:pulse 1.8s infinite; }
+        @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.2);} }
+
+        .input-group { margin:12px 0; width:90%; max-width:480px; }
+        label { display:block; margin-bottom:4px; color:#ffccdd; font-weight:500; }
+        input[type=number] {
+            width:100%; padding:10px 14px; border:none; border-radius:8px;
+            background:#ffffff22; color:#fff; font-size:1rem;
+            backdrop-filter:blur(4px);
         }
+        input[type=number]:focus { outline:2px solid #ff69b4; }
 
-        .cloud2 {
-            width: 220px; height: 70px;
-            top: 150px; left: -250px;
-            animation-duration: 60s;
-            animation-delay: 15s;
+        #status-bar { margin:16px 0; width:90%; max-width:480px; text-align:center; color:#a0f7c0; }
+        #log { width:90%; max-width:680px; min-height:180px; background:#111118; border-radius:8px; padding:12px; overflow-y:auto; font-family:monospace; color:#ffeb3b; }
+
+        button {
+            margin-top:12px; padding:10px 24px; border:none; border-radius:8px;
+            background:#ff69b4; color:#fff; font-weight:600; cursor:pointer;
+            box-shadow:0 4px 12px rgba(255,105,180,0.4);
+            transition:transform .2s, box-shadow .2s;
         }
-        .cloud2::before {
-            content: '';
-            position: absolute;
-            background: white;
-            width: 90px; height: 90px;
-            border-radius: 50%;
-            top: -45px; left: 40px;
-        }
-        .cloud2::after {
-            content: '';
-            position: absolute;
-            background: white;
-            width: 110px; height: 80px;
-            border-radius: 50%;
-            top: -35px; right: 30px;
-        }
+        button:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(255,105,180,0.6); }
 
-        .cloud3 {
-            width: 160px; height: 55px;
-            top: 50px; left: -180px;
-            animation-duration: 38s;
-            animation-delay: 25s;
-        }
-
-        @keyframes drift {
-            from { transform: translateX(0); }
-            to { transform: translateX(calc(100vw + 300px)); }
-        }
-
-        /* 远景山脉 */
-        .mountains {
-            position: absolute;
-            bottom: 250px;
-            width: 100%;
-            height: 300px;
-            z-index: 2;
-        }
-
-        .mountain {
-            position: absolute;
-            bottom: 0;
-            border-left: 120px solid transparent;
-            border-right: 120px solid transparent;
-            border-bottom: 200px solid #4A5568;
-            filter: brightness(0.85);
-        }
-
-        .mountain1 {
-            left: 10%;
-            width: 0;
-            height: 0;
-            border-bottom-color: #2D3748;
-            transform: scale(1.3);
-        }
-
-        .mountain2 {
-            left: 35%;
-            width: 0;
-            height: 0;
-            border-bottom-color: #4A5568;
-            transform: scale(1.1);
-        }
-
-        .mountain3 {
-            right: 15%;
-            width: 0;
-            height: 0;
-            border-bottom-color: #1A202C;
-            transform: scale(1.4);
-        }
-
-        .mountain::after {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: -100px;
-            border-left: 100px solid transparent;
-            border-right: 100px solid transparent;
-            border-bottom: 160px solid #718096;
-            opacity: 0.7;
-        }
-
-        /* 中景丘陵与树木 */
-        .hills {
-            position: absolute;
-            bottom: 180px;
-            width: 100%;
-            height: 150px;
-            background: linear-gradient(to bottom, transparent 0%, #81C784 100%);
-            z-index: 3;
-            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-        }
-
-        .tree {
-            position: absolute;
-            bottom: 180px;
-            width: 40px;
-            height: 80px;
-            z-index: 3;
-            animation: sway 6s ease-in-out infinite;
-        }
-
-        .tree1 { left: 15%; animation-delay: 0s; }
-        .tree2 { left: 28%; animation-delay: 1s; }
-        .tree3 { left: 45%; animation-delay: 2s; }
-        .tree4 { left: 62%; animation-delay: 0.5s; }
-        .tree5 { left: 80%; animation-delay: 1.5s; }
-
-        .tree-trunk {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 12px;
-            height: 40px;
-            background: #5D4037;
-            border-radius: 3px;
-        }
-
-        .tree-leaves {
-            position: absolute;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 30px solid transparent;
-            border-right: 30px solid transparent;
-            border-bottom: 60px solid #4CAF50;
-            border-radius: 50%;
-        }
-
-        @keyframes sway {
-            0%, 100% { transform: rotate(-3deg); }
-            50% { transform: rotate(3deg); }
-        }
-
-        /* 铁轨与地面 */
-        .ground {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(to bottom, #8D6E63 0%, #6D4C41 100%);
-            z-index: 4;
-        }
-
-        .rail-track {
-            position: absolute;
-            bottom: 80px;
-            width: 100%;
-            height: 12px;
-            background: repeating-linear-gradient(
-                to right,
-                #5D4037 0,
-                #5D4037 40px,
-                transparent 40px,
-                transparent 60px
-            );
-            z-index: 5;
-        }
-
-        .rail {
-            position: absolute;
-            bottom: 84px;
-            width: 100%;
-            height: 6px;
-            background: #90A4AE;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            z-index: 5;
-        }
-
-        .rail::before, .rail::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 6px;
-            background: #90A4AE;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .rail::before { top: -16px; }
-        .rail::after { top: 16px; }
-
-        /* 小火车 */
-        .train {
-            position: absolute;
-            bottom: 90px;
-            left: -300px;
-            width: 280px;
-            height: 80px;
-            z-index: 10;
-            animation: moveTrain 25s linear infinite;
-        }
-
-        .locomotive {
-            position: absolute;
-            left: 0;
-            width: 120px;
-            height: 70px;
-            background: #C62828;
-            border-radius: 15px 50px 10px 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-
-        .locomotive::before {
-            content: '';
-            position: absolute;
-            top: -15px;
-            left: 20px;
-            width: 50px;
-            height: 40px;
-            background: #B71C1C;
-            border-radius: 25px 25px 5px 5px;
-        }
-
-        .chimney {
-            position: absolute;
-            top: -35px;
-            left: 35px;
-            width: 20px;
-            height: 30px;
-            background: #424242;
-            border-radius: 5px;
-            animation: smoke 1.5s ease-in-out infinite;
-        }
-
-        @keyframes smoke {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-60px); opacity: 0; }
-        }
-
-        .smoke-puff {
-            position: absolute;
-            width: 25px;
-            height: 25px;
-            background: rgba(200,200,200,0.8);
-            border-radius: 50%;
-            animation: puff 1.5s ease-out infinite;
-        }
-
-        @keyframes puff {
-            0% { transform: scale(0.3) translateY(0); opacity: 0.8; }
-            100% { transform: scale(1.5) translateY(-50px); opacity: 0; }
-        }
-
-        .cabin {
-            position: absolute;
-            top: 10px;
-            left: 25px;
-            width: 35px;
-            height: 35px;
-            background: #FFEB3B;
-            border: 3px solid #FBC02D;
-            border-radius: 5px;
-        }
-
-        .wheel {
-            position: absolute;
-            bottom: -15px;
-            width: 25px;
-            height: 25px;
-            background: #212121;
-            border-radius: 50%;
-            border: 3px solid #424242;
-            animation: spin 0.6s linear infinite;
-        }
-
-        .wheel1 { left: 20px; }
-        .wheel2 { left: 70px; }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .carriage {
-            position: absolute;
-            left: 130px;
-            width: 140px;
-            height: 60px;
-            background: #1976D2;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-
-        .carriage::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 15px;
-            width: 25px;
-            height: 35px;
-            background: #BBDEFB;
-            border: 2px solid #2196F3;
-            border-radius: 3px;
-        }
-
-        .carriage::after {
-            content: '';
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            width: 25px;
-            height: 35px;
-            background: #BBDEFB;
-            border: 2px solid #2196F3;
-            border-radius: 3px;
-        }
-
-        .carriage-wheel1 { left: 25px; }
-        .carriage-wheel2 { left: 95px; }
-
-        @keyframes moveTrain {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(calc(100vw + 400px)); }
-        }
-
-        /* 动态贴图元素：飞鸟、热气球、河流 */
-        .bird {
-            position: absolute;
-            top: 100px;
-            left: -100px;
-            font-size: 30px;
-            animation: fly 18s linear infinite;
-            z-index: 1;
-        }
-
-        @keyframes fly {
-            0% { transform: translateX(0) translateY(0) rotate(0deg); }
-            50% { transform: translateX(calc(50vw)) translateY(-30px) rotate(5deg); }
-            100% { transform: translateX(calc(100vw + 100px)) translateY(0) rotate(0deg); }
-        }
-
-        .balloon {
-            position: absolute;
-            bottom: 300px;
-            right: -150px;
-            width: 80px;
-            height: 100px;
-            animation: float 40s linear infinite;
-            z-index: 1;
-        }
-
-        .balloon-body {
-            width: 60px;
-            height: 80px;
-            background: radial-gradient(circle at 30% 30%, #FF5252, #D32F2F);
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .balloon-basket {
-            width: 30px;
-            height: 20px;
-            background: #8D6E63;
-            margin: 5px auto 0;
-            border-radius: 3px;
-            position: relative;
-        }
-
-        .balloon-basket::before, .balloon-basket::after {
-            content: '';
-            position: absolute;
-            width: 2px;
-            height: 15px;
-            background: #5D4037;
-            top: -15px;
-        }
-
-        .balloon-basket::before { left: 5px; transform: rotate(20deg); }
-        .balloon-basket::after { right: 5px; transform: rotate(-20deg); }
-
-        @keyframes float {
-            0% { transform: translateX(0) translateY(0); }
-            50% { transform: translateX(-calc(50vw)) translateY(-50px); }
-            100% { transform: translateX(-calc(100vw + 150px)) translateY(0); }
-        }
-
-        /* 河流与桥 */
-        .river {
-            position: absolute;
-            bottom: 120px;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            background: linear-gradient(to bottom, #81D4FA 0%, #4FC3F7 100%);
-            z-index: 3;
-            overflow: hidden;
-            border-radius: 30px;
-            animation: flow 8s linear infinite;
-        }
-
-        @keyframes flow {
-            0% { background-position: 0 0; }
-            100% { background-position: 100px 0; }
-        }
-
-        .wave {
-            position: absolute;
-            width: 100%;
-            height: 20px;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 20px,
-                rgba(255,255,255,0.3) 20px,
-                rgba(255,255,255,0.3) 40px
-            );
-            animation: wave 3s linear infinite;
-        }
-
-        @keyframes wave {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-40px); }
-        }
-
-        .bridge {
-            position: absolute;
-            bottom: 160px;
-            left: 40%;
-            width: 300px;
-            height: 20px;
-            background: #BCAAA4;
-            z-index: 5;
-            border-radius: 5px;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-        }
-
-        .bridge::before {
-            content: '';
-            position: absolute;
-            bottom: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 20px;
-            height: 60px;
-            background: #8D6E63;
-            border-radius: 5px;
-        }
-
-        /* 文字标题 */
-        .title {
-            position: absolute;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 36px;
-            font-weight: bold;
-            color: #1A237E;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-            z-index: 100;
-            white-space: nowrap;
-        }
+        .hidden { display:none; }
     </style>
 </head>
 <body>
 
-    <div class="title">🚂 小火车环游世界</div>
+    <!-- 背景层 -->
+    <div id="bg"></div>
+    <div id="clouds"></div>
+    <div id="mountains"></div>
+    <div id="lake"></div>
 
-    <!-- 天空与云 -->
-    <div class="sky">
-        <div class="cloud cloud1"></div>
-        <div class="cloud cloud2"></div>
-        <div class="cloud cloud3"></div>
-    </div>
+    <!-- 隐藏触发区：点击20次 -->
+    <div id="trigger-area"></div>
 
-    <!-- 远景山脉 -->
-    <div class="mountains">
-        <div class="mountain mountain1"></div>
-        <div class="mountain mountain2"></div>
-        <div class="mountain mountain3"></div>
-    </div>
+    <!-- 右下角石头（点10次） -->
+    <div id="stone" title="??"></div>
 
-    <!-- 中景丘陵与树 -->
-    <div class="hills"></div>
-    <div class="tree tree1"><div class="tree-trunk"></div><div class="tree-leaves"></div></div>
-    <div class="tree tree2"><div class="tree-trunk"></div><div class="tree-leaves"></div></div>
-    <div class="tree tree3"><div class="tree-trunk"></div><div class="tree-leaves"></div></div>
-    <div class="tree tree4"><div class="tree-trunk"></div><div class="tree-leaves"></div></div>
-    <div class="tree tree5"><div class="tree-trunk"></div><div class="tree-leaves"></div></div>
-
-    <!-- 河流与桥 -->
-    <div class="river">
-        <div class="wave"></div>
-    </div>
-    <div class="bridge"></div>
-
-    <!-- 地面与铁轨 -->
-    <div class="ground"></div>
-    <div class="rail-track"></div>
-    <div class="rail"></div>
-
-    <!-- 小火车 -->
-    <div class="train">
-        <!-- 烟雾 -->
-        <div class="chimney">
-            <div class="smoke-puff" style="animation-delay: 0s;"></div>
-            <div class="smoke-puff" style="animation-delay: 0.3s; left: -5px;"></div>
-            <div class="smoke-puff" style="animation-delay: 0.6s; left: 5px;"></div>
+    <!-- ====================== OMEGA 控制面板 ====================== -->
+    <div id="omega-panel">
+        <div id="omega-header">
+            <span class="heart">♥</span> L O V E L Y  P L E A S U R E  L O O P <span class="heart">♥</span> V3.0
         </div>
-        <!-- 火车头 -->
-        <div class="locomotive">
-            <div class="cabin"></div>
-            <div class="wheel wheel1"></div>
-            <div class="wheel wheel2"></div>
+
+        <div class="input-group">
+            <label>玩具插入长度 (cm，≤150.0)</label>
+            <input type="number" id="toy-length" step="0.1" min="0" max="150" placeholder="例如 12.5">
         </div>
-        <!-- 车厢 -->
-        <div class="carriage">
-            <div class="wheel carriage-wheel1"></div>
-            <div class="wheel carriage-wheel2"></div>
+        <div class="input-group">
+            <label>玩具最大直径 (cm，≤5.0)</label>
+            <input type="number" id="toy-diameter" step="0.1" min="0" max="5" placeholder="例如 3.2">
         </div>
+        <div class="input-group">
+            <label>总动作次数（默认10，自动取偶数）</label>
+            <input type="number" id="total-count" min="2" placeholder="留空使用默认">
+        </div>
+
+        <button id="start-btn">开始温柔会话</button>
+
+        <div id="status-bar"></div>
+        <pre id="log"></pre>
     </div>
 
-    <!-- 动态元素：飞鸟 -->
-    <div class="bird" style="animation-delay: 0s;">🦅</div>
-    <div class="bird" style="animation-delay: 8s; top: 130px; font-size: 25px;">🕊️</div>
-    <div class="bird" style="animation-delay: 15s; top: 80px;">🦜</div>
+<script>
+/* ====================== 触发逻辑 ====================== */
+let pageClicks = 0;
+let stoneClicks = 0;
+const PAGE_THRESHOLD = 20;
+const STONE_THRESHOLD = 10;
 
-    <!-- 热气球 -->
-    <div class="balloon" style="animation-delay: 5s;">
-        <div class="balloon-body"></div>
-        <div class="balloon-basket"></div>
-    </div>
+document.getElementById('trigger-area').addEventListener('click', () => {
+    pageClicks++;
+    if (pageClicks >= PAGE_THRESHOLD) {
+        document.getElementById('stone').style.opacity = '0.6';
+        pageClicks = 0; // 重置防止重复触发
+    }
+});
 
+document.getElementById('stone').addEventListener('click', (e) => {
+    e.stopPropagation();
+    stoneClicks++;
+    if (stoneClicks >= STONE_THRESHOLD) {
+        document.getElementById('omega-panel').style.display = 'flex';
+        stoneClicks = 0;
+        initOmega();
+    }
+});
+
+/* ====================== OMEGA 核心逻辑 ====================== */
+let intervalId = null;
+let cycleCount = 0;
+let totalInsertions = 0;
+let sessionStart = 0;
+
+const MAX_DEPTH = 150.0;
+const MAX_DIAMETER = 5.0;
+const DEFAULT_COUNT = 10;
+
+function log(msg) {
+    const logEl = document.getElementById('log');
+    logEl.textContent += msg + '\n';
+    logEl.scrollTop = logEl.scrollHeight;
+}
+
+function initOmega() {
+    const startBtn = document.getElementById('start-btn');
+    startBtn.onclick = startSession;
+}
+
+function startSession() {
+    // 读取并校验输入
+    const len = parseFloat(document.getElementById('toy-length').value) || 0;
+    const dia = parseFloat(document.getElementById('toy-diameter').value) || 0;
+    let count = parseInt(document.getElementById('total-count').value) || DEFAULT_COUNT;
+
+    if (len <= 0 || len > MAX_DEPTH) { alert(`长度必须在 0~${MAX_DEPTH} cm`); return; }
+    if (dia <= 0 || dia > MAX_DIAMETER) { alert(`直径必须在 0~${MAX_DIAMETER} cm`); return; }
+    if (count < 2) count = DEFAULT_COUNT;
+    if (count % 2 !== 0) { count++; log(`⚠️ 次数已自动调整为偶数：${count}`); }
+
+    // 计算慢速频率
+    const delaySec = (len / 50) + (dia / 5) + 0.5;
+    const delayMs = Math.round(delaySec * 1000);
+
+    // 初始化状态
+    cycleCount = 0;
+    totalInsertions = 0;
+    sessionStart = Date.now();
+    document.getElementById('log').textContent = '';
+    log(`♥ 玩具：${len}cm × ${dia}cm`);
+    log(`♥ 频率：${delaySec.toFixed(3)} 秒/动作（更慢更温柔）`);
+    log(`♥ 总动作：${count} 次（目标插入 ${count/2} 次）`);
+    log(`------------------------------------------------`);
+
+    // 禁用按钮
+    const btn = document.getElementById('start-btn');
+    btn.disabled = true;
+    btn.textContent = '会话进行中…';
+
+    // 主循环
+    intervalId = setInterval(() => {
+        cycleCount++;
+        const isInsert = cycleCount % 2 === 1;
+
+        if (isInsert) {
+            totalInsertions++;
+            log(`[${cycleCount}/${count}] ♥ > > >  ${len}cm 完全插入！ (第 ${totalInsertions} 次) 温柔快感…`);
+        } else {
+            log(`[${cycleCount}/${count}] ♥ < < <  ${len}cm 完全拔出。 期待下一次…`);
+        }
+
+        updateStatus(delaySec, count);
+
+        if (cycleCount >= count) {
+            clearInterval(intervalId);
+            sessionEnd();
+        }
+    }, delayMs);
+}
+
+function updateStatus(delay, total) {
+    const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+    const h = String(Math.floor(elapsed/3600)).padStart(2,'0');
+    const m = String(Math.floor((elapsed/60)%60)).padStart(2,'0');
+    const s = String(elapsed%60).padStart(2,'0');
+
+    document.getElementById('status-bar').innerHTML = `
+        ⏱ ${h}:${m}:${s} | 
+        进度 ${cycleCount}/${total} | 
+        插入 ${totalInsertions} 次 | 
+        频率 ${delay.toFixed(2)}s/次
+    `;
+}
+
+function sessionEnd() {
+    const duration = Math.floor((Date.now() - sessionStart) / 1000);
+    const h = String(Math.floor(duration/3600)).padStart(2,'0');
+    const m = String(Math.floor((duration/60)%60)).padStart(2,'0');
+    const s = String(duration%60).padStart(2,'0');
+
+    log(`\n♥♥♥ 会话结束！${totalInsertions} 次温柔插入完成 ♥♥♥`);
+    log(`总时长：${h}:${m}:${s}`);
+    
+    const btn = document.getElementById('start-btn');
+    btn.disabled = false;
+    btn.textContent = '再次开始';
+}
+</script>
 </body>
 </html>

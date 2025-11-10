@@ -6,110 +6,341 @@
   <title>Minecraft 皮肤导入与 3D 显示</title>
   <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
   <script src="https://unpkg.com/skinview3d/bundles/skinview3d.bundle.js"></script>
+
   <style>
-    /* 保留第一次的完整美观样式 */
-    body { margin:0; font-family:sans-serif; background:#0f1220; color:#fff; }
-    header { padding:12px 20px; background:#171a2b; }
-    h1 { margin:0; font-size:20px; }
-    main { display:flex; gap:20px; padding:20px; }
-    .panel { background:#1a1f38; border-radius:10px; padding:16px; flex:0 0 320px; }
-    .viewer { flex:1; display:flex; flex-direction:column; }
-    #skin-canvas { flex:1; background:#0b0e18; }
-    .field { margin-bottom:16px; }
-    .label { font-size:14px; margin-bottom:6px; }
-    .btn { background:#6c8cff; border:none; border-radius:6px; padding:8px 12px; color:#fff; cursor:pointer; }
-    .segmented { display:flex; border:1px solid #444; border-radius:6px; overflow:hidden; }
-    .segmented button { flex:1; background:#222; border:none; color:#fff; padding:8px; cursor:pointer; }
-    .segmented button.active { background:#6c8cff; }
-    progress { width:100%; height:16px; }
+    :root {
+      --bg: #0f1220;
+      --panel: #171a2b;
+      --accent: #6c8cff;
+      --accent-2: #c0d0ff;
+      --text: #e9ecff;
+      --muted: #95a1c4;
+      --success: #77e0a3;
+      --shadow: rgba(0,0,0,0.35);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: radial-gradient(1200px circle at 20% 0%, #14172a 0, #0f1220 55%, #0b0e18 100%);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Microsoft Yahei", "Hiragino Sans GB", "Source Han Sans SC", "WenQuanYi Micro Hei", sans-serif;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(6px);
+    }
+    .logo {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(145deg, #2a2f50, #1a1f38);
+      box-shadow: inset 0 2px 6px rgba(255,255,255,0.05), 0 10px 25px var(--shadow);
+      display: grid; place-items: center; color: var(--accent);
+      font-weight: 800; letter-spacing: 0.5px;
+    }
+    h1 {
+      font-size: 20px; margin: 0;
+      color: var(--accent-2);
+    }
+    .sub {
+      font-size: 13px; color: var(--muted);
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 20px;
+      padding: 20px;
+    }
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      box-shadow: 0 20px 50px var(--shadow);
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .panel-header h2 {
+      margin: 0; font-size: 16px; color: var(--accent-2);
+    }
+
+    .controls {
+      padding: 16px;
+      display: grid;
+      gap: 16px;
+    }
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+    .label {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .file-drop {
+      border: 2px dashed rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      transition: all .2s ease;
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+    }
+    .file-drop.dragover {
+      border-color: var(--accent);
+      background: rgba(108,140,255,0.08);
+      transform: scale(1.01);
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .btn {
+      background: linear-gradient(180deg, #6c8cff, #5b76e6);
+      color: white;
+      border: none; border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 600; letter-spacing: 0.25px;
+      box-shadow: 0 10px 20px rgba(108,140,255,0.35);
+      cursor: pointer;
+      transition: transform .08s ease, box-shadow .2s ease;
+    }
+    .btn:active { transform: translateY(1px); box-shadow: 0 8px 16px rgba(108,140,255,0.3); }
+
+    .segmented {
+      display: grid; grid-template-columns: 1fr 1fr;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .segmented button {
+      background: transparent; color: var(--text);
+      border: none; padding: 10px 12px; cursor: pointer;
+      transition: background .2s ease, color .2s ease;
+      font-weight: 600;
+    }
+    .segmented button.active { background: rgba(108,140,255,0.2); color: #fff; }
+
+    .slider {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 6px; border-radius: 999px;
+      background: linear-gradient(90deg, #3b4270, #6c8cff);
+      outline: none;
+    }
+    .row { display: flex; gap: 10px; align-items: center; }
+    .hint { font-size: 12px; color: var(--muted); }
+
+    .viewer {
+      position: relative;
+      min-height: 520px;
+      display: grid; grid-template-rows: auto 1fr;
+    }
+    .viewer-toolbar {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .viewer-toolbar .right { display: flex; gap: 8px; align-items: center; }
+    #skin-canvas {
+      width: 100%; height: 100%;
+      display: block; background: radial-gradient(800px circle at 50% 20%, #11152a, #0b0e18);
+    }
+    .badge {
+      font-size: 12px; color: var(--success);
+      background: rgba(119,224,163,0.12);
+      border: 1px solid rgba(119,224,163,0.25);
+      padding: 6px 8px; border-radius: 999px;
+    }
+    footer {
+      padding: 14px 20px; font-size: 12px; color: var(--muted);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    
+    /* 新增：进度条样式 */
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px; /* 间距 */
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: var(--success);
+      transition: width .2s ease;
+    }
+
+    @media (max-width: 980px) {
+      main { grid-template-columns: 1fr; }
+      .viewer { min-height: 480px; }
+    }
   </style>
 </head>
 <body>
-  <header><h1>Minecraft 皮肤导入与 3D 预览</h1></header>
+  <header>
+    <div class="logo">MC</div>
+    <div>
+      <h1>Minecraft 皮肤导入与 3D 预览</h1>
+      <div class="sub">支持细/粗手臂选择，文件导入即看效果，旋转缩放流畅自然</div>
+    </div>
+  </header>
+
   <main>
     <section class="panel">
-      <div class="field">
-        <div class="label">选择皮肤文件 (PNG)</div>
-        <input type="file" id="file-input" accept="image/png" />
+      <div class="panel-header">
+        <h2>导入与设置</h2>
+        <span class="badge" id="status-badge">等待导入</span>
       </div>
-      <div class="field">
-        <div class="label">手臂类型</div>
-        <div class="segmented" id="arm-toggle">
-          <button data-model="default" class="active">粗手臂</button>
-          <button data-model="slim">细手臂</button>
+      <div class="controls">
+        <div class="field">
+          <div class="label">导入皮肤文件（PNG，支持 64×64 与 64×32）</div>
+          <label class="file-drop" id="dropzone">
+            <input type="file" id="file-input" accept="image/png" />
+            <div style="display:grid;place-items:center;gap:8px">
+              <div class="hint">拖拽文件到此处，或点击选择</div>
+              <button class="btn">选择皮肤文件</button>
+            </div>
+          </label>
+          
+          <div class="progress-bar-container" id="progress-container" style="display: none;">
+            <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="label">手臂类型</div>
+          <div class="segmented" id="arm-toggle">
+            <button data-model="default" class="active">粗手臂（Steve）</button>
+            <button data-model="slim">细手臂（Alex）</button>
+          </div>
+          <div class="hint">如果你的皮肤为 Alex 模型，请选择“细手臂”。</div>
+        </div>
+
+        <div class="field">
+          <div class="label">相机缩放</div>
+          <div class="row">
+            <input type="range" class="slider" id="zoom" min="10" max="140" value="65" />
+            <span class="hint" id="zoom-value">65%</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="label">动画强度</div>
+          <div class="row">
+            <input type="range" class="slider" id="anim" min="0" max="100" value="50" />
+            <span class="hint" id="anim-value">50%</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="label">背景氛围</div>
+          <div class="row">
+            <button class="btn" id="bg-1">深夜蓝</button>
+            <button class="btn" id="bg-2">暮色紫</button>
+            <button class="btn" id="bg-3">晨曦灰</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="label">视角提示</div>
+          <div class="hint">按住鼠标左键旋转，滚轮缩放，右键拖拽。手机上用两指缩放、单指拖动。</div>
         </div>
       </div>
-      <div class="field">
-        <div class="label">上传/下载进度</div>
-        <progress id="progress-bar" value="0" max="100"></progress>
-        <div id="progress-text">0%</div>
-      </div>
-      <div class="field">
-        <div class="label">相机缩放</div>
-        <input type="range" id="zoom" min="10" max="140" value="65" />
-      </div>
-      <div class="field">
-        <div class="label">动画强度</div>
-        <input type="range" id="anim" min="0" max="100" value="50" />
-      </div>
-      <div class="field">
-        <div class="label">背景切换</div>
-        <button class="btn" id="bg-1">深夜蓝</button>
-        <button class="btn" id="bg-2">暮色紫</button>
-        <button class="btn" id="bg-3">晨曦灰</button>
-      </div>
-      <div class="field">
-        <div class="label">远程皮肤 URL</div>
-        <input type="text" id="url-input" placeholder="https://example.com/skin.png" style="width:100%;padding:6px;" />
-        <button class="btn" id="load-url">下载并加载</button>
-      </div>
     </section>
-    <section class="viewer">
+
+    <section class="panel viewer">
+      <div class="viewer-toolbar">
+        <div class="row">
+          <div class="label">预览画布</div>
+        </div>
+        <div class="right">
+          <span class="hint" id="file-name">未选择文件</span>
+        </div>
+      </div>
       <canvas id="skin-canvas"></canvas>
     </section>
   </main>
 
+  <footer>
+    <div>本地运行，隐私友好：皮肤仅在你的浏览器中处理与显示。</div>
+    <div>建议使用现代浏览器获得最佳体验。</div>
+  </footer>
+
   <script>
+    // 初始化 skinview3d 视图
     const canvas = document.getElementById('skin-canvas');
     const viewer = new skinview3d.SkinViewer({
       canvas,
       width: canvas.clientWidth,
       height: canvas.clientHeight,
-      model: "default",
-      zoom: 0.8
+      model: "default", // default=粗手臂, slim=细手臂
+      zoom: 0.65,       // 0.1 - 2.0（我们用滑条%映射）
     });
+
+    // 光照与阴影
+    viewer.renderer.setClearColor(0x0b0e18);
     viewer.animation = new skinview3d.WalkingAnimation();
+    viewer.animation.speed = 0.5;
+
+    // OrbitControls
     const controls = skinview3d.createOrbitControls(viewer);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.rotateSpeed = 0.7;
+    controls.zoomSpeed = 0.8;
+    controls.panSpeed = 0.6;
 
-    const fileInput = document.getElementById('file-input');
-    const armToggle = document.getElementById('arm-toggle');
-    const progressBar = document.getElementById('progress-bar');
-    const progressText = document.getElementById('progress-text');
-    const urlInput = document.getElementById('url-input');
-    const loadUrlBtn = document.getElementById('load-url');
-    const zoom = document.getElementById('zoom');
-    const anim = document.getElementById('anim');
-
-    function updateProgress(pct) {
-      progressBar.value = pct;
-      progressText.textContent = pct.toFixed(0) + '%';
+    // 响应式处理
+    function resize() {
+      const w = canvas.parentElement.clientWidth;
+      const h = canvas.parentElement.clientHeight - 48; // 减去工具栏高度
+      viewer.setSize(w, h);
     }
+    window.addEventListener('resize', resize);
+    resize();
 
-    // 本地文件上传进度
-    fileInput.addEventListener('change', () => {
-      const file = fileInput.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onprogress = (e) => {
-        if (e.lengthComputable) {
-          updateProgress((e.loaded / e.total) * 100);
-        }
-      };
-      reader.onload = async () => {
-        updateProgress(100);
-        await viewer.loadSkin(reader.result);
-      };
-      reader.readAsDataURL(file);
+    // UI 元素
+    const statusBadge = document.getElementById('status-badge');
+    const fileNameEl = document.getElementById('file-name');
+    const fileInput = document.getElementById('file-input');
+    const dropzone = document.getElementById('dropzone');
+    const armToggle = document.getElementById('arm-toggle');
+    const zoom = document.getElementById('zoom');
+    const zoomValue = document.getElementById('zoom-value');
+    const anim = document.getElementById('anim');
+    const animValue = document.getElementById('anim-value');
+    
+    // 新增：进度条 UI 元素
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('progress-bar');
+
+    // 背景按钮
+    document.getElementById('bg-1').addEventListener('click', () => {
+      viewer.renderer.setClearColor(0x0b0e18);
+      canvas.style.background = 'radial-gradient(800px circle at 50% 20%, #11152a, #0b0e18)';
+    });
+    document.getElementById('bg-2').addEventListener('click', () => {
+      viewer.renderer.setClearColor(0x1a1430);
+      canvas.style.background = 'radial-gradient(800px circle at 50% 20%, #221a44, #120e22)';
+    });
+    document.getElementById('bg-3').addEventListener('click', () => {
+      viewer.renderer.setClearColor(0x14161a);
+      canvas.style.background = 'radial-gradient(800px circle at 50% 20%, #2a2e38, #14161a)';
     });
 
     // 手臂类型切换
@@ -117,60 +348,110 @@
       btn.addEventListener('click', () => {
         armToggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        viewer.playerObject.skin.setModel(btn.dataset.model);
+        const model = btn.dataset.model;
+        viewer.playerObject.skin.setModel(model);
       });
     });
 
-    // 下载远程皮肤并显示进度
-    loadUrlBtn.addEventListener('click', async () => {
-      const url = urlInput.value.trim();
-      if (!url) return;
-      updateProgress(0);
-      const response = await fetch(url);
-      if (!response.ok) { alert("下载失败"); return; }
-      const contentLength = +response.headers.get('Content-Length');
-      let received = 0;
-      const reader = response.body.getReader();
-      const chunks = [];
-      while (true) {
-        const {done, value} = await reader.read();
-        if (done) break;
-        chunks.push(value);
-        received += value.length;
-        if (contentLength) {
-          updateProgress((received / contentLength) * 100);
-        }
-      }
-      const blob = new Blob(chunks);
-      const objectURL = URL.createObjectURL(blob);
-      await viewer.loadSkin(objectURL);
-      updateProgress(100);
-    });
-
-    // 缩放滑条
+    // 缩放滑条（0.1-1.4 映射）
+    function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
     zoom.addEventListener('input', () => {
-      viewer.zoom = zoom.value / 100;
+      const pct = parseInt(zoom.value, 10);
+      zoomValue.textContent = pct + '%';
+      const z = clamp(pct / 100, 0.1, 1.4);
+      viewer.zoom = z;
     });
 
-    // 动画强度滑条
+    // 动画强度映射到速度
     anim.addEventListener('input', () => {
-      if (viewer.animation) viewer.animation.speed = anim.value / 100;
+      const pct = parseInt(anim.value, 10);
+      animValue.textContent = pct + '%';
+      if (viewer.animation) viewer.animation.speed = pct / 100;
     });
 
-    // 背景切换
-    document.getElementById('bg-1').addEventListener('click', () => {
-      viewer.renderer.setClearColor(0x0b0e18);
+    // 拖拽导入
+    ;['dragenter', 'dragover'].forEach(evt => {
+      dropzone.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); dropzone.classList.add('dragover'); });
     });
-    document.getElementById('bg-2').addEventListener('click', () => {
-      viewer.renderer.setClearColor(0x1a1430);
+    ;['dragleave', 'drop'].forEach(evt => {
+      dropzone.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); dropzone.classList.remove('dragover'); });
     });
-    document.getElementById('bg-3').addEventListener('click', () => {
-      viewer.renderer.setClearColor(0x14161a);
+    dropzone.addEventListener('drop', async (e) => {
+      const file = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (file) await loadSkinFile(file);
     });
 
-    window.addEventListener('resize', () => {
-      viewer.setSize(canvas.clientWidth, canvas.clientHeight);
+    // 点击选择文件
+    dropzone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async () => {
+      const file = fileInput.files && fileInput.files[0];
+      if (file) await loadSkinFile(file);
     });
+
+    // 
+    // ** 修改后的加载函数 **
+    //
+    async function loadSkinFile(file) {
+      if (!file || file.type !== 'image/png') {
+        setStatus('仅支持 PNG 文件', false);
+        return;
+      }
+      
+      // 重置并显示进度条
+      progressContainer.style.display = 'block';
+      progressBar.style.width = '0%';
+      
+      const url = URL.createObjectURL(file);
+      fileNameEl.textContent = file.name;
+      setStatus('正在加载皮肤…', true);
+
+      try {
+        // 使用 onProgress 回调来更新进度条
+        await viewer.loadSkin(url, {
+          onProgress: (progress) => {
+            // progress 是 0.0 到 1.0
+            const percent = Math.round(progress * 100);
+            progressBar.style.width = percent + '%';
+          }
+        });
+        
+        setStatus('皮肤加载成功', true);
+        progressBar.style.width = '100%'; // 确保加载完成时进度条满
+        
+        // 自动判断 64×32 老皮肤并修正视角
+        // ** 修复：直接从 skin_viewer 获取皮肤尺寸，无需重复读取文件 **
+        const skin = viewer.playerObject.skin;
+        if (skin.width === 64 && skin.height === 32) {
+          // skinview3d 兼容 64×32，这里仅轻调缩放与视角以更贴合
+          viewer.zoom = clamp(parseInt(zoom.value, 10) / 100 * 0.95, 0.1, 1.4);
+        }
+        
+        // 成功后短暂显示满进度条，然后隐藏
+        setTimeout(() => {
+          progressContainer.style.display = 'none';
+        }, 500);
+        
+      } catch (err) {
+        console.error(err);
+        setStatus('皮肤加载失败', false);
+        // 失败时立即隐藏进度条
+        progressContainer.style.display = 'none';
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    function setStatus(text, ok) {
+      statusBadge.textContent = text;
+      statusBadge.style.color = ok ? '#77e0a3' : '#ffb7b7';
+      statusBadge.style.background = ok ? 'rgba(119,224,163,0.12)' : 'rgba(255,183,183,0.14)';
+      statusBadge.style.borderColor = ok ? 'rgba(119,224,163,0.25)' : 'rgba(255,183,183,0.25)';
+    }
+
+    // ** 移除：不再需要自定义的 readImageBitmap 函数 **
+
+    // 初始提示状态
+    setStatus('等待导入', true);
   </script>
 </body>
 </html>

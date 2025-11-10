@@ -1,619 +1,142 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>午夜诡域 · 寂静之屋</title>
-  <meta name="description" content="一个可操作、动画流畅的恐怖主题页面：冷雾、旧屋、呢喃与隐藏的线索。适配PC与移动端。" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;600;700&family=Cinzel:wght@400;700&family=Roboto+Mono:wght@300;500;700&display=swap" rel="stylesheet" />
-  <style>
-    :root{
-      --bg:#0b0b0c;
-      --ink:#d9d9dc;
-      --muted:#8b8b91;
-      --blood:#a31223;
-      --accent:#3a3b46;
-      --glass:rgba(16,16,18,.5);
-      --shadow:rgba(0,0,0,.55);
-      --green:#2db283;
-    }
-    *{box-sizing:border-box}
-    html,body{
-      margin:0; padding:0;
-      background: var(--bg);
-      color: var(--ink);
-      font-family:'Noto Serif SC','Cinzel',serif;
-      line-height:1.6;
-      overflow-x:hidden;
-    }
-    a{color:#cfcfd6}
-    /* global fx */
-    .grain{
-      position:fixed; inset:0; pointer-events:none; z-index:9999;
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.06"/></svg>');
-      background-size: 160px 160px;
-      mix-blend-mode: overlay;
-      animation: grainMove 12s linear infinite;
-    }
-    @keyframes grainMove{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(-20px,10px,0)}100%{transform:translate3d(0,0,0)}}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奔跑的小火车 (外部图片版)</title>
+    <style>
+        /* 1. 基础和场景设置 */
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden; /* 隐藏滚动条 */
+            background-color: #87CEEB; /* 天蓝色背景 */
+        }
 
-    /* nav */
-    .nav{
-      position:fixed; top:14px; left:50%; transform:translateX(-50%);
-      display:flex; gap:.5rem; z-index:20;
-      background: var(--glass);
-      backdrop-filter: blur(8px);
-      border:1px solid #232328;
-      border-radius:14px; padding:.4rem .6rem;
-      box-shadow:0 8px 24px var(--shadow);
-    }
-    .nav a{
-      display:block; padding:.4rem .7rem; border-radius:10px; color:#dcdce1;
-      font-size:.95rem; text-decoration:none;
-      transition:background .2s ease, color .2s ease;
-    }
-    .nav a:hover{background:rgba(255,255,255,.06)}
+        .scene {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* 防止内容超出 */
+        }
+        
+        h1 {
+            position: absolute;
+            top: 5%;
+            color: white;
+            font-size: 3rem;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+            z-index: 100; /* 确保标题在最前面 */
+        }
 
-    /* hero */
-    .hero{
-      position:relative; min-height:100vh; display:grid; place-items:center; overflow:hidden;
-      background:
-        radial-gradient(1200px 700px at 10% 10%, #101013 0%, #0b0b0c 50%, #080809 100%),
-        url("https://images.pexels.com/photos/270580/pexels-photo-270580.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1200&w=2000");
-      background-size: cover;
-      background-position: center;
-      isolation:isolate;
-    }
-    .hero::after{
-      content:""; position:absolute; inset:0;
-      background: linear-gradient(180deg, rgba(0,0,0,.3), rgba(0,0,0,.7));
-      mix-blend-mode: multiply;
-    }
-    .fog{
-      position:absolute; inset:0; background:
-        radial-gradient(800px 400px at 30% 70%, rgba(200,200,220,.08), transparent 60%),
-        radial-gradient(900px 500px at 80% 20%, rgba(180,190,210,.06), transparent 60%);
-      animation:fogDrift 22s linear infinite;
-      z-index:2;
-    }
-    @keyframes fogDrift{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(-3%,2%,0)}100%{transform:translate3d(0,0,0)}}
-    .hero-content{position:relative; z-index:3; text-align:center; padding:2rem}
-    .brand{
-      letter-spacing:.35rem; text-transform:uppercase; color:var(--muted);
-      font-weight:600; font-size:.9rem; display:inline-block; margin-bottom:.75rem;
-    }
-    .title{
-      font-size:clamp(2rem,6vw,4.6rem);
-      font-family:'Cinzel','Noto Serif SC',serif;
-      margin:.2rem 0 .8rem; line-height:1.1;
-      text-shadow:0 16px 50px var(--shadow);
-    }
-    .subtitle{
-      max-width:760px; margin:0 auto 1.2rem; color:#d1d1d8; font-weight:300;
-    }
-    .cta{display:flex; gap:.8rem; justify-content:center; flex-wrap:wrap; margin-top:1.2rem}
-    .btn{
-      border:1px solid #2b2b32; background:linear-gradient(180deg,#17171a 0%,#121214 100%);
-      color:#e7e7ec; padding:.85rem 1.15rem; border-radius:12px; font-weight:600;
-      box-shadow:0 12px 30px var(--shadow); transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
-    }
-    .btn:hover{transform:translateY(-2px); box-shadow:0 18px 40px var(--shadow); border-color:#3b3b42}
-    .btn.red{background:linear-gradient(180deg,#741219 0%,#3c0a0f 100%); border-color:#7f151f}
-    .btn.red:hover{border-color:#a01322}
+        /* 2. 背景云朵 */
+        .cloud {
+            position: absolute;
+            width: 150px; /* 云朵大小 */
+            height: auto;
+            opacity: 0.8;
+            animation: moveClouds 30s linear infinite; /* 缓慢移动 */
+            z-index: 10;
+        }
 
-    /* floating candles */
-    .candle{
-      position:absolute; width:10px; height:10px; border-radius:50%;
-      background: radial-gradient(circle at 30% 30%, #fff7bf, #f0c23a, #a65a12);
-      filter: drop-shadow(0 0 14px rgba(255,240,180,.6));
-      animation:candles 10s ease-in-out infinite;
-      opacity:.8;
-    }
-    .candle:nth-child(1){top:16%; left:12%}
-    .candle:nth-child(2){top:22%; left:78%; animation-duration:12s}
-    .candle:nth-child(3){top:32%; left:52%; animation-duration:9s}
-    .candle:nth-child(4){top:66%; left:20%; animation-duration:14s}
-    .candle:nth-child(5){top:72%; left:86%; animation-duration:11s}
-    @keyframes candles{
-      0%{transform:translateY(0) translateX(0)}
-      50%{transform:translateY(-8px) translateX(6px)}
-      100%{transform:translateY(0) translateX(0)}
-    }
+        .cloud:nth-child(1) { top: 10%; left: -20%; animation-delay: 0s; }
+        .cloud:nth-child(2) { top: 20%; left: -50%; animation-delay: 10s; width: 200px; }
+        .cloud:nth-child(3) { top: 15%; left: -80%; animation-delay: 20s; width: 120px; }
 
-    /* sections */
-    section{position:relative; padding:72px 20px}
-    .container{max-width:1100px; margin:0 auto}
-    .panel{
-      background:linear-gradient(180deg,#151517 0%,#111113 100%);
-      border:1px solid #2a2a31; border-radius:16px; box-shadow:0 10px 26px var(--shadow); overflow:hidden;
-    }
-    .section-title{
-      font-family:'Cinzel','Noto Serif SC',serif;
-      font-size:clamp(1.6rem,4vw,2.4rem); margin:0 0 .5rem; color:#e9e9ef;
-    }
-    .section-sub{color:var(--muted); margin-bottom:1rem; font-size:1.05rem}
+        /* 3. 地面 */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 35%; /* 占屏幕高度的35% */
+            background-image: url('https://i.ibb.co/L519V1g/grass-texture.png'); /* 草地纹理 */
+            background-repeat: repeat-x; /* 水平重复 */
+            background-size: auto 100%; /* 高度铺满，宽度自适应 */
+            animation: moveGround 20s linear infinite; /* 缓慢移动 */
+            z-index: 20;
+        }
 
-    /* gallery */
-    .gallery-grid{
-      display:grid; grid-template-columns:repeat(3,1fr); gap:18px;
-    }
-    .card{position:relative; border-radius:14px; overflow:hidden; border:1px solid #2a2a31; background:#0f0f11;
-      transition:transform .2s ease, box-shadow .2s ease, filter .2s ease}
-    .card:hover{transform:translateY(-4px); box-shadow:0 18px 40px var(--shadow); filter:contrast(1.05)}
-    .card img{width:100%; height:220px; object-fit:cover}
-    .card .pad{padding:14px}
-    .badge{
-      position:absolute; top:10px; left:10px; background:rgba(0,0,0,.55); color:#f3f3f6;
-      border:1px solid #2a2a31; font-size:.8rem; padding:6px 10px; border-radius:999px; backdrop-filter:blur(8px);
-    }
+        /* 4. 轨道 */
+        .track {
+            position: absolute;
+            bottom: 25%; /* 轨道在地面上方 */
+            width: 100%;
+            height: 40px; /* 轨道高度 */
+            background-image: url('https://i.ibb.co/q73QkPq/railroad-track.png'); /* 铁轨图片 */
+            background-repeat: repeat-x;
+            background-size: auto 100%;
+            animation: moveTrack 0.8s linear infinite; /* 快速移动 */
+            z-index: 30;
+        }
 
-    /* interactive puzzle */
-    .puzzle{
-      display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:center;
-    }
-    .puzzle .cover img{width:100%; height:100%; object-fit:cover; aspect-ratio:4/5}
-    .pad-20{padding:20px}
+        /* 5. 火车 */
+        .train-container {
+            position: absolute;
+            bottom: 28%; /* 火车位置调整到轨道上方 */
+            left: 50%; /* 居中 */
+            transform: translateX(-50%) translateY(0); /* 初始位置 */
+            width: 300px; /* 火车图片宽度 */
+            height: auto;
+            animation: trainBobbing 0.4s ease-in-out infinite alternate; /* 火车颠簸动画 */
+            z-index: 40;
+        }
 
-    .terminal{
-      font-family:'Roboto Mono',monospace; background:#0a0a0b; color:#32d09f;
-      border:1px solid #1f1f25; padding:16px; border-radius:12px; min-height:180px;
-    }
-    .terminal .line{white-space:pre-wrap; margin:0}
-    .terminal .caret::after{
-      content:"█"; animation:blink 1.1s steps(1) infinite; margin-left:6px;
-    }
-    @keyframes blink{50%{opacity:0}}
+        .train-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
 
-    .input-row{display:flex; gap:.6rem; margin-top:10px}
-    .input-row input{
-      flex:1; padding:.65rem .8rem; border-radius:10px; border:1px solid #2a2a31;
-      background:#121214; color:#dcdce1;
-    }
-    .input-row button{
-      padding:.65rem .9rem; border-radius:10px; border:1px solid #2a2a31; background:#17171a; color:#e7e7ec; font-weight:600;
-      transition:transform .2s ease, box-shadow .2s ease;
-    }
-    .input-row button:hover{transform:translateY(-1px); box-shadow:0 10px 24px var(--shadow)}
-    .hint{color:#8f8f98; font-size:.92rem; margin-top:6px}
+        /* 6. 关键帧动画 */
 
-    /* timeline */
-    .timeline{position:relative; margin-top:24px; padding-left:14px; border-left:2px dashed #2a2a31}
-    .dot{--size:10px; position:absolute; left:-6px; width:var(--size); height:var(--size); border-radius:50%;
-      background:linear-gradient(180deg,#bfbfbf 0%,#7a7a82 100%); box-shadow:0 2px 6px var(--shadow)}
-    .tl-item{margin:18px 0 18px 10px}
-    .tl-item h5{margin:0 0 6px; color:#e9e9ef}
-    .tl-item span{color:var(--muted); font-size:.92rem}
+        /* 云朵移动 */
+        @keyframes moveClouds {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(150vw); } /* 移动到屏幕外 */
+        }
 
-    /* audio */
-    .audio-bar{
-      display:flex; align-items:center; gap:.6rem; margin-top:10px;
-    }
-    .audio-btn{
-      padding:.55rem .8rem; border-radius:10px; border:1px solid #2a2a31; background:#17171a; color:#e7e7ec; font-weight:600;
-    }
-    .meter{
-      flex:1; height:8px; background:#111113; border:1px solid #2a2a31; border-radius:999px; overflow:hidden;
-    }
-    .meter .fill{width:0%; height:100%; background:linear-gradient(90deg,#2db283,#0c6b4f,#2db283); transition:width .3s ease}
+        /* 地面移动 */
+        @keyframes moveGround {
+            0% { background-position: 0 0; }
+            100% { background-position: -2000px 0; } /* 移动足够远的距离 */
+        }
 
-    /* footer */
-    footer{padding:36px 20px 60px; border-top:1px solid #26262c; background:#09090a; color:#cfcfd6}
-    .footer-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
-    .footer-col h6{margin:0 0 8px; font-size:1rem; color:#e9e9ef}
-    .footer-col p{margin:0 0 6px}
-    .credits{margin-top:18px; font-size:.9rem; color:var(--muted)}
+        /* 轨道移动 */
+        @keyframes moveTrack {
+            0% { background-position: 0 0; }
+            100% { background-position: -400px 0; } /* 移动一个合适的距离 */
+        }
 
-    /* responsiveness */
-    @media (max-width: 960px){
-      .gallery-grid{grid-template-columns:1fr 1fr}
-      .puzzle{grid-template-columns:1fr}
-    }
-    @media (max-width: 640px){
-      .gallery-grid{grid-template-columns:1fr}
-      .nav{width:calc(100% - 20px)}
-    }
+        /* 火车颠簸 */
+        @keyframes trainBobbing {
+            0% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-5px); }
+            100% { transform: translateX(-50%) translateY(0px); }
+        }
 
-    /* subtle horror interactions */
-    .glitch{
-      position:absolute; inset:0; pointer-events:none; opacity:.08; mix-blend-mode:screen;
-      background: repeating-linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 2px, transparent 3px, transparent 6px);
-      animation:glitchShift 5s linear infinite;
-    }
-    @keyframes glitchShift{
-      0%{transform:translate3d(0,0,0)}
-      50%{transform:translate3d(0,-6px,0)}
-      100%{transform:translate3d(0,0,0)}
-    }
-
-    .peek{
-      position:fixed; bottom:12px; right:12px; width:74px; height:74px; border-radius:50%;
-      background: url("https://images.pexels.com/photos/674570/pexels-photo-674570.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=200&w=200") center/cover no-repeat;
-      box-shadow:0 12px 30px var(--shadow); border:1px solid #2a2a31; overflow:hidden;
-      filter:grayscale(.7) contrast(1.1);
-      transition:transform .2s ease, filter .2s ease;
-      z-index:30;
-    }
-    .peek:hover{transform:scale(1.06); filter:grayscale(.3) contrast(1.2)}
-    .peek::after{
-      content:"看见我了吗？"; position:absolute; inset:auto 0 0 0; background:rgba(0,0,0,.6); color:#dcdce1;
-      font-size:.75rem; padding:.25rem .5rem; text-align:center;
-    }
-
-    /* modal */
-    .modal{
-      position:fixed; inset:0; display:none; place-items:center; z-index:50;
-      background:rgba(0,0,0,.75);
-      backdrop-filter: blur(6px);
-    }
-    .modal.active{display:grid}
-    .modal-card{
-      width:min(680px, calc(100% - 40px));
-      border-radius:16px; border:1px solid #2a2a31; overflow:hidden;
-      background:linear-gradient(180deg,#151517 0%,#111113 100%);
-      box-shadow:0 20px 60px rgba(0,0,0,.7);
-      animation:pop .2s ease;
-    }
-    @keyframes pop{from{transform:scale(.96); opacity:0} to{transform:scale(1); opacity:1}}
-    .modal-head{
-      display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid #2a2a31;
-    }
-    .modal-head h3{margin:0; font-size:1.1rem}
-    .modal-body{padding:14px 16px}
-    .close-btn{
-      border:1px solid #2a2a31; background:#17171a; color:#dcdce1; padding:.45rem .65rem; border-radius:10px; font-weight:600;
-    }
-    .modal-img{
-      width:100%; height:320px; object-fit:cover;
-      background:url("https://images.pexels.com/photos/30316242/pexels-photo-30316242.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1200&w=2000") center/cover no-repeat;
-      filter:contrast(1.05) brightness(.9);
-    }
-
-    /* secret hover on hero title */
-    .title:hover{color:#f0f0f6}
-  </style>
+    </style>
 </head>
 <body>
-  <!-- noise overlay -->
-  <div class="grain" aria-hidden="true"></div>
 
-  <!-- nav -->
-  <nav class="nav" aria-label="主导航">
-    <a href="#gallery">暗影画廊</a>
-    <a href="#puzzle">旧屋终端</a>
-    <a href="#timeline">午夜时间线</a>
-    <a id="openModal" href="#">镜中来客</a>
-  </nav>
+    <div class="scene">
+        <h1>小火车，呜呜呜...</h1>
 
-  <!-- hero -->
-  <header class="hero" role="banner" aria-label="午夜的开场">
-    <div class="glitch"></div>
-    <div class="fog"></div>
-    <div class="hero-content">
-      <div class="brand">THE HOUSE AT 3:17 AM</div>
-      <h1 class="title">当门缝低语时，请轻一点走</h1>
-      <p class="subtitle">冷雾贴在窗上，旧木地板在脚边发出细小的回声。你知道，有些东西在黑暗里看着你，但它们更像是等待被你看见。</p>
-      <div class="cta">
-        <a class="btn red" href="#gallery">进入暗影</a>
-        <a class="btn" href="#puzzle">连接终端</a>
-      </div>
-    </div>
-    <!-- candles -->
-    <div class="candle"></div>
-    <div class="candle"></div>
-    <div class="candle"></div>
-    <div class="candle"></div>
-    <div class="candle"></div>
-  </header>
+        <img src="https://i.ibb.co/WcWz3r9/cloud1.png" alt="云朵" class="cloud" style="top: 10%; left: -20%; animation-delay: 0s; width: 180px;">
+        <img src="https://i.ibb.co/cCtjP8R/cloud2.png" alt="云朵" class="cloud" style="top: 25%; left: -50%; animation-delay: 10s; width: 220px;">
+        <img src="https://i.ibb.co/WcWz3r9/cloud1.png" alt="云朵" class="cloud" style="top: 18%; left: -80%; animation-delay: 20s; width: 150px;">
 
-  <!-- gallery -->
-  <section id="gallery">
-    <div class="container">
-      <h2 class="section-title">暗影画廊 · 旧屋的目光</h2>
-      <p class="section-sub">走过走廊、推开门、抬眼看窗檐——每一处都藏着线索，每一眼都像被看见。</p>
+        <div class="ground"></div>
+        <div class="track"></div>
 
-      <div class="gallery-grid">
-        <article class="card">
-          <span class="badge">走廊尽头</span>
-          <img alt="昏暗走廊尽头的门" src="https://images.pexels.com/photos/30359356/pexels-photo-30359356.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
-          <div class="pad">
-            <h3 style="margin:0 0 6px">门后有风</h3>
-            <p style="margin:0;color:#cfcfd6">有人轻轻推了一下，门却自己关上。你站在原地，听见气息。</p>
-          </div>
-        </article>
-
-        <article class="card">
-          <span class="badge">空房里</span>
-          <img alt="破旧房间与遗落的椅子" src="https://images.pexels.com/photos/2167872/pexels-photo-2167872.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
-          <div class="pad">
-            <h3 style="margin:0 0 6px">椅子在看你</h3>
-            <p style="margin:0;color:#cfcfd6">它一直在那里，像一双被遗忘的眼睛，盯着每个进来的脚步。</p>
-          </div>
-        </article>
-
-        <article class="card">
-          <span class="badge">窗与雾</span>
-          <img alt="布满水汽的窗与隐约的影子" src="https://images.pexels.com/photos/15319186/pexels-photo-15319186.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
-          <div class="pad">
-            <h3 style="margin:0 0 6px">名字写在雾上</h3>
-            <p style="margin:0;color:#cfcfd6">不知是谁用指尖在玻璃上写下了你的名字，还没干。</p>
-          </div>
-        </article>
-
-        <article class="card">
-          <span class="badge">楼梯下</span>
-          <img alt="楼梯下的阴影与老旧墙面" src="https://images.pexels.com/photos/5343816/pexels-photo-5343816.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
-          <div class="pad">
-            <h3 style="margin:0 0 6px">影子在数数</h3>
-            <p style="margin:0;color:#cfcfd6">一步，两步，第三步会发出喀的一声，像在提醒你停下。</p>
-          </div>
-        </article>
-
-        <article class="card">
-          <span class="badge">阁楼口</span>
-          <img alt="阁楼入口与垂下的木梯" src="https://images.pexels.com/photos/27375186/pexels-photo-27375186.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
-          <div class="pad">
-            <h3 style="margin:0 0 6px">谁住在上面</h3>
-            <p style="margin:0;color:#cfcfd6">木梯上的灰却很新，像刚刚有人上去，又下来。</p>
-          </div>
-        </article>
-
-        <article class="card">
-          <span class="badge">手电光</span>
-          <img alt="手电筒光束穿过黑暗的房间" src="https://images.pexels.com/photos/7463867/pexels-photo-7463867.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
-          <div class="pad">
-            <h3 style="margin:0 0 6px">光里有尘</h3>
-            <p style="margin:0;color:#cfcfd6">尘粒在光里漂浮，像一句句被打散的忏悔。</p>
-          </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- interactive terminal puzzle -->
-  <section id="puzzle">
-    <div class="container">
-      <h2 class="section-title">旧屋终端 · 密语连接</h2>
-      <p class="section-sub">终端会回应你的问题，如果你问得够轻。输入“open”或“listen”，看它愿意告诉你什么。</p>
-
-      <div class="puzzle">
-        <div class="cover panel">
-          <img alt="夜色中孤立的房屋与昏黄灯光" src="https://images.pexels.com/photos/5343818/pexels-photo-5343818.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1200&w=900" />
+        <div class="train-container">
+            <img src="https://i.ibb.co/h7g7Q6R/train-cartoon.png" alt="小火车">
         </div>
-        <div class="panel pad-20">
-          <div class="terminal" id="terminal" aria-live="polite">
-            <p class="line">[3:17 AM] 连接到: HOUSE-LOW-VOICE</p>
-            <p class="line">提示: 输入 "open" / "listen" / "door" / "name"</p>
-            <p class="line caret">等待输入...</p>
-          </div>
-          <div class="input-row">
-            <input id="cmd" type="text" placeholder="在此输入指令..." aria-label="终端指令输入" />
-            <button id="run">执行</button>
-          </div>
-          <p class="hint">提示：有些词只能在黑暗里被听见。试试用小写字母。</p>
 
-          <div class="audio-bar">
-            <button class="audio-btn" id="audioToggle">播放低语</button>
-            <div class="meter"><div class="fill" id="audioFill"></div></div>
-          </div>
-
-          <div class="timeline" id="timeline">
-            <div class="dot" style="top:6px"></div>
-            <div class="tl-item">
-              <h5>00:41 · 门缝里有风</h5>
-              <span>门自己开了一指宽，然后又停住了。</span>
-            </div>
-            <div class="dot" style="top:76px"></div>
-            <div class="tl-item">
-              <h5>01:03 · 窗上出现名字</h5>
-              <span>不属于屋主，恰好是你在用的名字。</span>
-            </div>
-            <div class="dot" style="top:146px"></div>
-            <div class="tl-item">
-              <h5>03:17 · 地板发出第三声</h5>
-              <span>像在提醒：不要往更黑的地方走。</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
-  </section>
 
-  <!-- modal -->
-  <div class="modal" id="modal" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal-head">
-        <h3 id="modalTitle">镜中来客</h3>
-        <button class="close-btn" id="closeModal">关闭</button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-img" role="img" aria-label="破碎的镜子里隐约的影子"></div>
-        <p style="margin-top:10px; color:#dcdce1">你靠近镜面，呼吸在玻璃上凝结成白。影子没有动，却像更靠近了一步。</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- footer -->
-  <footer>
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-col">
-          <h6>午夜诡域</h6>
-          <p>一个关于看与被看见的故事。</p>
-          <p>请轻一点走，门缝会告诉你路。</p>
-        </div>
-        <div class="footer-col">
-          <h6>素材说明</h6>
-          <p>图片链接来自公开图库；请在正式项目中核对授权。</p>
-          <p>页面支持PC与移动端浏览，自适应布局。</p>
-        </div>
-        <div class="footer-col">
-          <h6>操作提示</h6>
-          <p>尝试点击“镜中来客”、运行终端指令、播放低语。</p>
-          <p>在画廊中悬停卡片，留意细微的变化。</p>
-        </div>
-      </div>
-      <div class="credits">© 午夜诡域 · The Quiet House. 仅作个人展示使用。</div>
-    </div>
-  </footer>
-
-  <div class="peek" title="看见我了吗？" aria-label="角落里的窥视者"></div>
-
-  <audio id="whisper" preload="auto">
-    <source src="https://cdn.pixabay.com/download/audio/2022/03/22/audio_5f4f7b3d3e.mp3?filename=creepy-ambient-109538.mp3" type="audio/mpeg" />
-  </audio>
-
-  <script>
-    // subtle parallax for hero
-    (function(){
-      const hero = document.querySelector('.hero');
-      window.addEventListener('scroll', ()=>{
-        const y = window.scrollY;
-        hero.style.transform = `translate3d(0, ${y * -0.04}px, 0)`;
-      }, {passive:true});
-    })();
-
-    // smooth nav
-    document.querySelectorAll('.nav a[href^="#"]').forEach(a=>{
-      a.addEventListener('click', e=>{
-        e.preventDefault();
-        const id = a.getAttribute('href').replace('#','');
-        const target = document.getElementById(id);
-        if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
-      });
-    });
-
-    // modal
-    const openModal = document.getElementById('openModal');
-    const modal = document.getElementById('modal');
-    const closeModal = document.getElementById('closeModal');
-    openModal.addEventListener('click', e=>{
-      e.preventDefault();
-      modal.classList.add('active');
-      modal.setAttribute('aria-hidden','false');
-    });
-    closeModal.addEventListener('click', ()=>{
-      modal.classList.remove('active');
-      modal.setAttribute('aria-hidden','true');
-    });
-    modal.addEventListener('click', (e)=>{
-      if(e.target === modal){
-        modal.classList.remove('active');
-        modal.setAttribute('aria-hidden','true');
-      }
-    });
-
-    // terminal interactions
-    const term = document.getElementById('terminal');
-    const cmd = document.getElementById('cmd');
-    const run = document.getElementById('run');
-
-    function print(line, cls){
-      const p = document.createElement('p');
-      p.className = 'line' + (cls ? ' ' + cls : '');
-      p.textContent = line;
-      term.appendChild(p);
-      term.scrollTop = term.scrollHeight;
-    }
-
-    const replies = {
-      open: [
-        '[系统] 门缝扩大了两指宽。',
-        '[耳语] 别进来，我在里面。',
-        '[提示] 输入 "door" 继续。'
-      ],
-      door: [
-        '[门] 门轴发出第三声。你想起时间线里写过它。',
-        '[耳语] 你站在我面前了吗？'
-      ],
-      listen: [
-        '[噪声] sssss...',
-        '[耳语] 你的名字不在这里，却一直被叫出来。'
-      ],
-      name: [
-        '[镜子] 雾面上出现了你的名字，像是从里面写的。',
-        '[提示] 点击右上“镜中来客”。'
-      ]
-    };
-
-    run.addEventListener('click', ()=>{
-      const value = (cmd.value || '').trim().toLowerCase();
-      if(!value){ print('[系统] 请输入指令。'); return; }
-      print('> ' + value, 'user');
-      if(replies[value]){
-        replies[value].forEach(l=>print(l));
-      }else{
-        print('[系统] 未知指令。试试 "open" / "listen" / "door" / "name"');
-      }
-      cmd.value = '';
-    });
-
-    cmd.addEventListener('keydown', (e)=>{
-      if(e.key === 'Enter'){ run.click(); }
-    });
-
-    // audio
-    const audio = document.getElementById('whisper');
-    const audioToggle = document.getElementById('audioToggle');
-    const audioFill = document.getElementById('audioFill');
-    let playing = false, meterInterval;
-
-    audioToggle.addEventListener('click', ()=>{
-      if(!playing){
-        audio.play().then(()=>{
-          playing = true;
-          audioToggle.textContent = '暂停低语';
-          meterInterval = setInterval(()=>{
-            const w = Math.min(100, Math.floor((Math.random()*60) + (audio.currentTime % 1)*40));
-            audioFill.style.width = w + '%';
-          }, 260);
-        }).catch(()=>{
-          print('[音频] 无法播放，请稍后重试。');
-        });
-      }else{
-        audio.pause();
-        playing = false;
-        audioToggle.textContent = '播放低语';
-        audioFill.style.width = '0%';
-        clearInterval(meterInterval);
-      }
-    });
-
-    // random peek pulse
-    const peek = document.querySelector('.peek');
-    setInterval(()=>{
-      const s = 1 + (Math.random()*0.06);
-      peek.style.transform = `scale(${s})`;
-    }, 2000);
-
-    // occasional screen dim flash
-    const flash = document.createElement('div');
-    flash.style.position = 'fixed';
-    flash.style.inset = '0';
-    flash.style.background = 'rgba(0,0,0,.35)';
-    flash.style.pointerEvents = 'none';
-    flash.style.opacity = '0';
-    flash.style.transition = 'opacity .8s ease';
-    document.body.appendChild(flash);
-
-    function dimFlash(){
-      flash.style.opacity = '1';
-      setTimeout(()=>flash.style.opacity='0', 800);
-    }
-    setInterval(()=>{
-      if(Math.random() < 0.18) dimFlash();
-    }, 6000);
-
-    // accessibility: reduce motion
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    function reduceMotionUpdate(e){
-      if(e.matches){
-        document.querySelectorAll('.candle,.fog,.glitch').forEach(el=>el.style.animation='none');
-      }
-    }
-    reduceMotionUpdate(mq);
-    mq.addEventListener('change', reduceMotionUpdate);
-  </script>
 </body>
 </html>

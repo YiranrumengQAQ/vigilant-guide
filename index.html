@@ -66,28 +66,15 @@
         }
         
         #trigger-char {
-            cursor: pointer;
+            cursor: default; /* (已修改) 恢复默认光标，增强隐蔽性 */
             position: relative;
-            display: inline-block; /* 确保动画只作用于单个字 */
-            transition: all 0.2s ease-out; /* 更平滑的过渡 */
-            transform-origin: center center; /* 确保缩放从中心开始 */
+            display: inline-block; 
+            /* (已移除) transition: all 0.2s ease-out; */
+            transform-origin: center center; 
         }
 
-        /* "寂"字点击反馈的动画效果 */
-        #trigger-char.clicked {
-            color: var(--accent-pink); /* 改变颜色 */
-            text-shadow: 0 0 25px var(--accent-pink), 0 0 15px rgba(255, 255, 255, 0.8);
-            transform: scale(1.1) rotateZ(-2deg); /* 轻微放大和旋转 */
-            opacity: 0.9;
-            animation: bounceIn 0.3s ease-out; /* 新增一个小的回弹动画 */
-        }
-
-        @keyframes bounceIn {
-            0% { transform: scale(0.9) rotateZ(0deg); opacity: 0.5; }
-            50% { transform: scale(1.15) rotateZ(-3deg); opacity: 1; }
-            100% { transform: scale(1) rotateZ(-2deg); opacity: 0.9; }
-        }
-
+        /* (已移除) "寂"字点击反馈的动画效果 CSS (trigger-char.clicked 和 @keyframes bounceIn) */
+        
         /* --- 石头滚落弹窗 --- */
         #rock-fall-popup {
             position: fixed;
@@ -436,12 +423,14 @@
         <div id="stygian-key">🪨</div>
     </div>
     
-    <div id="rock-fall-popup">
+    
+<div id="rock-fall-popup">
         <span class="icon">🪨</span>
         <span class="text">一块小石头滚落了...</span>
     </div>
     
-    <div id="rock-hint">深处传来一声巨响，通道正在开启...</div> <div id="omega-unlock-hint">✨ 隐藏的通道已开启。欢迎来到 OMEGA 核心界面。✨</div>
+    <div id="rock-hint">深处传来一声巨响，通道正在开启...</div> 
+<div id="omega-unlock-hint">✨ 隐藏的通道已开启。欢迎来到 OMEGA 核心界面。✨</div>
 
     <div id="omega-core">
         <h1 class="omega-header">💖 L O V E L Y  P L E A S U R E  L O O P  V3.7.9 💖</h1>
@@ -536,11 +525,11 @@
             triggerCharClickCount++;
             console.log(`Trigger Char Click: ${triggerCharClickCount}/${KEY_TRIGGER_THRESHOLD}`);
 
-            // 点击反馈：闪烁
-            triggerChar.classList.add('clicked');
-            setTimeout(() => {
-                triggerChar.classList.remove('clicked');
-            }, 200); // 闪烁时间稍长，与动画匹配
+            // (已移除) 点击反馈：闪烁 (JS 部分)
+            // triggerChar.classList.add('clicked');
+            // setTimeout(() => {
+            //     triggerChar.classList.remove('clicked');
+            // }, 200); 
 
             // 达到阈值
             if (triggerCharClickCount >= KEY_TRIGGER_THRESHOLD) {

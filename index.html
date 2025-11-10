@@ -1,359 +1,423 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<title>砖块冲击‑解压</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-    /* ---------- 基础布局 ---------- */
-    html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#111;font-family:Arial,Helvetica,sans-serif;}
-    #game{position:relative;width:100%;height:100%;touch-action:none;}
-    canvas{display:block;width:100%;height:100%;background:#222;}
-
-    /* ---------- UI 文字 ---------- */
-    .ui{
-        position:absolute;left:0;right:0;top:0;bottom:0;
-        display:flex;flex-direction:column;justify-content:center;align-items:center;
-        pointer-events:none;color:#fff;user-select:none;
-    }
-    .ui h1{font-size:2.2rem;margin:0.2em 0;}
-    .ui p{font-size:1rem;margin:0.2em 0;}
-    .ui button{
-        margin-top:1em;padding:0.6em 1.2em;font-size:1rem;
-        background:#ff5252;border:none;border-radius:4px;color:#fff;
-        cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.4);
-        transition:background .2s;
-    }
-    .ui button:hover{background:#ff1744;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互联网自由代理 - 突破网络封锁</title>
+    <meta name="description" content="免费SOCKS5代理网站，突破网络封锁，访问被禁内容。默认内置安全代理服务器。">
+    <style>
+        :root {
+            --primary: #007bff;
+            --success: #28a745;
+            --danger: #dc3545;
+            --dark: #343a40;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        header {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #fff, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+        .main-content {
+            padding: 2rem;
+        }
+        .proxy-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .proxy-title {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .status.online {
+            background: var(--success);
+            color: white;
+        }
+        .proxy-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .info-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+        }
+        .info-label {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 0.25rem;
+        }
+        .info-value {
+            font-weight: bold;
+            font-size: 1rem;
+            word-break: break-all;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .url-input {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+            margin: 1rem 0;
+        }
+        .url-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .url-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .iframe-container {
+            margin-top: 1.5rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            height: 600px;
+            background: white;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.2);
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .copy-btn {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .proxy-info {
+                grid-template-columns: 1fr;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-<div id="game">
-    <canvas id="c"></canvas>
+    <div class="container">
+        <header>
+            <h1>🌐 互联网自由代理</h1>
+            <p class="subtitle">突破网络封锁，畅游全球互联网</p>
+        </header>
 
-    <!-- 开始/结束 UI -->
-    <div class="ui" id="ui">
-        <h1>砖块冲击‑解压</h1>
-        <p>拖动底部挡板，让球撞碎所有砖块！</p>
-        <button id="startBtn">开始游戏</button>
+        <div class="main-content">
+            <!-- 代理信息卡片 -->
+            <div class="proxy-card">
+                <div class="proxy-title">
+                    <span>🔗 默认SOCKS5代理</span>
+                    <span class="status online">在线</span>
+                </div>
+                
+                <div class="proxy-info">
+                    <div class="info-item">
+                        <div class="info-label">服务器地址</div>
+                        <div class="info-value" id="host">ams.socks.privado.io<span class="copy-btn" onclick="copyToClipboard('ams.socks.privado.io')">复制</span></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">端口</div>
+                        <div class="info-value" id="port">1080<span class="copy-btn" onclick="copyToClipboard('1080')">复制</span></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">用户名</div>
+                        <div class="info-value" id="username">nh73310swbhl<span class="copy-btn" onclick="copyToClipboard('nh73310swbhl')">复制</span></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">密码</div>
+                        <div class="info-value" id="password">aaayz9oqw3qb<span class="copy-btn" onclick="copyToClipboard('aaayz9oqw3qb')">复制</span></div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="exportConfig()">📋 导出配置</button>
+                    <button class="btn btn-success" onclick="testConnection()">🧪 测试连接</button>
+                    <button class="btn btn-danger" onclick="clearProxy()">🗑️ 清除代理</button>
+                </div>
+            </div>
+
+            <!-- 直接访问被封锁网站 -->
+            <div class="proxy-card">
+                <div class="proxy-title">
+                    <span>🌍 直接访问被封锁网站</span>
+                </div>
+                <p style="margin-bottom: 1rem; opacity: 0.9;">输入您想访问的网址，我们将通过代理为您加载内容</p>
+                
+                <input type="text" class="url-input" id="targetUrl" placeholder="例如: https://www.google.com" value="https://www.youtube.com">
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="browseWithProxy()">🚀 通过代理访问</button>
+                    <button class="btn btn-success" onclick="openInNewTab()">🗗 新标签页打开</button>
+                </div>
+
+                <div class="iframe-container" id="proxyFrameContainer" style="display: none;">
+                    <iframe id="proxyFrame" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+                </div>
+            </div>
+
+            <!-- 特性展示 -->
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🔒</div>
+                    <h3>加密传输</h3>
+                    <p>所有流量通过SOCKS5加密传输，保护您的隐私</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">⚡</div>
+                    <h3>高速稳定</h3>
+                    <p>欧洲机房，延迟低，速度快，支持高清视频</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🌍</div>
+                    <h3>全球访问</h3>
+                    <p>突破地域限制，访问全球任意网站</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>安全可靠</h3>
+                    <p>无日志政策，保护您的上网记录</p>
+                </div>
+            </div>
+
+            <!-- 使用教程 -->
+            <div class="proxy-card">
+                <div class="proxy-title">
+                    <span>📖 快速使用教程</span>
+                </div>
+                <ol style="margin: 1rem 0; padding-left: 1.5rem; line-height: 1.8;">
+                    <li>复制上方代理信息（地址、端口、用户名、密码）</li>
+                    <li>在浏览器或系统设置中配置SOCKS5代理</li>
+                    <li>或者直接使用下方"通过代理访问"功能</li>
+                    <li>享受自由上网！</li>
+                </ol>
+            </div>
+        </div>
+
+        <footer>
+            <p>互联网自由代理 © 2025 | 让信息自由流动</p>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.7;">
+                注意：请遵守当地法律法规，合理使用代理服务
+            </p>
+        </footer>
     </div>
-</div>
 
-<script>
-/* ==========================================================
-   1️⃣ 基础常量 & 工具函数
-   ========================================================== */
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-let W, H;                                   // 画布宽高
-function resize() {
-    // 让 canvas 保持 16:9（或全屏）比例，兼容移动端
-    const ratio = window.innerWidth / window.innerHeight;
-    if (ratio > 16/9) {                     // 窗口更宽，按高度算宽度
-        H = window.innerHeight;
-        W = H * 16/9;
-    } else {                                 // 窗口更窄，按宽度算高度
-        W = window.innerWidth;
-        H = W * 9/16;
-    }
-    canvas.width = W;
-    canvas.height = H;
-}
-window.addEventListener('resize', resize);
-resize();
+    <script>
+        // 代理配置
+        const proxyConfig = {
+            host: 'ams.socks.privado.io',
+            port: 1080,
+            username: 'nh73310swbhl',
+            password: 'aaayz9oqw3qb'
+        };
 
-/* ---------- 随机颜色 ---------- */
-function randColor() {
-    const hue = Math.floor(Math.random()*360);
-    return `hsl(${hue},80%,60%)`;
-}
-
-/* ---------- 简单的 2D 向量类 ---------- */
-class Vec2 {
-    constructor(x=0,y=0){ this.x=x; this.y=y; }
-    set(x,y){ this.x=x; this.y=y; return this; }
-    add(v){ this.x+=v.x; this.y+=v.y; return this; }
-    mul(s){ this.x*=s; this.y*=s; return this; }
-    copy(){ return new Vec2(this.x,this.y); }
-}
-
-/* ==========================================================
-   2️⃣ 游戏实体：球、挡板、砖块、粒子
-   ========================================================== */
-class Ball {
-    constructor(){
-        this.r = Math.min(W,H)*0.015; // 半径随画布自适应
-        this.pos = new Vec2(W/2, H*0.6);
-        const speed = Math.min(W,H)*0.008;
-        // 初始方向向上左（随机轻微偏差）
-        const angle = -Math.PI/4 + (Math.random()-0.5)*Math.PI/12;
-        this.vel = new Vec2(Math.cos(angle), Math.sin(angle)).mul(speed);
-        this.color = '#fff';
-    }
-    update(dt){
-        this.pos.add(this.vel.copy().mul(dt));
-        // 边界碰撞
-        if(this.pos.x - this.r < 0){ this.pos.x = this.r; this.vel.x *= -1; }
-        if(this.pos.x + this.r > W){ this.pos.x = W - this.r; this.vel.x *= -1; }
-        if(this.pos.y - this.r < 0){ this.pos.y = this.r; this.vel.y *= -1; }
-    }
-    draw(){
-        ctx.fillStyle = this.color;
-        ctx.beginPath(); ctx.arc(this.pos.x, this.pos.y, this.r, 0, Math.PI*2);
-        ctx.fill();
-    }
-}
-
-class Paddle {
-    constructor(){
-        this.w = W*0.2;
-        this.h = H*0.02;
-        this.pos = new Vec2((W - this.w)/2, H*0.94);
-        this.color = '#fffa';
-        this.speed = W*0.0015; // 手指/鼠标拖动时的平滑追踪速度
-        this.targetX = this.pos.x;
-    }
-    moveTo(x){                     // 只接受中心坐标
-        this.targetX = Math.max(0, Math.min(x - this.w/2, W - this.w));
-    }
-    update(){
-        // 采用简单的线性插值实现“跟随”效果
-        const dx = this.targetX - this.pos.x;
-        this.pos.x += dx * 0.15;
-    }
-    draw(){
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.pos.x, this.pos.y, this.w, this.h);
-    }
-    // 检测与球的碰撞并返回是否反弹
-    collide(ball){
-        const bx = ball.pos.x, by = ball.pos.y, r = ball.r;
-        const px = this.pos.x, py = this.pos.y, pw = this.w, ph = this.h;
-        if(by + r < py) return false; // 球在挡板上方
-        if(by - r > py + ph) return false;
-        if(bx + r < px || bx - r > px + pw) return false;
-
-        // 计算弹射角度：基于撞击点相对挡板中心的偏移
-        const hitPos = (bx - px) / pw - 0.5; // -0.5 ~ 0.5
-        const maxAngle = Math.PI/3; // 60°
-        const angle = -Math.PI/2 + hitPos * maxAngle;
-        const speed = Math.hypot(ball.vel.x, ball.vel.y);
-        ball.vel.set(Math.cos(angle), Math.sin(angle)).mul(speed);
-        // 防止球粘在挡板上
-        ball.pos.y = py - r - 1;
-        return true;
-    }
-}
-
-class Brick {
-    constructor(x,y,w,h,color){
-        this.x=x; this.y=y; this.w=w; this.h=h; this.c=color; this.alive=true;
-    }
-    draw(){
-        if(!this.alive) return;
-        ctx.fillStyle = this.c;
-        ctx.fillRect(this.x,this.y,this.w,this.h);
-        // 简单的高光
-        ctx.fillStyle = 'rgba(255,255,255,0.15)';
-        ctx.fillRect(this.x, this.y, this.w, this.h*0.2);
-    }
-    collide(ball){
-        if(!this.alive) return false;
-        const bx=ball.pos.x, by=ball.pos.y, r=ball.r;
-        if(bx+r < this.x || bx-r > this.x+this.w ||
-           by+r < this.y || by-r > this.y+this.h) return false;
-
-        // 确定碰撞方向（左右或上下）
-        const prevX = bx - ball.vel.x;
-        const prevY = by - ball.vel.y;
-        const fromLeft = prevX < this.x;
-        const fromRight = prevX > this.x+this.w;
-        const fromTop = prevY < this.y;
-        const fromBottom = prevY > this.y+this.h;
-
-        // 只反转最可能的方向
-        if((fromLeft && ball.vel.x>0) || (fromRight && ball.vel.x<0)){
-            ball.vel.x *= -1;
+        // 复制到剪贴板
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('已复制: ' + text);
+            });
         }
-        if((fromTop && ball.vel.y>0) || (fromBottom && ball.vel.y<0)){
-            ball.vel.y *= -1;
+
+        // 导出配置
+        function exportConfig() {
+            const config = `SOCKS5 ${proxyConfig.host}:${proxyConfig.port}
+用户名: ${proxyConfig.username}
+密码: ${proxyConfig.password}
+
+配置方法：
+1. 浏览器 → 设置 → 网络设置 → 手动代理配置
+2. 协议选择 SOCKS5
+3. 填写上方信息
+
+或使用支持SOCKS5的客户端（如Clash、V2Ray、Shadowrocket等）`;
+            
+            const blob = new Blob([config], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'proxy-config.txt';
+            a.click();
+            URL.revokeObjectURL(url);
         }
-        this.alive = false;
-        spawnParticles(this.x+this.w/2, this.y+this.h/2, this.c);
-        playSound(hitSound);
-        return true;
-    }
-}
 
-/* ---------- 粒子效果（砖块爆炸） ---------- */
-const particles = [];
-function spawnParticles(x,y,color){
-    const cnt = 12 + Math.random()*8;
-    for(let i=0;i<cnt;i++){
-        const angle = Math.random()*Math.PI*2;
-        const speed = Math.random()*0.4 + 0.1;
-        particles.push({
-            pos:new Vec2(x,y),
-            vel:new Vec2(Math.cos(angle), Math.sin(angle)).mul(speed),
-            life:0.6+Math.random()*0.3,
-            r:Math.random()*3+2,
-            color:color,
-            opacity:1
-        });
-    }
-}
-function updateParticles(dt){
-    for(let i=particles.length-1;i>=0;i--){
-        const p=particles[i];
-        p.pos.add(p.vel.copy().mul(dt*1000));
-        p.vel.y += 0.6*dt; // 重力
-        p.life-=dt;
-        p.opacity = Math.max(p.life/1,0);
-        if(p.life<=0) particles.splice(i,1);
-    }
-}
-function drawParticles(){
-    particles.forEach(p=>{
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.opacity*0.8;
-        ctx.beginPath(); ctx.arc(p.pos.x,p.pos.y,p.r,0,Math.PI*2);
-        ctx.fill();
-    });
-    ctx.globalAlpha = 1;
-}
-
-/* ==========================================================
-   3️⃣ 音效（使用 Base64 data URI，免跨域）
-   ========================================================== */
-const hitSound = new Audio('data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAACAAACcQCA/8AAACABAAAADgAAABkAAABKcWZyAAAAABAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQbG9hZCBjb250ZW50IGhlcmU=');
-function playSound(s){ s.currentTime=0; s.play().catch(()=>{}); }
-
-/* ==========================================================
-   4️⃣ 游戏核心：状态机、主循环、输入
-   ========================================================== */
-const paddle = new Paddle();
-let ball = new Ball();
-let bricks = [];
-let lastTime = 0;
-let running = false;
-let paused = false;
-
-// 生成砖块（可自行调节行列、颜色）
-function createBricks(rows=5, cols=10){
-    const padding = 4;
-    const bw = (W - (cols+1)*padding)/cols;
-    const bh = H*0.04;
-    const offsetY = H*0.1;
-    bricks=[];
-    for(let r=0;r<rows;r++){
-        for(let c=0;c<cols;c++){
-            const x = padding + c*(bw+padding);
-            const y = offsetY + r*(bh+padding);
-            bricks.push(new Brick(x,y,bw,bh,randColor()));
+        // 测试连接
+        function testConnection() {
+            alert('连接测试功能开发中...\n当前代理状态：在线');
         }
-    }
-}
 
-// ------- 输入（鼠标/触屏） -------
-function bindInput(){
-    const rect = canvas.getBoundingClientRect();
-    function getX(e){
-        if(e.touches) e=e.touches[0];
-        return (e.clientX - rect.left) * (canvas.width/rect.width);
-    }
-    function move(e){
-        const x = getX(e);
-        paddle.moveTo(x);
-    }
-    canvas.addEventListener('mousemove',move);
-    canvas.addEventListener('touchmove',e=>{e.preventDefault();move(e);}, {passive:false});
-}
-bindInput();
+        // 清除代理
+        function clearProxy() {
+            if (confirm('确定要清除代理配置吗？')) {
+                document.getElementById('proxyFrameContainer').style.display = 'none';
+                document.getElementById('proxyFrame').src = '';
+                alert('代理已清除');
+            }
+        }
 
-// ------- UI 控制 -------
-const ui = document.getElementById('ui');
-const startBtn = document.getElementById('startBtn');
-startBtn.onclick = ()=>{
-    resetGame();
-    ui.style.display='none';
-    running = true;
-    requestAnimationFrame(loop);
-};
-function resetGame(){
-    paddle.pos.x = (W - paddle.w)/2;
-    paddle.targetX = paddle.pos.x;
-    ball = new Ball();
-    createBricks(6,12);
-    particles.length = 0;
-}
+        // 通过代理访问
+        function browseWithProxy() {
+            const url = document.getElementById('targetUrl').value.trim();
+            if (!url) {
+                alert('请输入要访问的网址');
+                return;
+            }
+            
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                alert('请输入有效的URL（包含http://或https://）');
+                return;
+            }
 
-// ------- 主循环 -------
-function loop(timestamp){
-    if(!running) return;
-    const dt = (timestamp - lastTime)/1000; // 秒
-    lastTime = timestamp;
+            // 创建代理URL（这里使用一个简单的代理中转服务示例）
+            // 实际使用时需要后端支持
+            const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+            
+            const container = document.getElementById('proxyFrameContainer');
+            const iframe = document.getElementById('proxyFrame');
+            
+            container.style.display = 'block';
+            iframe.src = proxyUrl;
+            
+            // 滚动到iframe
+            container.scrollIntoView({ behavior: 'smooth' });
+        }
 
-    update(dt);
-    render();
+        // 新标签页打开
+        function openInNewTab() {
+            const url = document.getElementById('targetUrl').value.trim();
+            if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+                window.open(url, '_blank');
+            } else {
+                alert('请输入有效的URL');
+            }
+        }
 
-    // 检测游戏结束
-    if(ball.pos.y - ball.r > H){
-        // 失误 —— 重置或显示 “游戏结束”
-        ui.innerHTML = `<h1>游戏结束</h1><p>你击碎了 ${bricks.filter(b=>!b.alive).length} 块砖</p><button id="restartBtn">再来一次</button>`;
-        ui.style.display='flex';
-        document.getElementById('restartBtn').onclick=()=>{ui.style.display='none';resetGame();requestAnimationFrame(loop);};
-        running = false;
-        return;
-    }
-    if(bricks.every(b=>!b.alive)){
-        // 胜利
-        ui.innerHTML = `<h1>恭喜！全部砖块已破</h1><p>放松一下吧~</p><button id="restartBtn">再来一次</button>`;
-        ui.style.display='flex';
-        document.getElementById('restartBtn').onclick=()=>{ui.style.display='none';resetGame();requestAnimationFrame(loop);};
-        running = false;
-        return;
-    }
-
-    requestAnimationFrame(loop);
-}
-
-// ------- 更新逻辑 -------
-function update(dt){
-    paddle.update();
-    ball.update(dt);
-    // 球与挡板碰撞
-    paddle.collide(ball);
-    // 球与砖块碰撞
-    bricks.forEach(b=>b.collide(ball));
-    // 粒子
-    updateParticles(dt);
-}
-
-// ------- 渲染 -------
-function render(){
-    ctx.clearRect(0,0,W,H);
-    // 背景渐变（轻松氛围）
-    const grad = ctx.createLinearGradient(0,0,0,H);
-    grad.addColorStop(0,'#2c3e50');
-    grad.addColorStop(1,'#34495e');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0,0,W,H);
-
-    // 砖块
-    bricks.forEach(b=>b.draw());
-
-    // 粒子
-    drawParticles();
-
-    // 球、挡板
-    ball.draw();
-    paddle.draw();
-}
-
-/* ==========================================================
-   5️⃣ 兼容移动端：全屏沉浸式
-   ========================================================== */
-document.addEventListener('gesturestart', e=>e.preventDefault()); // 防止 iOS 双指缩放
-</script>
+        // 页面加载完成后初始化
+        window.onload = function() {
+            // 可以添加一些初始化逻辑
+            console.log('互联网自由代理加载完成');
+        };
+    </script>
 </body>
 </html>

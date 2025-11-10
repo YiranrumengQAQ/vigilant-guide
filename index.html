@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>秋天落叶 · 秋色旅程</title>
+  <meta name="description" content="一个充满秋天落叶气息的沉浸式页面：微风、金叶、林间光影与温暖故事。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=ZCOOL+XiaoWei&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #1a1a19;
+      --ink: #eae7e1;
+      --accent: #d17f2d;
+      --accent-2: #bf5a2c;
+      --gold: #d9a441;
+      --leaf: #e09a3f;
+      --leaf-2: #b84e2c;
+      --muted: #b3a68a;
+      --panel: #242422;
+      --shadow: rgba(0,0,0,.35);
+    }
+
+    * { box-sizing: border-box }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Roboto', 'Noto Serif SC', system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      line-height: 1.6;
+    }
+
+    a { color: var(--gold); text-decoration: none }
+    a:hover { color: #f1c96e }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      min-height: 90vh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: radial-gradient(1200px 600px at 20% 20%, #2a2a28 0%, #1a1a19 45%, #141413 100%);
+    }
+
+    /* Hero layers */
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to bottom, rgba(0,0,0,.0) 0%, rgba(0,0,0,.35) 60%, rgba(0,0,0,.6) 100%),
+        url("https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1200&w=1800");
+      background-size: cover;
+      background-position: center;
+      filter: saturate(1.05) contrast(1.05);
+      z-index: 0;
+      transform: scale(1.02);
+    }
+
+    .hero .content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .brand {
+      display: inline-block;
+      margin-bottom: .75rem;
+      letter-spacing: .35rem;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+      font-size: .95rem;
+    }
+
+    .title {
+      font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+      font-size: clamp(2rem, 6vw, 4.25rem);
+      margin: .25rem 0 1rem;
+      line-height: 1.15;
+      text-shadow: 0 10px 40px var(--shadow);
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 0 auto 1.25rem;
+      font-weight: 300;
+      color: #e8e2d6;
+    }
+
+    .cta-group {
+      display: flex;
+      gap: .8rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1.25rem;
+    }
+
+    .btn {
+      border: 1px solid #3a3a35;
+      background: linear-gradient(180deg, #2a2a27 0%, #222220 100%);
+      color: var(--ink);
+      padding: .85rem 1.2rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px var(--shadow);
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+      font-weight: 500;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 18px 40px var(--shadow); border-color: #4a4a46 }
+    .btn.primary { background: linear-gradient(180deg, #8a4b20 0%, #5e2f19 100%); border-color: #9f5a2b }
+    .btn.primary:hover { border-color: #c87337 }
+
+    /* Floating leaves */
+    .leaf, .leaf-2 {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      background: radial-gradient(circle at 30% 30%, #f7d39b 0%, var(--leaf) 35%, #9a531f 100%);
+      opacity: .75;
+      border-radius: 2px 20px;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
+      animation: fall 12s linear infinite;
+      transform-origin: center;
+    }
+    .leaf-2 {
+      background: radial-gradient(circle at 30% 30%, #f1b39d 0%, var(--leaf-2) 40%, #7e2d1c 100%);
+      border-radius: 18px 6px;
+      animation-duration: 16s;
+    }
+    @keyframes fall {
+      0%   { transform: translateY(-10vh) translateX(0) rotate(0deg) }
+      50%  { transform: translateY(45vh) translateX(12vw) rotate(140deg) }
+      100% { transform: translateY(95vh) translateX(-8vw) rotate(320deg) }
+    }
+
+    /* Navigation */
+    .nav {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      background: rgba(22,22,21,.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid #3a3a35;
+      border-radius: 14px;
+      padding: .5rem .75rem;
+      box-shadow: 0 6px 18px var(--shadow);
+    }
+    .nav ul { margin: 0; padding: 0; display: flex; gap: .75rem; list-style: none }
+    .nav a {
+      display: block;
+      padding: .5rem .7rem;
+      border-radius: 10px;
+      color: var(--ink);
+      font-size: .95rem;
+    }
+    .nav a:hover { background: rgba(255,255,255,.06) }
+
+    /* Sections */
+    section {
+      position: relative;
+      padding: 72px 20px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .panel {
+      background: linear-gradient(180deg, #262522 0%, #201f1d 100%);
+      border: 1px solid #34332e;
+      border-radius: 16px;
+      box-shadow: 0 10px 28px var(--shadow);
+      overflow: hidden;
+    }
+
+    /* About */
+    .about {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 24px;
+      align-items: center;
+    }
+    .about img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      aspect-ratio: 4/3;
+      border-radius: 12px;
+    }
+    .section-title {
+      font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      margin: 0 0 .5rem;
+      color: #f0e8d8;
+    }
+    .section-sub {
+      color: var(--muted);
+      margin-bottom: 1rem;
+      font-size: 1.05rem;
+    }
+
+    /* Gallery */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+    .card {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #3b392f;
+      background: #1f1f1e;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px var(--shadow) }
+    .card img { width: 100%; height: 220px; object-fit: cover }
+    .card .pad { padding: 14px }
+    .badge {
+      position: absolute;
+      top: 10px; left: 10px;
+      background: rgba(0,0,0,.5);
+      color: #f7e9c7;
+      border: 1px solid #3b392f;
+      font-size: .8rem;
+      padding: 6px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(8px);
+    }
+
+    /* Quote band */
+    .quote-band {
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.4), rgba(0,0,0,.6)),
+        url("https://images.pexels.com/photos/12272922/pexels-photo-12272922.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1200&w=1800");
+      background-size: cover;
+      background-position: center;
+      border-top: 1px solid #3c3b33;
+      border-bottom: 1px solid #3c3b33;
+      text-align: center;
+      padding: 90px 20px;
+    }
+    .quote {
+      font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
+      font-size: clamp(1.4rem, 3.2vw, 2rem);
+      color: #f3e7cd;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Journal */
+    .journal {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 24px;
+    }
+    .journal .cover {
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .journal .cover img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4/5 }
+    .post {
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid #3b392f;
+      background: linear-gradient(180deg, #252421 0%, #201f1d 100%);
+      margin-bottom: 14px;
+    }
+    .post h4 {
+      margin: 0 0 .35rem;
+      font-size: 1.15rem;
+      color: #f1e7cf;
+    }
+    .post p { margin: 0; color: #e5e0d4 }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      margin-top: 24px;
+      padding-left: 14px;
+      border-left: 2px dashed #3b392f;
+    }
+    .dot {
+      --size: 11px;
+      position: absolute;
+      left: -6px;
+      width: var(--size);
+      height: var(--size);
+      background: linear-gradient(180deg, #d1ae62 0%, #b47f2b 100%);
+      border-radius: 50%;
+      box-shadow: 0 2px 6px var(--shadow);
+    }
+    .tl-item { margin: 18px 0 18px 10px }
+    .tl-item h5 { margin: 0 0 6px; color: #f0e8d8 }
+    .tl-item span { color: var(--muted); font-size: .92rem }
+
+    /* Footer */
+    footer {
+      padding: 36px 20px 60px;
+      border-top: 1px solid #34332e;
+      background: #181817;
+      color: #cfc9bc;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .footer-col h6 { margin: 0 0 8px; font-size: 1rem; color: #f0e8d8 }
+    .footer-col p { margin: 0 0 6px }
+    .credits {
+      margin-top: 18px;
+      font-size: .9rem;
+      color: var(--muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      .about, .journal { grid-template-columns: 1fr }
+      .gallery-grid { grid-template-columns: 1fr 1fr }
+    }
+    @media (max-width: 640px) {
+      .gallery-grid { grid-template-columns: 1fr }
+      .nav { width: calc(100% - 20px) }
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating nav -->
+  <nav class="nav" aria-label="主导航">
+    <ul>
+      <li><a href="#about">序章</a></li>
+      <li><a href="#gallery">秋叶画廊</a></li>
+      <li><a href="#journal">落叶记事</a></li>
+      <li><a href="#timeline">季节时间线</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero" role="banner" aria-label="秋天的开场">
+    <div class="content">
+      <div class="brand">AUTUMN TALES</div>
+      <h1 class="title">秋风起，叶归根</h1>
+      <p class="subtitle">轻轻一阵风，金色的叶片在空气里打着旋，从枝头向大地投递一封温暖的信。你抬头，世界忽然变得柔软。</p>
+      <div class="cta-group">
+        <a class="btn primary" href="#gallery">开启秋色旅程</a>
+        <a class="btn" href="#about">阅读序章</a>
+      </div>
+    </div>
+
+    <!-- Decorative falling leaves -->
+    <div class="leaf" style="top:8%;left:12%"></div>
+    <div class="leaf-2" style="top:16%;left:78%"></div>
+    <div class="leaf" style="top:2%;left:54%"></div>
+    <div class="leaf-2" style="top:22%;left:32%"></div>
+    <div class="leaf" style="top:30%;left:6%"></div>
+    <div class="leaf-2" style="top:34%;left:88%"></div>
+    <div class="leaf" style="top:46%;left:72%"></div>
+    <div class="leaf-2" style="top:58%;left:24%"></div>
+    <div class="leaf" style="top:66%;left:40%"></div>
+    <div class="leaf-2" style="top:72%;left:12%"></div>
+    <div class="leaf" style="top:78%;left:90%"></div>
+  </header>
+
+  <!-- About -->
+  <section id="about">
+    <div class="container">
+      <div class="about">
+        <div class="panel" style="padding: 20px">
+          <h2 class="section-title">序章 · 林间的金色回声</h2>
+          <p class="section-sub">秋天不是宣言，它是一个慢慢发生的故事：一片叶，比昨日更黄，一束光，比清晨更暖。</p>
+          <p>我们把脚步放轻，把呼吸放慢，试着用更柔软的目光去看见：苔痕、树影、风在耳边细细的叮嘱。于是，时间像一条被温柔抚平的河。</p>
+          <p>这一页，献给每一次好好告别与重新出发——让落叶为你铺一条金色的路，通往未完成的诗。</p>
+        </div>
+        <img alt="林间金色落叶的清晨" src="https://images.pexels.com/photos/29413890/pexels-photo-29413890.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1200&w=1600" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section id="gallery">
+    <div class="container">
+      <h2 class="section-title">秋叶画廊 · 颜色的温度</h2>
+      <p class="section-sub">拾一片叶，听见颜色在指尖里轻轻发热：赭、金、朱、棕，每一种都在讲述回家的路。</p>
+
+      <div class="gallery-grid">
+        <article class="card">
+          <span class="badge">林间光影</span>
+          <img alt="秋天森林中透过树冠的光影" src="https://images.pexels.com/photos/1679825/pexels-photo-1679825.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
+          <div class="pad">
+            <h3 style="margin:0 0 6px">光在叶上行走</h3>
+            <p style="margin:0;color:#dcd6c6">晨光穿过枝桠，落在地面斑驳成一首诗，轻得像呼吸。</p>
+          </div>
+        </article>
+
+        <article class="card">
+          <span class="badge">湖畔薄雾</span>
+          <img alt="湖边秋叶与晨雾" src="https://images.pexels.com/photos/244954/pexels-photo-244954.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
+          <div class="pad">
+            <h3 style="margin:0 0 6px">雾与水的呢喃</h3>
+            <p style="margin:0;color:#dcd6c6">薄雾把边界擦去，水面只剩温柔的呼唤，像远方在招手。</p>
+          </div>
+        </article>
+
+        <article class="card">
+          <span class="badge">街角秋意</span>
+          <img alt="城市街角的秋叶行道树" src="https://images.pexels.com/photos/29428706/pexels-photo-29428706.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
+          <div class="pad">
+            <h3 style="margin:0 0 6px">一座城市的温度</h3>
+            <p style="margin:0;color:#dcd6c6">行道树落下的片刻安静，让匆忙的人也愿意慢下来。</p>
+          </div>
+        </article>
+
+        <article class="card">
+          <span class="badge">金色小径</span>
+          <img alt="金色落叶覆盖的小路" src="https://images.pexels.com/photos/681334/pexels-photo-681334.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
+          <div class="pad">
+            <h3 style="margin:0 0 6px">通往温暖的路</h3>
+            <p style="margin:0;color:#dcd6c6">叶片为你铺路，告诉你：每一步都能把季节踩得更轻。</p>
+          </div>
+        </article>
+
+        <article class="card">
+          <span class="badge">枫红如火</span>
+          <img alt="枫叶红透的近景" src="https://images.pexels.com/photos/33109/fall-autumn-red-season.jpg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
+          <div class="pad">
+            <h3 style="margin:0 0 6px">热烈的告白</h3>
+            <p style="margin:0;color:#dcd6c6">红色是一种无法隐藏的情绪，像某段故事的高光时刻。</p>
+          </div>
+        </article>
+
+        <article class="card">
+          <span class="badge">麦田余晖</span>
+          <img alt="秋天麦田的余晖与风" src="https://images.pexels.com/photos/672142/pexels-photo-672142.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
+          <div class="pad">
+            <h3 style="margin:0 0 6px">风把金色吹成浪</h3>
+            <p style="margin:0;color:#dcd6c6">当阳光落在麦穗上，时间被悄悄分成一粒一粒的温柔。</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quote band -->
+  <section class="quote-band" aria-label="秋日短句">
+    <p class="quote">“我们终将学会温柔地告别——像一片叶，从枝头轻轻落下，拥抱大地，完成一场圆满。”</p>
+  </section>
+
+  <!-- Journal -->
+  <section id="journal">
+    <div class="container">
+      <h2 class="section-title">落叶记事 · 微风与心事</h2>
+      <p class="section-sub">把秋天拆成更细的片段：一个午后、一杯热茶、一次走神、一段回望。</p>
+
+      <div class="journal">
+        <div class="cover panel">
+          <img alt="林间小路与温暖光线的竖幅照片" src="https://images.pexels.com/photos/1064422/pexels-photo-1064422.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1400&w=1000" />
+        </div>
+        <div>
+          <article class="post">
+            <h4>午后三点的光</h4>
+            <p>光线在桌面斜着落下，茶杯冒着雾，你忽然想到好多旧事——不是为了怀旧，只是为了确定自己走过的每一步都值得。</p>
+          </article>
+          <article class="post">
+            <h4>给一片叶的信</h4>
+            <p>你从路边捡起一片叶，夹在书页中；很多年后翻开，它仍旧安静地躺着，像一个没有期限的拥抱。</p>
+          </article>
+          <article class="post">
+            <h4>在风里练习告别</h4>
+            <p>秋风把你送到季节的门口，你轻轻说再见，也轻轻说你好：告别不是结束，是另一种开始。</p>
+          </article>
+
+          <!-- Timeline -->
+          <div id="timeline" class="timeline">
+            <div class="dot" style="top:6px"></div>
+            <div class="tl-item">
+              <h5>清晨 · 露水与薄光</h5>
+              <span>拾一片叶，听见一天的第一声问候。</span>
+            </div>
+            <div class="dot" style="top:76px"></div>
+            <div class="tl-item">
+              <h5>午后 · 温茶与慢步</h5>
+              <span>时间在杯沿绕圈，温暖在指尖停留。</span>
+            </div>
+            <div class="dot" style="top:146px"></div>
+            <div class="tl-item">
+              <h5>傍晚 · 云霞与归途</h5>
+              <span>金色从天空落下，铺满回家的每一段路。</span>
+            </div>
+            <div class="dot" style="top:216px"></div>
+            <div class="tl-item">
+              <h5>夜晚 · 星光与心事</h5>
+              <span>风停了，叶也安睡，心里留下温柔的余震。</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h6>秋色旅程</h6>
+          <p>为每一位热爱秋天的人，写下一段温暖的路书。</p>
+          <p>把匆忙放在门外，带着你的小小心事来散步。</p>
+        </div>
+        <div class="footer-col">
+          <h6>灵感来源</h6>
+          <p>林间的光、湖面的雾、城市的树与你路过的风。</p>
+          <p>图片来自优质公开图库，致敬每一帧秋色的记录者。</p>
+        </div>
+        <div class="footer-col">
+          <h6>使用说明</h6>
+          <p>页面可直接保存为 HTML 使用；图片链接可替换为你自己的素材。</p>
+          <p>支持移动端与桌面端浏览，享受自适应的秋日氛围。</p>
+        </div>
+      </div>
+      <div class="credits">
+        © 秋天落叶 · Autumn Leaves. 文字与设计仅作个人展示使用。图片链接来自公开来源，建议在正式项目中核对版权与许可。
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Subtle parallax on scroll for hero background
+    (function() {
+      const hero = document.querySelector('.hero');
+      window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        const scale = 1.02 + Math.min(y / 3000, .06);
+        hero.style.setProperty('--p', y * 0.12);
+        hero.style.transform = `translate3d(0, ${y * -0.04}px, 0)`;
+        hero.style.setProperty('--s', scale);
+      }, { passive: true });
+    })();
+
+    // Smooth scroll for nav links
+    document.querySelectorAll('.nav a').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const id = a.getAttribute('href').replace('#','');
+        const target = document.getElementById(id);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  </script>
+</body>
+</html>

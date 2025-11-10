@@ -7,12 +7,12 @@
     <style>
         /* --- 隐蔽层 CSS：风景主题 (The Veil) --- */
         :root {
-            --primary-veil: #1c2a38; /* 深蓝/灰色 */
-            --secondary-veil: #4a6c8e; /* 中等蓝色 */
-            --text-veil: #e0e6ed; /* 浅色文本 */
-            --trigger-color: rgba(255, 255, 255, 0.1); /* 不明显的颜色 */
-            --omega-pink: #ff69b4; /* Cute Pink */
-            --omega-magenta: #da70d6; /* Orchid */
+            --primary-veil: #1c2a38;
+            --secondary-veil: #4a6c8e;
+            --text-veil: #e0e6ed;
+            --trigger-color: rgba(255, 255, 255, 0.1);
+            --omega-pink: #ff69b4; 
+            --omega-magenta: #da70d6; 
         }
         body {
             margin: 0;
@@ -37,7 +37,7 @@
         #veil-container {
             width: 100%;
             height: 100%;
-            background-image: url('https://picsum.photos/1920/1080?random=1'); /* 随机风景图 */
+            background-image: url('https://picsum.photos/1920/1080?random=1');
             background-size: cover;
             background-position: center;
             transition: opacity 1.5s ease;
@@ -55,12 +55,10 @@
             text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
         }
         
-        /* 触发字符，使其看起来和周围文字一样 */
         #trigger-char {
             cursor: pointer; 
         }
 
-        /* 小石头触发按钮 */
         #stygian-key {
             position: absolute;
             bottom: 20px;
@@ -70,7 +68,7 @@
             background-color: var(--trigger-color);
             border-radius: 50%;
             cursor: pointer;
-            display: none; 
+            display: none; /* 初始隐藏 */
             opacity: 0.5;
             transition: background-color 0.3s, opacity 0.3s;
             z-index: 11;
@@ -84,23 +82,36 @@
             opacity: 0.8;
         }
         
-        /* **新增：滚石提示框样式 (用于替代 alert)** */
-        #rock-hint {
+        /* **修复：滚石提示框样式 (使用 display 切换)** */
+        #rock-hint, #omega-unlock-hint {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.5em;
+            display: none; /* 默认隐藏 */
+            opacity: 0; /* 用于动画 */
+            transition: opacity 0.5s;
+            z-index: 1000;
+            text-align: center;
+        }
+        
+        #rock-hint {
             background-color: rgba(0, 0, 0, 0.9);
             color: #ffb74d; 
             border: 2px solid #ffb74d;
-            border-radius: 10px;
-            font-size: 1.5em;
-            opacity: 0; 
-            visibility: hidden;
-            transition: opacity 0.5s, visibility 0.5s;
-            z-index: 1000;
-            text-align: center;
+        }
+        
+        #omega-unlock-hint {
+            padding: 20px 40px;
+            background-color: rgba(255, 105, 180, 0.95); 
+            color: white; 
+            border-radius: 15px;
+            font-size: 2em;
+            transition: opacity 1s;
+            z-index: 2000;
         }
 
         /* --- 核心应用 CSS：OMEGA Core --- */
@@ -250,6 +261,8 @@
     </div>
     
     <div id="rock-hint">深处传来一声巨响，仿佛有巨型石块滚落...</div>
+    
+    <div id="omega-unlock-hint">✨ 隐藏的通道已开启。欢迎来到 OMEGA 核心界面。✨</div>
 
     <div id="omega-core">
         <h1 class="omega-header">💖 L O V E L Y  P L E A S U R E  L O O P  V3.7.9 💖</h1>
@@ -330,9 +343,10 @@
         const gamepadCursor = document.getElementById('gamepad-cursor');
         const triggerChar = document.getElementById('trigger-char'); 
         const rockHint = document.getElementById('rock-hint'); 
+        const omegaUnlockHint = document.getElementById('omega-unlock-hint');
 
 
-        // --- 1. 隐蔽触发机制 V2.1 (修复后的寂字点击) ---
+        // --- 1. 隐蔽触发机制 V2.2 (最终修复) ---
         
         triggerChar.addEventListener('click', function(event) {
             event.stopPropagation(); 
@@ -341,22 +355,19 @@
             veilClickCount++;
             console.log("'寂' Char Click:", veilClickCount);
             
-            // 实时更新提示，让用户知道点击正在生效（尽管是隐蔽的）
-            if (veilClickCount <= VEIL_TRIGGER_THRESHOLD) {
-                console.log(`Remaining: ${VEIL_TRIGGER_THRESHOLD - veilClickCount}`);
-            }
-
             if (veilClickCount === VEIL_TRIGGER_THRESHOLD) {
-                // 显示美观的 CSS 动画提示
-                rockHint.style.opacity = '1';
-                rockHint.style.visibility = 'visible';
                 
+                // V6.0 修复：显示提示框
+                rockHint.style.display = 'block'; 
+                setTimeout(() => { rockHint.style.opacity = '1'; }, 10); // 触发CSS过渡
+
                 setTimeout(() => {
                     rockHint.style.opacity = '0';
-                    rockHint.style.visibility = 'hidden';
-                }, 3000); // 提示持续 3 秒
+                    setTimeout(() => { rockHint.style.display = 'none'; }, 500); // 动画结束后隐藏
+                }, 3000); 
 
-                stygianKey.style.display = 'block'; // 显示小石头
+                // 立即显示小石头
+                stygianKey.style.display = 'block'; 
                 stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD})`;
             }
         });
@@ -373,19 +384,27 @@
             if (keyClickCount < KEY_TRIGGER_THRESHOLD - 1) {
                 keyClickCount++;
                 stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD - keyClickCount})`;
-                // 颜色和透明度逐渐变化，使其“不明显”地变化
+                // 颜色和透明度逐渐变化
                 stygianKey.style.backgroundColor = `rgba(255, 105, 180, ${0.1 + keyClickCount * 0.08})`; 
                 console.log("Key Click:", keyClickCount);
             } else if (keyClickCount === KEY_TRIGGER_THRESHOLD - 1) {
                 keyClickCount++;
-                // 最终解锁
-                veilContainer.style.opacity = '0';
+                
+                // V6.0 修复：使用美观的提示替换 alert()
+                omegaUnlockHint.style.display = 'block';
+                setTimeout(() => { omegaUnlockHint.style.opacity = '1'; }, 10);
+                
+                veilContainer.style.opacity = '0'; // 隐藏背景
+                
                 setTimeout(() => {
+                    // 隐藏提示并切换到核心界面
+                    omegaUnlockHint.style.opacity = '0';
+                    omegaUnlockHint.style.display = 'none';
+
                     veilContainer.style.display = 'none';
                     omegaCore.style.display = 'flex';
                     stygianKey.style.display = 'none';
-                }, 1500);
-                alert("✨ 隐藏的通道已开启。欢迎来到 OMEGA 核心界面。✨");
+                }, 3000); // 提示持续 3 秒
             }
         });
         

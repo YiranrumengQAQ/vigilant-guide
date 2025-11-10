@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>风景描述站 (MC-UI 风格)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>HTML Minecraft 模拟器</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <style>
@@ -16,101 +14,123 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #000;
-            font-family: 'Press-Start-2P', 'Noto Sans SC', sans-serif; /* 像素字体为主, 中文备用 */
+            background-color: #333; /* 页面背景 */
+            font-family: 'Press Start 2P', cursive;
             color: white;
+            /* 禁用默认选择和右键菜单 */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            cursor: default; /* 默认隐藏系统光标，我们将用手柄光标 */
         }
 
-        /* 2. 游戏主容器 (风景背景) */
-        .game-container {
+        /* 2. 游戏世界容器 */
+        .world-container {
             position: relative;
             width: 100vw;
             height: 100vh;
-            /* 使用一个真实的风景图片 (来自 unsplash) */
-            background-image: url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
-            background-size: cover;
-            background-position: center;
+            overflow: hidden;
+            /* 关键：保持像素的锐利感 */
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            cursor: crosshair; /* 游戏准星 */
         }
 
-        /* 3. UI 覆盖层 */
-        .ui-overlay {
+        /* 3. 天空和日夜循环 */
+        .sky {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            pointer-events: none; /* 覆盖层本身不接收点击 */
+            background-color: #87CEEB; /* 白天天空 */
+            z-index: 1;
+            /* 颜色过渡动画 */
+            transition: background-color 2s linear;
         }
 
-        /* 4. 通用 UI 按钮样式 (Minecraft 风格) */
-        .ui-button {
-            pointer-events: auto; /* 按钮可点击 */
-            background-color: #707070;
-            border: 2px solid #000000;
-            box-shadow: inset 3px 3px 0px 0px rgba(255, 255, 255, 0.5),
-                        inset -3px -3px 0px 0px rgba(0, 0, 0, 0.5);
-            color: white;
-            font-family: 'Press Start 2P', cursive;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            padding: 10px;
-        }
-
-        .ui-button:active, .ui-button.pseudo-active {
-            background-color: #606060;
-            box-shadow: inset -3px -3px 0px 0px rgba(255, 255, 255, 0.5),
-                        inset 3px 3px 0px 0px rgba(0, 0, 0, 0.5);
-            transform: scale(0.98);
-        }
-        
-        /* 5. 顶部 UI (暂停按钮和描述框) */
-        .top-bar {
+        /* 太阳和月亮 */
+        .celestial-body {
             position: absolute;
-            top: 15px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 0 15px;
-            box-sizing: border-box; /* 确保 padding 不影响宽度 */
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            z-index: 2;
+            /* 初始位置 (JS会更新) */
+            top: 50%;
+            left: -100px;
+            /* 居中定位 */
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s linear; /* 平滑移动 */
         }
 
-        .pause-button {
+        .sun {
+            background-color: #FFD700;
+            box-shadow: 0 0 30px #FFD700;
+        }
+
+        .moon {
+            background-color: #F0F0F0;
+            box-shadow: 0 0 20px #FFFFFF;
+        }
+
+        /* 4. 世界网格 (方块) */
+        .world-grid {
+            position: relative;
+            z-index: 10;
+            display: grid;
+            /* JS将设置 grid-template-columns 和 rows */
+        }
+
+        .block {
             width: 40px;
             height: 40px;
-            font-size: 20px;
-            padding: 0;
-            margin-left: 20px; /* 和描述框拉开距离 */
-            flex-shrink: 0; /* 防止按钮被压缩 */
+            box-sizing: border-box; /* 边框包含在大小内 */
+            /* 模拟方块边框 */
+            border: 1px solid rgba(0, 0, 0, 0.2);
         }
 
-        /* 这是新的描述框 */
-        #description-box {
-            font-size: 14px;
-            line-height: 1.6;
-            text-shadow: 2px 2px 2px #000;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.4);
-            border: 2px solid #333;
-            min-height: 100px;
-            width: 400px; /* 给一个固定宽度 */
-            max-width: 60%; /* 最大占60% */
-            /* 使用像素风格的边框 */
-            box-shadow: inset 2px 2px 0px 0px #222, 
-                        inset -2px -2px 0px 0px #222;
+        /* 方块类型 */
+        .block.air {
+            background: transparent;
+            border: none;
         }
 
+        .block.grass {
+            background-color: #6A994E;
+            border-bottom: 2px solid #5C3A21; /* 底部是泥土 */
+        }
+
+        .block.dirt {
+            background-color: #7F5539;
+            border-color: #5C3A21;
+        }
+
+        .block.stone {
+            background-color: #808080;
+            border-color: #606060;
+        }
+        
+        .block.planks {
+            background-color: #A68A64;
+            border-color: #8C6D46;
+        }
+
+        /* 5. 夜间光照遮罩 */
+        .night-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #00001E; /* 深蓝色 */
+            opacity: 0; /* 白天透明 */
+            z-index: 20; /* 在方块之上 */
+            pointer-events: none; /* 穿透点击 */
+            transition: opacity 2s linear;
+        }
+        
         /* 6. 底部快捷栏 (Hotbar) */
         .hotbar-container {
             position: absolute;
@@ -120,8 +140,8 @@
             display: flex;
             background-color: rgba(0, 0, 0, 0.4);
             border: 2px solid #333;
-            padding: 2px;
-            pointer-events: auto;
+            padding: 4px;
+            z-index: 30; /* 在最上层 */
         }
 
         .hotbar-slot {
@@ -133,17 +153,8 @@
             box-shadow: inset 2px 2px 0px 0px #585858;
             position: relative;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            padding: 5px;
-            text-align: center;
-            line-height: 1.2;
-            overflow: hidden;
-            /* 适配中文 */
-            font-family: 'Noto Sans SC', 'Press Start 2P', sans-serif;
-            font-weight: bold;
+            /* 继承方块样式 */
+            box-sizing: border-box; 
         }
         
         .hotbar-slot.active::before {
@@ -154,259 +165,181 @@
             right: -5px;
             bottom: -5px;
             border: 3px solid white;
-            image-rendering: pixelated;
             pointer-events: none;
         }
-
-        /* 7. 手柄光标 (关键!) */
-        #gamepad-cursor {
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            background: white;
-            border: 2px solid black;
-            border-radius: 2px; /* 稍微圆润一点 */
-            box-shadow: 0 0 0 2px rgba(0,0,0,0.5);
-            z-index: 9999;
-            pointer-events: none; /* 穿透鼠标事件 */
-            display: none; /* 默认隐藏 */
-            image-rendering: pixelated;
-            /* 把它放在屏幕中央 (JS会更新) */
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
     </style>
 </head>
 <body>
 
-    <div id="gamepad-cursor"></div>
-
-    <div class="game-container">
+    <div class="world-container">
         
-        <div class="ui-overlay">
-
-            <div class="top-bar">
-                <div id="description-box">请点击下方的快捷栏或使用手柄选择一个风景主题...</div>
-                
-                <button class="ui-button pause-button" id="pause-button">||</button>
-            </div>
-
-            <div class="hotbar-container" id="hotbar">
-                <div class="hotbar-slot active" data-index="0" data-key="sky">天空</div>
-                <div class="hotbar-slot" data-index="1" data-key="mountains">山脉</div>
-                <div class="hotbar-slot" data-index="2" data-key="river">河流</div>
-                <div class="hotbar-slot" data-index="3" data-key="forest">森林</div>
-                <div class="hotbar-slot" data-index="4" data-key="sunset">日落</div>
-                <div class="hotbar-slot" data-index="5" data-key="night">星空</div>
-            </div>
-
+        <div class="sky" id="sky">
+            <div class="celestial-body sun" id="sun"></div>
+            <div class="celestial-body moon" id="moon"></div>
         </div>
+        
+        <div class="world-grid" id="world-grid">
+            </div>
+
+        <div class="night-overlay" id="night-overlay"></div>
+
+    </div>
+
+    <div class="hotbar-container" id="hotbar">
+        <div class="hotbar-slot block grass active" data-block-type="grass"></div>
+        <div class="hotbar-slot block dirt" data-block-type="dirt"></div>
+        <div class="hotbar-slot block stone" data-block-type="stone"></div>
+        <div class="hotbar-slot block planks" data-block-type="planks"></div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
 
-            // --- 1. 内容数据 ---
-            const sceneryDescriptions = {
-                sky: "天空是蔚蓝色的，几朵白云悠闲地飘过。阳光透过云层，洒下金色的光辉，给人一种宁静和广阔的感觉。",
-                mountains: "远处的山脉连绵起伏，轮廓在雾气中若隐若现。山顶上覆盖着皑皑白雪，显得庄严而神秘。",
-                river: "一条清澈的河流蜿蜒流淌，水面波光粼粼。河岸两旁绿树成荫，偶尔有几只水鸟掠过水面。",
-                forest: "茂密的森林中，古树参天。阳光穿过树叶的缝隙，在布满苔藓的地面上投下斑驳的光影。",
-                sunset: "夕阳西下，天空被染成了温暖的橙红色。太阳缓缓沉入地平线，留下满天绚丽的晚霞。",
-                night: "夜幕降临，繁星点点。一轮明月高挂空中，银色的月光洒满大地，万物俱寂，只有虫鸣声。",
-                paused: "已暂停。这是一个描述风景的网站，UI风格模仿了 Minecraft 基岩版。你可以使用鼠标、触摸或手柄进行操作。"
-            };
-
-            // --- 2. 元素获取 ---
-            const descriptionBox = document.getElementById('description-box');
+            // --- 1. 常量和状态 ---
+            const BLOCK_SIZE = 40;
+            const GRID_WIDTH = Math.ceil(window.innerWidth / BLOCK_SIZE);
+            const GRID_HEIGHT = Math.ceil(window.innerHeight / BLOCK_SIZE);
+            
+            const worldGrid = document.getElementById('world-grid');
             const hotbar = document.getElementById('hotbar');
             const hotbarSlots = document.querySelectorAll('.hotbar-slot');
-            const pauseButton = document.getElementById('pause-button');
-            const gamepadCursor = document.getElementById('gamepad-cursor');
+            
+            const sky = document.getElementById('sky');
+            const sun = document.getElementById('sun');
+            const moon = document.getElementById('moon');
+            const nightOverlay = document.getElementById('night-overlay');
 
-            let currentHotbarIndex = 0;
+            let selectedBlockType = 'grass'; // 默认选择草
+            let gameTime = 0; // 游戏时间 (0-23999)
+            const DAY_DURATION = 24000; // 游戏刻 (约 20 分钟, 这里我们加快)
+            const TICK_SPEED = 20; // 游戏刻的毫秒 (越小越快, 50ms 约等于 20 分钟一天)
 
-            // --- 3. 核心功能函数 ---
+            // --- 2. 世界生成 ---
+            function generateWorld() {
+                console.log(`生成世界: ${GRID_WIDTH}x${GRID_HEIGHT}`);
+                worldGrid.style.gridTemplateColumns = `repeat(${GRID_WIDTH}, ${BLOCK_SIZE}px)`;
+                worldGrid.style.gridTemplateRows = `repeat(${GRID_HEIGHT}, ${BLOCK_SIZE}px)`;
 
-            /**
-             * 更新描述框的内容
-             * @param {string} key - sceneryDescriptions 中的键
-             */
-            function showDescription(key) {
-                descriptionBox.textContent = sceneryDescriptions[key] || "没有找到相关描述。";
-            }
+                const groundLevel = Math.floor(GRID_HEIGHT * 0.6); // 地平线在 60% 的位置
 
-            /**
-             * 更新快捷栏的选中状态 (用于 D-Pad)
-             * @param {number} newIndex - 新的格子索引
-             */
-            function updateHotbarSelection(newIndex) {
-                // 移除旧的 active
-                hotbarSlots[currentHotbarIndex].classList.remove('active');
-                
-                // 确保索引在范围内循环
-                if (newIndex >= hotbarSlots.length) {
-                    newIndex = 0;
-                } else if (newIndex < 0) {
-                    newIndex = hotbarSlots.length - 1;
-                }
-                
-                // 添加新的 active
-                hotbarSlots[newIndex].classList.add('active');
-                currentHotbarIndex = newIndex;
-                
-                // 显示新选中项的描述
-                const key = hotbarSlots[newIndex].dataset.key;
-                showDescription(key);
-            }
+                for (let y = 0; y < GRID_HEIGHT; y++) {
+                    for (let x = 0; x < GRID_WIDTH; x++) {
+                        const block = document.createElement('div');
+                        let blockType = 'air';
 
-            // --- 4. 鼠标和触摸事件 ---
-
-            // A. 点击快捷栏
-            hotbar.addEventListener('click', (e) => {
-                const clickedSlot = e.target.closest('.hotbar-slot');
-                if (clickedSlot) {
-                    const key = clickedSlot.dataset.key;
-                    const index = parseInt(clickedSlot.dataset.index, 10);
-                    
-                    // 移除所有格子的 active 状态
-                    hotbarSlots.forEach(slot => slot.classList.remove('active'));
-                    // 为被点击的格子添加 active 状态
-                    clickedSlot.classList.add('active');
-                    
-                    currentHotbarIndex = index;
-                    showDescription(key);
-                }
-            });
-
-            // B. 点击暂停按钮
-            pauseButton.addEventListener('click', () => {
-                showDescription('paused');
-            });
-
-
-            // --- 5. 手柄 (Gamepad API) 支持 ---
-
-            let gamepadIndex = null;
-            let gameLoopId = null;
-            let cursorPosition = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-            const GAMEPAD_SENSITIVITY = 8;
-
-            // 按钮防抖状态
-            let buttonPressed = {
-                A: false,
-                Start: false,
-                DpadLeft: false,
-                DpadRight: false
-            };
-
-            window.addEventListener('gamepadconnected', (e) => {
-                console.log('手柄已连接:', e.gamepad.id);
-                gamepadIndex = e.gamepad.index;
-                gamepadCursor.style.display = 'block'; // 显示光标
-                if (!gameLoopId) {
-                    gameLoop(); // 开始游戏循环
-                }
-            });
-
-            window.addEventListener('gamepaddisconnected', (e) => {
-                console.log('手柄已断开:', e.gamepad.id);
-                if (gamepadIndex === e.gamepad.index) {
-                    gamepadIndex = null;
-                    gamepadCursor.style.display = 'none'; // 隐藏光标
-                    if (gameLoopId) {
-                        cancelAnimationFrame(gameLoopId); // 停止游戏循环
-                        gameLoopId = null;
-                    }
-                }
-            });
-
-            function gameLoop() {
-                if (gamepadIndex === null) return;
-
-                const gp = navigator.getGamepads()[gamepadIndex];
-                if (!gp) return;
-
-                // A. 左摇杆: 移动光标
-                const axisX = gp.axes[0];
-                const axisY = gp.axes[1];
-                const deadzone = 0.15;
-
-                if (Math.abs(axisX) > deadzone) {
-                    cursorPosition.x += axisX * GAMEPAD_SENSITIVITY;
-                }
-                if (Math.abs(axisY) > deadzone) {
-                    cursorPosition.y += axisY * GAMEPAD_SENSITIVITY;
-                }
-
-                // 限制光标在屏幕内
-                cursorPosition.x = Math.max(0, Math.min(window.innerWidth, cursorPosition.x));
-                cursorPosition.y = Math.max(0, Math.min(window.innerHeight, cursorPosition.y));
-                
-                // 更新光标位置 (使用 translate 性能更好)
-                gamepadCursor.style.transform = `translate3d(${cursorPosition.x}px, ${cursorPosition.y}px, 0)`;
-
-                // B. 'A' 键 (buttons[0]): 模拟点击
-                if (gp.buttons[0].pressed) {
-                    if (!buttonPressed.A) {
-                        buttonPressed.A = true;
-                        
-                        // 模拟点击
-                        // 1. 暂时隐藏光标，以免点到光标自己
-                        gamepadCursor.style.display = 'none';
-                        // 2. 找到光标下的元素
-                        const elementUnderCursor = document.elementFromPoint(cursorPosition.x, cursorPosition.y);
-                        // 3. 重新显示光标
-                        gamepadCursor.style.display = 'block';
-
-                        if (elementUnderCursor) {
-                            // 4. 触发点击
-                            elementUnderCursor.click();
-                            // 5. (可选) 给被点击的按钮一个视觉反馈
-                            if (elementUnderCursor.classList.contains('ui-button')) {
-                                elementUnderCursor.classList.add('pseudo-active');
-                                setTimeout(() => elementUnderCursor.classList.remove('pseudo-active'), 150);
+                        if (y > groundLevel) {
+                            if (y === groundLevel + 1) {
+                                blockType = 'grass';
+                            } else if (y < groundLevel + 5) {
+                                blockType = 'dirt';
+                            } else {
+                                blockType = 'stone';
                             }
                         }
+                        
+                        block.className = `block ${blockType}`;
+                        block.dataset.x = x;
+                        block.dataset.y = y;
+                        worldGrid.appendChild(block);
                     }
-                } else {
-                    buttonPressed.A = false;
                 }
-
-                // C. 'Start' 键 (buttons[9]): 点击暂停
-                if (gp.buttons[9].pressed) {
-                    if (!buttonPressed.Start) {
-                        buttonPressed.Start = true;
-                        pauseButton.click();
-                    }
-                } else {
-                    buttonPressed.Start = false;
-                }
-
-                // D. D-Pad (十字键) 左/右 (buttons[14], buttons[15]): 切换快捷栏
-                if (gp.buttons[14].pressed) { // D-pad Left
-                    if (!buttonPressed.DpadLeft) {
-                        buttonPressed.DpadLeft = true;
-                        updateHotbarSelection(currentHotbarIndex - 1);
-                    }
-                } else {
-                    buttonPressed.DpadLeft = false;
-                }
-
-                if (gp.buttons[15].pressed) { // D-pad Right
-                    if (!buttonPressed.DpadRight) {
-                        buttonPressed.DpadRight = true;
-                        updateHotbarSelection(currentHotbarIndex + 1);
-                    }
-                } else {
-                    buttonPressed.DpadRight = false;
-                }
-
-                // 持续循环
-                gameLoopId = requestAnimationFrame(gameLoop);
             }
+
+            // --- 3. 交互控制 ---
+            function setupControls() {
+                // A. 快捷栏点击
+                hotbar.addEventListener('click', (e) => {
+                    const clickedSlot = e.target.closest('.hotbar-slot');
+                    if (clickedSlot) {
+                        // 移除所有 active
+                        hotbarSlots.forEach(slot => slot.classList.remove('active'));
+                        // 添加 active
+                        clickedSlot.classList.add('active');
+                        // 更新选中状态
+                        selectedBlockType = clickedSlot.dataset.blockType;
+                    }
+                });
+
+                // B. 放置方块 (左键)
+                worldGrid.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('block')) {
+                        const block = e.target;
+                        // 只能在空气中放置
+                        if (block.classList.contains('air')) {
+                            block.className = `block ${selectedBlockType}`;
+                        }
+                    }
+                });
+
+                // C. 破坏方块 (右键)
+                worldGrid.addEventListener('contextmenu', (e) => {
+                    e.preventDefault(); // 阻止右键菜单
+                    if (e.target.classList.contains('block')) {
+                        const block = e.target;
+                        // 不能破坏空气
+                        if (!block.classList.contains('air')) {
+                            block.className = 'block air';
+                        }
+                    }
+                });
+            }
+
+            // --- 4. 日夜循环 ---
+            function gameLoop() {
+                // A. 更新游戏时间
+                gameTime = (gameTime + 1) % DAY_DURATION;
+                
+                // B. 更新天空、光照和天体
+                updateCycle(gameTime);
+
+                // C. 循环
+                setTimeout(gameLoop, TICK_SPEED);
+            }
+            
+            function updateCycle(time) {
+                const cyclePercent = time / DAY_DURATION; // 0.0 - 1.0
+
+                // B1. 天体位置 (太阳和月亮)
+                // 使用三角函数计算圆形轨迹
+                // -0.25 是为了让 0 点 (cyclePercent=0) 在东边 (x=1, y=0)
+                const angle = (cyclePercent - 0.25) * 2 * Math.PI;
+                const xPos = Math.cos(angle);
+                const yPos = Math.sin(angle); // y 轴反转 (上方为负)
+
+                // 太阳
+                // 50vw 和 60vh 是轨道的半径
+                sun.style.transform = `translate(calc(50vw + ${xPos * 60}vw - 50%), calc(50vh + ${yPos * 60}vh - 50%))`;
+                
+                // 月亮 (在太阳对面)
+                const moonAngle = angle + Math.PI;
+                const moonXPos = Math.cos(moonAngle);
+                const moonYPos = Math.sin(moonAngle);
+                moon.style.transform = `translate(calc(50vw + ${moonXPos * 60}vw - 50%), calc(50vh + ${moonYPos * 60}vh - 50%))`;
+                
+
+                // B2. 天空颜色和光照
+                let skyColor = '#87CEEB'; // 白天
+                let lightOpacity = 0; // 白天
+
+                if (cyclePercent > 0.95 || cyclePercent < 0.05) { // 日出 (0.95 - 0.05)
+                    skyColor = '#FF8C00'; // 橙色
+                    lightOpacity = 0.3;
+                } else if (cyclePercent > 0.45 && cyclePercent < 0.55) { // 日落 (0.45 - 0.55)
+                    skyColor = '#FF4500'; // 橙红色
+                    lightOpacity = 0.4;
+                } else if (cyclePercent > 0.55 && cyclePercent < 0.95) { // 夜晚 (0.55 - 0.95)
+                    skyColor = '#000033'; // 深蓝色
+                    lightOpacity = 0.7;
+                }
+                
+                sky.style.backgroundColor = skyColor;
+                nightOverlay.style.opacity = lightOpacity;
+            }
+
+            // --- 5. 启动游戏 ---
+            generateWorld();
+            setupControls();
+            gameLoop();
         });
     </script>
 

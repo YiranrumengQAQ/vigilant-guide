@@ -3,499 +3,416 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>秋天落叶 · 秋色旅程</title>
-  <meta name="description" content="一个充满秋天落叶气息的沉浸式页面：微风、金叶、林间光影与温暖故事。" />
+  <title>午夜诡域 · 寂静之屋</title>
+  <meta name="description" content="一个可操作、动画流畅的恐怖主题页面：冷雾、旧屋、呢喃与隐藏的线索。适配PC与移动端。" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=ZCOOL+XiaoWei&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;600;700&family=Cinzel:wght@400;700&family=Roboto+Mono:wght@300;500;700&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --bg: #1a1a19;
-      --ink: #eae7e1;
-      --accent: #d17f2d;
-      --accent-2: #bf5a2c;
-      --gold: #d9a441;
-      --leaf: #e09a3f;
-      --leaf-2: #b84e2c;
-      --muted: #b3a68a;
-      --panel: #242422;
-      --shadow: rgba(0,0,0,.35);
+    :root{
+      --bg:#0b0b0c;
+      --ink:#d9d9dc;
+      --muted:#8b8b91;
+      --blood:#a31223;
+      --accent:#3a3b46;
+      --glass:rgba(16,16,18,.5);
+      --shadow:rgba(0,0,0,.55);
+      --green:#2db283;
     }
-
-    * { box-sizing: border-box }
-    html, body {
-      margin: 0;
-      padding: 0;
+    *{box-sizing:border-box}
+    html,body{
+      margin:0; padding:0;
       background: var(--bg);
       color: var(--ink);
-      font-family: 'Roboto', 'Noto Serif SC', system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-      line-height: 1.6;
+      font-family:'Noto Serif SC','Cinzel',serif;
+      line-height:1.6;
+      overflow-x:hidden;
     }
+    a{color:#cfcfd6}
+    /* global fx */
+    .grain{
+      position:fixed; inset:0; pointer-events:none; z-index:9999;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.06"/></svg>');
+      background-size: 160px 160px;
+      mix-blend-mode: overlay;
+      animation: grainMove 12s linear infinite;
+    }
+    @keyframes grainMove{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(-20px,10px,0)}100%{transform:translate3d(0,0,0)}}
 
-    a { color: var(--gold); text-decoration: none }
-    a:hover { color: #f1c96e }
-
-    /* Hero */
-    .hero {
-      position: relative;
-      min-height: 90vh;
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-      background: radial-gradient(1200px 600px at 20% 20%, #2a2a28 0%, #1a1a19 45%, #141413 100%);
-    }
-
-    /* Hero layers */
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(to bottom, rgba(0,0,0,.0) 0%, rgba(0,0,0,.35) 60%, rgba(0,0,0,.6) 100%),
-        url("https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1200&w=1800");
-      background-size: cover;
-      background-position: center;
-      filter: saturate(1.05) contrast(1.05);
-      z-index: 0;
-      transform: scale(1.02);
-    }
-
-    .hero .content {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      padding: 2rem;
-    }
-
-    .brand {
-      display: inline-block;
-      margin-bottom: .75rem;
-      letter-spacing: .35rem;
-      text-transform: uppercase;
-      color: var(--muted);
-      font-weight: 500;
-      font-size: .95rem;
-    }
-
-    .title {
-      font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
-      font-size: clamp(2rem, 6vw, 4.25rem);
-      margin: .25rem 0 1rem;
-      line-height: 1.15;
-      text-shadow: 0 10px 40px var(--shadow);
-    }
-
-    .subtitle {
-      max-width: 760px;
-      margin: 0 auto 1.25rem;
-      font-weight: 300;
-      color: #e8e2d6;
-    }
-
-    .cta-group {
-      display: flex;
-      gap: .8rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 1.25rem;
-    }
-
-    .btn {
-      border: 1px solid #3a3a35;
-      background: linear-gradient(180deg, #2a2a27 0%, #222220 100%);
-      color: var(--ink);
-      padding: .85rem 1.2rem;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px var(--shadow);
-      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
-      font-weight: 500;
-    }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 18px 40px var(--shadow); border-color: #4a4a46 }
-    .btn.primary { background: linear-gradient(180deg, #8a4b20 0%, #5e2f19 100%); border-color: #9f5a2b }
-    .btn.primary:hover { border-color: #c87337 }
-
-    /* Floating leaves */
-    .leaf, .leaf-2 {
-      position: absolute;
-      width: 32px;
-      height: 32px;
-      background: radial-gradient(circle at 30% 30%, #f7d39b 0%, var(--leaf) 35%, #9a531f 100%);
-      opacity: .75;
-      border-radius: 2px 20px;
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,.35));
-      animation: fall 12s linear infinite;
-      transform-origin: center;
-    }
-    .leaf-2 {
-      background: radial-gradient(circle at 30% 30%, #f1b39d 0%, var(--leaf-2) 40%, #7e2d1c 100%);
-      border-radius: 18px 6px;
-      animation-duration: 16s;
-    }
-    @keyframes fall {
-      0%   { transform: translateY(-10vh) translateX(0) rotate(0deg) }
-      50%  { transform: translateY(45vh) translateX(12vw) rotate(140deg) }
-      100% { transform: translateY(95vh) translateX(-8vw) rotate(320deg) }
-    }
-
-    /* Navigation */
-    .nav {
-      position: fixed;
-      top: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      background: rgba(22,22,21,.6);
-      backdrop-filter: blur(10px);
-      border: 1px solid #3a3a35;
-      border-radius: 14px;
-      padding: .5rem .75rem;
-      box-shadow: 0 6px 18px var(--shadow);
-    }
-    .nav ul { margin: 0; padding: 0; display: flex; gap: .75rem; list-style: none }
-    .nav a {
-      display: block;
-      padding: .5rem .7rem;
-      border-radius: 10px;
-      color: var(--ink);
-      font-size: .95rem;
-    }
-    .nav a:hover { background: rgba(255,255,255,.06) }
-
-    /* Sections */
-    section {
-      position: relative;
-      padding: 72px 20px;
-    }
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .panel {
-      background: linear-gradient(180deg, #262522 0%, #201f1d 100%);
-      border: 1px solid #34332e;
-      border-radius: 16px;
-      box-shadow: 0 10px 28px var(--shadow);
-      overflow: hidden;
-    }
-
-    /* About */
-    .about {
-      display: grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap: 24px;
-      align-items: center;
-    }
-    .about img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      aspect-ratio: 4/3;
-      border-radius: 12px;
-    }
-    .section-title {
-      font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
-      margin: 0 0 .5rem;
-      color: #f0e8d8;
-    }
-    .section-sub {
-      color: var(--muted);
-      margin-bottom: 1rem;
-      font-size: 1.05rem;
-    }
-
-    /* Gallery */
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-    }
-    .card {
-      position: relative;
-      border-radius: 14px;
-      overflow: hidden;
-      border: 1px solid #3b392f;
-      background: #1f1f1e;
-      transition: transform .2s ease, box-shadow .2s ease;
-    }
-    .card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px var(--shadow) }
-    .card img { width: 100%; height: 220px; object-fit: cover }
-    .card .pad { padding: 14px }
-    .badge {
-      position: absolute;
-      top: 10px; left: 10px;
-      background: rgba(0,0,0,.5);
-      color: #f7e9c7;
-      border: 1px solid #3b392f;
-      font-size: .8rem;
-      padding: 6px 10px;
-      border-radius: 999px;
+    /* nav */
+    .nav{
+      position:fixed; top:14px; left:50%; transform:translateX(-50%);
+      display:flex; gap:.5rem; z-index:20;
+      background: var(--glass);
       backdrop-filter: blur(8px);
+      border:1px solid #232328;
+      border-radius:14px; padding:.4rem .6rem;
+      box-shadow:0 8px 24px var(--shadow);
     }
+    .nav a{
+      display:block; padding:.4rem .7rem; border-radius:10px; color:#dcdce1;
+      font-size:.95rem; text-decoration:none;
+      transition:background .2s ease, color .2s ease;
+    }
+    .nav a:hover{background:rgba(255,255,255,.06)}
 
-    /* Quote band */
-    .quote-band {
+    /* hero */
+    .hero{
+      position:relative; min-height:100vh; display:grid; place-items:center; overflow:hidden;
       background:
-        linear-gradient(180deg, rgba(0,0,0,.4), rgba(0,0,0,.6)),
-        url("https://images.pexels.com/photos/12272922/pexels-photo-12272922.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1200&w=1800");
+        radial-gradient(1200px 700px at 10% 10%, #101013 0%, #0b0b0c 50%, #080809 100%),
+        url("https://images.pexels.com/photos/270580/pexels-photo-270580.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1200&w=2000");
       background-size: cover;
       background-position: center;
-      border-top: 1px solid #3c3b33;
-      border-bottom: 1px solid #3c3b33;
-      text-align: center;
-      padding: 90px 20px;
+      isolation:isolate;
     }
-    .quote {
-      font-family: 'ZCOOL XiaoWei', 'Noto Serif SC', serif;
-      font-size: clamp(1.4rem, 3.2vw, 2rem);
-      color: #f3e7cd;
-      max-width: 900px;
-      margin: 0 auto;
+    .hero::after{
+      content:""; position:absolute; inset:0;
+      background: linear-gradient(180deg, rgba(0,0,0,.3), rgba(0,0,0,.7));
+      mix-blend-mode: multiply;
+    }
+    .fog{
+      position:absolute; inset:0; background:
+        radial-gradient(800px 400px at 30% 70%, rgba(200,200,220,.08), transparent 60%),
+        radial-gradient(900px 500px at 80% 20%, rgba(180,190,210,.06), transparent 60%);
+      animation:fogDrift 22s linear infinite;
+      z-index:2;
+    }
+    @keyframes fogDrift{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(-3%,2%,0)}100%{transform:translate3d(0,0,0)}}
+    .hero-content{position:relative; z-index:3; text-align:center; padding:2rem}
+    .brand{
+      letter-spacing:.35rem; text-transform:uppercase; color:var(--muted);
+      font-weight:600; font-size:.9rem; display:inline-block; margin-bottom:.75rem;
+    }
+    .title{
+      font-size:clamp(2rem,6vw,4.6rem);
+      font-family:'Cinzel','Noto Serif SC',serif;
+      margin:.2rem 0 .8rem; line-height:1.1;
+      text-shadow:0 16px 50px var(--shadow);
+    }
+    .subtitle{
+      max-width:760px; margin:0 auto 1.2rem; color:#d1d1d8; font-weight:300;
+    }
+    .cta{display:flex; gap:.8rem; justify-content:center; flex-wrap:wrap; margin-top:1.2rem}
+    .btn{
+      border:1px solid #2b2b32; background:linear-gradient(180deg,#17171a 0%,#121214 100%);
+      color:#e7e7ec; padding:.85rem 1.15rem; border-radius:12px; font-weight:600;
+      box-shadow:0 12px 30px var(--shadow); transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .btn:hover{transform:translateY(-2px); box-shadow:0 18px 40px var(--shadow); border-color:#3b3b42}
+    .btn.red{background:linear-gradient(180deg,#741219 0%,#3c0a0f 100%); border-color:#7f151f}
+    .btn.red:hover{border-color:#a01322}
+
+    /* floating candles */
+    .candle{
+      position:absolute; width:10px; height:10px; border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #fff7bf, #f0c23a, #a65a12);
+      filter: drop-shadow(0 0 14px rgba(255,240,180,.6));
+      animation:candles 10s ease-in-out infinite;
+      opacity:.8;
+    }
+    .candle:nth-child(1){top:16%; left:12%}
+    .candle:nth-child(2){top:22%; left:78%; animation-duration:12s}
+    .candle:nth-child(3){top:32%; left:52%; animation-duration:9s}
+    .candle:nth-child(4){top:66%; left:20%; animation-duration:14s}
+    .candle:nth-child(5){top:72%; left:86%; animation-duration:11s}
+    @keyframes candles{
+      0%{transform:translateY(0) translateX(0)}
+      50%{transform:translateY(-8px) translateX(6px)}
+      100%{transform:translateY(0) translateX(0)}
     }
 
-    /* Journal */
-    .journal {
-      display: grid;
-      grid-template-columns: .9fr 1.1fr;
-      gap: 24px;
+    /* sections */
+    section{position:relative; padding:72px 20px}
+    .container{max-width:1100px; margin:0 auto}
+    .panel{
+      background:linear-gradient(180deg,#151517 0%,#111113 100%);
+      border:1px solid #2a2a31; border-radius:16px; box-shadow:0 10px 26px var(--shadow); overflow:hidden;
     }
-    .journal .cover {
-      border-radius: 12px;
-      overflow: hidden;
+    .section-title{
+      font-family:'Cinzel','Noto Serif SC',serif;
+      font-size:clamp(1.6rem,4vw,2.4rem); margin:0 0 .5rem; color:#e9e9ef;
     }
-    .journal .cover img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4/5 }
-    .post {
-      padding: 14px 18px;
-      border-radius: 12px;
-      border: 1px solid #3b392f;
-      background: linear-gradient(180deg, #252421 0%, #201f1d 100%);
-      margin-bottom: 14px;
-    }
-    .post h4 {
-      margin: 0 0 .35rem;
-      font-size: 1.15rem;
-      color: #f1e7cf;
-    }
-    .post p { margin: 0; color: #e5e0d4 }
+    .section-sub{color:var(--muted); margin-bottom:1rem; font-size:1.05rem}
 
-    /* Timeline */
-    .timeline {
-      position: relative;
-      margin-top: 24px;
-      padding-left: 14px;
-      border-left: 2px dashed #3b392f;
+    /* gallery */
+    .gallery-grid{
+      display:grid; grid-template-columns:repeat(3,1fr); gap:18px;
     }
-    .dot {
-      --size: 11px;
-      position: absolute;
-      left: -6px;
-      width: var(--size);
-      height: var(--size);
-      background: linear-gradient(180deg, #d1ae62 0%, #b47f2b 100%);
-      border-radius: 50%;
-      box-shadow: 0 2px 6px var(--shadow);
-    }
-    .tl-item { margin: 18px 0 18px 10px }
-    .tl-item h5 { margin: 0 0 6px; color: #f0e8d8 }
-    .tl-item span { color: var(--muted); font-size: .92rem }
-
-    /* Footer */
-    footer {
-      padding: 36px 20px 60px;
-      border-top: 1px solid #34332e;
-      background: #181817;
-      color: #cfc9bc;
-    }
-    .footer-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-    .footer-col h6 { margin: 0 0 8px; font-size: 1rem; color: #f0e8d8 }
-    .footer-col p { margin: 0 0 6px }
-    .credits {
-      margin-top: 18px;
-      font-size: .9rem;
-      color: var(--muted);
+    .card{position:relative; border-radius:14px; overflow:hidden; border:1px solid #2a2a31; background:#0f0f11;
+      transition:transform .2s ease, box-shadow .2s ease, filter .2s ease}
+    .card:hover{transform:translateY(-4px); box-shadow:0 18px 40px var(--shadow); filter:contrast(1.05)}
+    .card img{width:100%; height:220px; object-fit:cover}
+    .card .pad{padding:14px}
+    .badge{
+      position:absolute; top:10px; left:10px; background:rgba(0,0,0,.55); color:#f3f3f6;
+      border:1px solid #2a2a31; font-size:.8rem; padding:6px 10px; border-radius:999px; backdrop-filter:blur(8px);
     }
 
-    /* Responsive */
-    @media (max-width: 960px) {
-      .about, .journal { grid-template-columns: 1fr }
-      .gallery-grid { grid-template-columns: 1fr 1fr }
+    /* interactive puzzle */
+    .puzzle{
+      display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:center;
     }
-    @media (max-width: 640px) {
-      .gallery-grid { grid-template-columns: 1fr }
-      .nav { width: calc(100% - 20px) }
+    .puzzle .cover img{width:100%; height:100%; object-fit:cover; aspect-ratio:4/5}
+    .pad-20{padding:20px}
+
+    .terminal{
+      font-family:'Roboto Mono',monospace; background:#0a0a0b; color:#32d09f;
+      border:1px solid #1f1f25; padding:16px; border-radius:12px; min-height:180px;
     }
+    .terminal .line{white-space:pre-wrap; margin:0}
+    .terminal .caret::after{
+      content:"█"; animation:blink 1.1s steps(1) infinite; margin-left:6px;
+    }
+    @keyframes blink{50%{opacity:0}}
+
+    .input-row{display:flex; gap:.6rem; margin-top:10px}
+    .input-row input{
+      flex:1; padding:.65rem .8rem; border-radius:10px; border:1px solid #2a2a31;
+      background:#121214; color:#dcdce1;
+    }
+    .input-row button{
+      padding:.65rem .9rem; border-radius:10px; border:1px solid #2a2a31; background:#17171a; color:#e7e7ec; font-weight:600;
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .input-row button:hover{transform:translateY(-1px); box-shadow:0 10px 24px var(--shadow)}
+    .hint{color:#8f8f98; font-size:.92rem; margin-top:6px}
+
+    /* timeline */
+    .timeline{position:relative; margin-top:24px; padding-left:14px; border-left:2px dashed #2a2a31}
+    .dot{--size:10px; position:absolute; left:-6px; width:var(--size); height:var(--size); border-radius:50%;
+      background:linear-gradient(180deg,#bfbfbf 0%,#7a7a82 100%); box-shadow:0 2px 6px var(--shadow)}
+    .tl-item{margin:18px 0 18px 10px}
+    .tl-item h5{margin:0 0 6px; color:#e9e9ef}
+    .tl-item span{color:var(--muted); font-size:.92rem}
+
+    /* audio */
+    .audio-bar{
+      display:flex; align-items:center; gap:.6rem; margin-top:10px;
+    }
+    .audio-btn{
+      padding:.55rem .8rem; border-radius:10px; border:1px solid #2a2a31; background:#17171a; color:#e7e7ec; font-weight:600;
+    }
+    .meter{
+      flex:1; height:8px; background:#111113; border:1px solid #2a2a31; border-radius:999px; overflow:hidden;
+    }
+    .meter .fill{width:0%; height:100%; background:linear-gradient(90deg,#2db283,#0c6b4f,#2db283); transition:width .3s ease}
+
+    /* footer */
+    footer{padding:36px 20px 60px; border-top:1px solid #26262c; background:#09090a; color:#cfcfd6}
+    .footer-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
+    .footer-col h6{margin:0 0 8px; font-size:1rem; color:#e9e9ef}
+    .footer-col p{margin:0 0 6px}
+    .credits{margin-top:18px; font-size:.9rem; color:var(--muted)}
+
+    /* responsiveness */
+    @media (max-width: 960px){
+      .gallery-grid{grid-template-columns:1fr 1fr}
+      .puzzle{grid-template-columns:1fr}
+    }
+    @media (max-width: 640px){
+      .gallery-grid{grid-template-columns:1fr}
+      .nav{width:calc(100% - 20px)}
+    }
+
+    /* subtle horror interactions */
+    .glitch{
+      position:absolute; inset:0; pointer-events:none; opacity:.08; mix-blend-mode:screen;
+      background: repeating-linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.05) 2px, transparent 3px, transparent 6px);
+      animation:glitchShift 5s linear infinite;
+    }
+    @keyframes glitchShift{
+      0%{transform:translate3d(0,0,0)}
+      50%{transform:translate3d(0,-6px,0)}
+      100%{transform:translate3d(0,0,0)}
+    }
+
+    .peek{
+      position:fixed; bottom:12px; right:12px; width:74px; height:74px; border-radius:50%;
+      background: url("https://images.pexels.com/photos/674570/pexels-photo-674570.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=200&w=200") center/cover no-repeat;
+      box-shadow:0 12px 30px var(--shadow); border:1px solid #2a2a31; overflow:hidden;
+      filter:grayscale(.7) contrast(1.1);
+      transition:transform .2s ease, filter .2s ease;
+      z-index:30;
+    }
+    .peek:hover{transform:scale(1.06); filter:grayscale(.3) contrast(1.2)}
+    .peek::after{
+      content:"看见我了吗？"; position:absolute; inset:auto 0 0 0; background:rgba(0,0,0,.6); color:#dcdce1;
+      font-size:.75rem; padding:.25rem .5rem; text-align:center;
+    }
+
+    /* modal */
+    .modal{
+      position:fixed; inset:0; display:none; place-items:center; z-index:50;
+      background:rgba(0,0,0,.75);
+      backdrop-filter: blur(6px);
+    }
+    .modal.active{display:grid}
+    .modal-card{
+      width:min(680px, calc(100% - 40px));
+      border-radius:16px; border:1px solid #2a2a31; overflow:hidden;
+      background:linear-gradient(180deg,#151517 0%,#111113 100%);
+      box-shadow:0 20px 60px rgba(0,0,0,.7);
+      animation:pop .2s ease;
+    }
+    @keyframes pop{from{transform:scale(.96); opacity:0} to{transform:scale(1); opacity:1}}
+    .modal-head{
+      display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid #2a2a31;
+    }
+    .modal-head h3{margin:0; font-size:1.1rem}
+    .modal-body{padding:14px 16px}
+    .close-btn{
+      border:1px solid #2a2a31; background:#17171a; color:#dcdce1; padding:.45rem .65rem; border-radius:10px; font-weight:600;
+    }
+    .modal-img{
+      width:100%; height:320px; object-fit:cover;
+      background:url("https://images.pexels.com/photos/30316242/pexels-photo-30316242.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1200&w=2000") center/cover no-repeat;
+      filter:contrast(1.05) brightness(.9);
+    }
+
+    /* secret hover on hero title */
+    .title:hover{color:#f0f0f6}
   </style>
 </head>
 <body>
-  <!-- Floating nav -->
+  <!-- noise overlay -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- nav -->
   <nav class="nav" aria-label="主导航">
-    <ul>
-      <li><a href="#about">序章</a></li>
-      <li><a href="#gallery">秋叶画廊</a></li>
-      <li><a href="#journal">落叶记事</a></li>
-      <li><a href="#timeline">季节时间线</a></li>
-    </ul>
+    <a href="#gallery">暗影画廊</a>
+    <a href="#puzzle">旧屋终端</a>
+    <a href="#timeline">午夜时间线</a>
+    <a id="openModal" href="#">镜中来客</a>
   </nav>
 
-  <!-- Hero -->
-  <header class="hero" role="banner" aria-label="秋天的开场">
-    <div class="content">
-      <div class="brand">AUTUMN TALES</div>
-      <h1 class="title">秋风起，叶归根</h1>
-      <p class="subtitle">轻轻一阵风，金色的叶片在空气里打着旋，从枝头向大地投递一封温暖的信。你抬头，世界忽然变得柔软。</p>
-      <div class="cta-group">
-        <a class="btn primary" href="#gallery">开启秋色旅程</a>
-        <a class="btn" href="#about">阅读序章</a>
+  <!-- hero -->
+  <header class="hero" role="banner" aria-label="午夜的开场">
+    <div class="glitch"></div>
+    <div class="fog"></div>
+    <div class="hero-content">
+      <div class="brand">THE HOUSE AT 3:17 AM</div>
+      <h1 class="title">当门缝低语时，请轻一点走</h1>
+      <p class="subtitle">冷雾贴在窗上，旧木地板在脚边发出细小的回声。你知道，有些东西在黑暗里看着你，但它们更像是等待被你看见。</p>
+      <div class="cta">
+        <a class="btn red" href="#gallery">进入暗影</a>
+        <a class="btn" href="#puzzle">连接终端</a>
       </div>
     </div>
-
-    <!-- Decorative falling leaves -->
-    <div class="leaf" style="top:8%;left:12%"></div>
-    <div class="leaf-2" style="top:16%;left:78%"></div>
-    <div class="leaf" style="top:2%;left:54%"></div>
-    <div class="leaf-2" style="top:22%;left:32%"></div>
-    <div class="leaf" style="top:30%;left:6%"></div>
-    <div class="leaf-2" style="top:34%;left:88%"></div>
-    <div class="leaf" style="top:46%;left:72%"></div>
-    <div class="leaf-2" style="top:58%;left:24%"></div>
-    <div class="leaf" style="top:66%;left:40%"></div>
-    <div class="leaf-2" style="top:72%;left:12%"></div>
-    <div class="leaf" style="top:78%;left:90%"></div>
+    <!-- candles -->
+    <div class="candle"></div>
+    <div class="candle"></div>
+    <div class="candle"></div>
+    <div class="candle"></div>
+    <div class="candle"></div>
   </header>
 
-  <!-- About -->
-  <section id="about">
-    <div class="container">
-      <div class="about">
-        <div class="panel" style="padding: 20px">
-          <h2 class="section-title">序章 · 林间的金色回声</h2>
-          <p class="section-sub">秋天不是宣言，它是一个慢慢发生的故事：一片叶，比昨日更黄，一束光，比清晨更暖。</p>
-          <p>我们把脚步放轻，把呼吸放慢，试着用更柔软的目光去看见：苔痕、树影、风在耳边细细的叮嘱。于是，时间像一条被温柔抚平的河。</p>
-          <p>这一页，献给每一次好好告别与重新出发——让落叶为你铺一条金色的路，通往未完成的诗。</p>
-        </div>
-        <img alt="林间金色落叶的清晨" src="https://images.pexels.com/photos/29413890/pexels-photo-29413890.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1200&w=1600" />
-      </div>
-    </div>
-  </section>
-
-  <!-- Gallery -->
+  <!-- gallery -->
   <section id="gallery">
     <div class="container">
-      <h2 class="section-title">秋叶画廊 · 颜色的温度</h2>
-      <p class="section-sub">拾一片叶，听见颜色在指尖里轻轻发热：赭、金、朱、棕，每一种都在讲述回家的路。</p>
+      <h2 class="section-title">暗影画廊 · 旧屋的目光</h2>
+      <p class="section-sub">走过走廊、推开门、抬眼看窗檐——每一处都藏着线索，每一眼都像被看见。</p>
 
       <div class="gallery-grid">
         <article class="card">
-          <span class="badge">林间光影</span>
-          <img alt="秋天森林中透过树冠的光影" src="https://images.pexels.com/photos/1679825/pexels-photo-1679825.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
+          <span class="badge">走廊尽头</span>
+          <img alt="昏暗走廊尽头的门" src="https://images.pexels.com/photos/30359356/pexels-photo-30359356.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
           <div class="pad">
-            <h3 style="margin:0 0 6px">光在叶上行走</h3>
-            <p style="margin:0;color:#dcd6c6">晨光穿过枝桠，落在地面斑驳成一首诗，轻得像呼吸。</p>
+            <h3 style="margin:0 0 6px">门后有风</h3>
+            <p style="margin:0;color:#cfcfd6">有人轻轻推了一下，门却自己关上。你站在原地，听见气息。</p>
           </div>
         </article>
 
         <article class="card">
-          <span class="badge">湖畔薄雾</span>
-          <img alt="湖边秋叶与晨雾" src="https://images.pexels.com/photos/244954/pexels-photo-244954.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
+          <span class="badge">空房里</span>
+          <img alt="破旧房间与遗落的椅子" src="https://images.pexels.com/photos/2167872/pexels-photo-2167872.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
           <div class="pad">
-            <h3 style="margin:0 0 6px">雾与水的呢喃</h3>
-            <p style="margin:0;color:#dcd6c6">薄雾把边界擦去，水面只剩温柔的呼唤，像远方在招手。</p>
+            <h3 style="margin:0 0 6px">椅子在看你</h3>
+            <p style="margin:0;color:#cfcfd6">它一直在那里，像一双被遗忘的眼睛，盯着每个进来的脚步。</p>
           </div>
         </article>
 
         <article class="card">
-          <span class="badge">街角秋意</span>
-          <img alt="城市街角的秋叶行道树" src="https://images.pexels.com/photos/29428706/pexels-photo-29428706.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
+          <span class="badge">窗与雾</span>
+          <img alt="布满水汽的窗与隐约的影子" src="https://images.pexels.com/photos/15319186/pexels-photo-15319186.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
           <div class="pad">
-            <h3 style="margin:0 0 6px">一座城市的温度</h3>
-            <p style="margin:0;color:#dcd6c6">行道树落下的片刻安静，让匆忙的人也愿意慢下来。</p>
+            <h3 style="margin:0 0 6px">名字写在雾上</h3>
+            <p style="margin:0;color:#cfcfd6">不知是谁用指尖在玻璃上写下了你的名字，还没干。</p>
           </div>
         </article>
 
         <article class="card">
-          <span class="badge">金色小径</span>
-          <img alt="金色落叶覆盖的小路" src="https://images.pexels.com/photos/681334/pexels-photo-681334.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
+          <span class="badge">楼梯下</span>
+          <img alt="楼梯下的阴影与老旧墙面" src="https://images.pexels.com/photos/5343816/pexels-photo-5343816.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
           <div class="pad">
-            <h3 style="margin:0 0 6px">通往温暖的路</h3>
-            <p style="margin:0;color:#dcd6c6">叶片为你铺路，告诉你：每一步都能把季节踩得更轻。</p>
+            <h3 style="margin:0 0 6px">影子在数数</h3>
+            <p style="margin:0;color:#cfcfd6">一步，两步，第三步会发出喀的一声，像在提醒你停下。</p>
           </div>
         </article>
 
         <article class="card">
-          <span class="badge">枫红如火</span>
-          <img alt="枫叶红透的近景" src="https://images.pexels.com/photos/33109/fall-autumn-red-season.jpg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
+          <span class="badge">阁楼口</span>
+          <img alt="阁楼入口与垂下的木梯" src="https://images.pexels.com/photos/27375186/pexels-photo-27375186.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
           <div class="pad">
-            <h3 style="margin:0 0 6px">热烈的告白</h3>
-            <p style="margin:0;color:#dcd6c6">红色是一种无法隐藏的情绪，像某段故事的高光时刻。</p>
+            <h3 style="margin:0 0 6px">谁住在上面</h3>
+            <p style="margin:0;color:#cfcfd6">木梯上的灰却很新，像刚刚有人上去，又下来。</p>
           </div>
         </article>
 
         <article class="card">
-          <span class="badge">麦田余晖</span>
-          <img alt="秋天麦田的余晖与风" src="https://images.pexels.com/photos/672142/pexels-photo-672142.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
+          <span class="badge">手电光</span>
+          <img alt="手电筒光束穿过黑暗的房间" src="https://images.pexels.com/photos/7463867/pexels-photo-7463867.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=700&w=1200" />
           <div class="pad">
-            <h3 style="margin:0 0 6px">风把金色吹成浪</h3>
-            <p style="margin:0;color:#dcd6c6">当阳光落在麦穗上，时间被悄悄分成一粒一粒的温柔。</p>
+            <h3 style="margin:0 0 6px">光里有尘</h3>
+            <p style="margin:0;color:#cfcfd6">尘粒在光里漂浮，像一句句被打散的忏悔。</p>
           </div>
         </article>
       </div>
     </div>
   </section>
 
-  <!-- Quote band -->
-  <section class="quote-band" aria-label="秋日短句">
-    <p class="quote">“我们终将学会温柔地告别——像一片叶，从枝头轻轻落下，拥抱大地，完成一场圆满。”</p>
-  </section>
-
-  <!-- Journal -->
-  <section id="journal">
+  <!-- interactive terminal puzzle -->
+  <section id="puzzle">
     <div class="container">
-      <h2 class="section-title">落叶记事 · 微风与心事</h2>
-      <p class="section-sub">把秋天拆成更细的片段：一个午后、一杯热茶、一次走神、一段回望。</p>
+      <h2 class="section-title">旧屋终端 · 密语连接</h2>
+      <p class="section-sub">终端会回应你的问题，如果你问得够轻。输入“open”或“listen”，看它愿意告诉你什么。</p>
 
-      <div class="journal">
+      <div class="puzzle">
         <div class="cover panel">
-          <img alt="林间小路与温暖光线的竖幅照片" src="https://images.pexels.com/photos/1064422/pexels-photo-1064422.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1400&w=1000" />
+          <img alt="夜色中孤立的房屋与昏黄灯光" src="https://images.pexels.com/photos/5343818/pexels-photo-5343818.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=1200&w=900" />
         </div>
-        <div>
-          <article class="post">
-            <h4>午后三点的光</h4>
-            <p>光线在桌面斜着落下，茶杯冒着雾，你忽然想到好多旧事——不是为了怀旧，只是为了确定自己走过的每一步都值得。</p>
-          </article>
-          <article class="post">
-            <h4>给一片叶的信</h4>
-            <p>你从路边捡起一片叶，夹在书页中；很多年后翻开，它仍旧安静地躺着，像一个没有期限的拥抱。</p>
-          </article>
-          <article class="post">
-            <h4>在风里练习告别</h4>
-            <p>秋风把你送到季节的门口，你轻轻说再见，也轻轻说你好：告别不是结束，是另一种开始。</p>
-          </article>
+        <div class="panel pad-20">
+          <div class="terminal" id="terminal" aria-live="polite">
+            <p class="line">[3:17 AM] 连接到: HOUSE-LOW-VOICE</p>
+            <p class="line">提示: 输入 "open" / "listen" / "door" / "name"</p>
+            <p class="line caret">等待输入...</p>
+          </div>
+          <div class="input-row">
+            <input id="cmd" type="text" placeholder="在此输入指令..." aria-label="终端指令输入" />
+            <button id="run">执行</button>
+          </div>
+          <p class="hint">提示：有些词只能在黑暗里被听见。试试用小写字母。</p>
 
-          <!-- Timeline -->
-          <div id="timeline" class="timeline">
+          <div class="audio-bar">
+            <button class="audio-btn" id="audioToggle">播放低语</button>
+            <div class="meter"><div class="fill" id="audioFill"></div></div>
+          </div>
+
+          <div class="timeline" id="timeline">
             <div class="dot" style="top:6px"></div>
             <div class="tl-item">
-              <h5>清晨 · 露水与薄光</h5>
-              <span>拾一片叶，听见一天的第一声问候。</span>
+              <h5>00:41 · 门缝里有风</h5>
+              <span>门自己开了一指宽，然后又停住了。</span>
             </div>
             <div class="dot" style="top:76px"></div>
             <div class="tl-item">
-              <h5>午后 · 温茶与慢步</h5>
-              <span>时间在杯沿绕圈，温暖在指尖停留。</span>
+              <h5>01:03 · 窗上出现名字</h5>
+              <span>不属于屋主，恰好是你在用的名字。</span>
             </div>
             <div class="dot" style="top:146px"></div>
             <div class="tl-item">
-              <h5>傍晚 · 云霞与归途</h5>
-              <span>金色从天空落下，铺满回家的每一段路。</span>
-            </div>
-            <div class="dot" style="top:216px"></div>
-            <div class="tl-item">
-              <h5>夜晚 · 星光与心事</h5>
-              <span>风停了，叶也安睡，心里留下温柔的余震。</span>
+              <h5>03:17 · 地板发出第三声</h5>
+              <span>像在提醒：不要往更黑的地方走。</span>
             </div>
           </div>
         </div>
@@ -503,54 +420,200 @@
     </div>
   </section>
 
-  <!-- Footer -->
+  <!-- modal -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <h3 id="modalTitle">镜中来客</h3>
+        <button class="close-btn" id="closeModal">关闭</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-img" role="img" aria-label="破碎的镜子里隐约的影子"></div>
+        <p style="margin-top:10px; color:#dcdce1">你靠近镜面，呼吸在玻璃上凝结成白。影子没有动，却像更靠近了一步。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- footer -->
   <footer>
     <div class="container">
       <div class="footer-grid">
         <div class="footer-col">
-          <h6>秋色旅程</h6>
-          <p>为每一位热爱秋天的人，写下一段温暖的路书。</p>
-          <p>把匆忙放在门外，带着你的小小心事来散步。</p>
+          <h6>午夜诡域</h6>
+          <p>一个关于看与被看见的故事。</p>
+          <p>请轻一点走，门缝会告诉你路。</p>
         </div>
         <div class="footer-col">
-          <h6>灵感来源</h6>
-          <p>林间的光、湖面的雾、城市的树与你路过的风。</p>
-          <p>图片来自优质公开图库，致敬每一帧秋色的记录者。</p>
+          <h6>素材说明</h6>
+          <p>图片链接来自公开图库；请在正式项目中核对授权。</p>
+          <p>页面支持PC与移动端浏览，自适应布局。</p>
         </div>
         <div class="footer-col">
-          <h6>使用说明</h6>
-          <p>页面可直接保存为 HTML 使用；图片链接可替换为你自己的素材。</p>
-          <p>支持移动端与桌面端浏览，享受自适应的秋日氛围。</p>
+          <h6>操作提示</h6>
+          <p>尝试点击“镜中来客”、运行终端指令、播放低语。</p>
+          <p>在画廊中悬停卡片，留意细微的变化。</p>
         </div>
       </div>
-      <div class="credits">
-        © 秋天落叶 · Autumn Leaves. 文字与设计仅作个人展示使用。图片链接来自公开来源，建议在正式项目中核对版权与许可。
-      </div>
+      <div class="credits">© 午夜诡域 · The Quiet House. 仅作个人展示使用。</div>
     </div>
   </footer>
 
+  <div class="peek" title="看见我了吗？" aria-label="角落里的窥视者"></div>
+
+  <audio id="whisper" preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/22/audio_5f4f7b3d3e.mp3?filename=creepy-ambient-109538.mp3" type="audio/mpeg" />
+  </audio>
+
   <script>
-    // Subtle parallax on scroll for hero background
-    (function() {
+    // subtle parallax for hero
+    (function(){
       const hero = document.querySelector('.hero');
-      window.addEventListener('scroll', () => {
+      window.addEventListener('scroll', ()=>{
         const y = window.scrollY;
-        const scale = 1.02 + Math.min(y / 3000, .06);
-        hero.style.setProperty('--p', y * 0.12);
         hero.style.transform = `translate3d(0, ${y * -0.04}px, 0)`;
-        hero.style.setProperty('--s', scale);
-      }, { passive: true });
+      }, {passive:true});
     })();
 
-    // Smooth scroll for nav links
-    document.querySelectorAll('.nav a').forEach(a => {
-      a.addEventListener('click', e => {
+    // smooth nav
+    document.querySelectorAll('.nav a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', e=>{
         e.preventDefault();
         const id = a.getAttribute('href').replace('#','');
         const target = document.getElementById(id);
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
       });
     });
+
+    // modal
+    const openModal = document.getElementById('openModal');
+    const modal = document.getElementById('modal');
+    const closeModal = document.getElementById('closeModal');
+    openModal.addEventListener('click', e=>{
+      e.preventDefault();
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden','false');
+    });
+    closeModal.addEventListener('click', ()=>{
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden','true');
+    });
+    modal.addEventListener('click', (e)=>{
+      if(e.target === modal){
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden','true');
+      }
+    });
+
+    // terminal interactions
+    const term = document.getElementById('terminal');
+    const cmd = document.getElementById('cmd');
+    const run = document.getElementById('run');
+
+    function print(line, cls){
+      const p = document.createElement('p');
+      p.className = 'line' + (cls ? ' ' + cls : '');
+      p.textContent = line;
+      term.appendChild(p);
+      term.scrollTop = term.scrollHeight;
+    }
+
+    const replies = {
+      open: [
+        '[系统] 门缝扩大了两指宽。',
+        '[耳语] 别进来，我在里面。',
+        '[提示] 输入 "door" 继续。'
+      ],
+      door: [
+        '[门] 门轴发出第三声。你想起时间线里写过它。',
+        '[耳语] 你站在我面前了吗？'
+      ],
+      listen: [
+        '[噪声] sssss...',
+        '[耳语] 你的名字不在这里，却一直被叫出来。'
+      ],
+      name: [
+        '[镜子] 雾面上出现了你的名字，像是从里面写的。',
+        '[提示] 点击右上“镜中来客”。'
+      ]
+    };
+
+    run.addEventListener('click', ()=>{
+      const value = (cmd.value || '').trim().toLowerCase();
+      if(!value){ print('[系统] 请输入指令。'); return; }
+      print('> ' + value, 'user');
+      if(replies[value]){
+        replies[value].forEach(l=>print(l));
+      }else{
+        print('[系统] 未知指令。试试 "open" / "listen" / "door" / "name"');
+      }
+      cmd.value = '';
+    });
+
+    cmd.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){ run.click(); }
+    });
+
+    // audio
+    const audio = document.getElementById('whisper');
+    const audioToggle = document.getElementById('audioToggle');
+    const audioFill = document.getElementById('audioFill');
+    let playing = false, meterInterval;
+
+    audioToggle.addEventListener('click', ()=>{
+      if(!playing){
+        audio.play().then(()=>{
+          playing = true;
+          audioToggle.textContent = '暂停低语';
+          meterInterval = setInterval(()=>{
+            const w = Math.min(100, Math.floor((Math.random()*60) + (audio.currentTime % 1)*40));
+            audioFill.style.width = w + '%';
+          }, 260);
+        }).catch(()=>{
+          print('[音频] 无法播放，请稍后重试。');
+        });
+      }else{
+        audio.pause();
+        playing = false;
+        audioToggle.textContent = '播放低语';
+        audioFill.style.width = '0%';
+        clearInterval(meterInterval);
+      }
+    });
+
+    // random peek pulse
+    const peek = document.querySelector('.peek');
+    setInterval(()=>{
+      const s = 1 + (Math.random()*0.06);
+      peek.style.transform = `scale(${s})`;
+    }, 2000);
+
+    // occasional screen dim flash
+    const flash = document.createElement('div');
+    flash.style.position = 'fixed';
+    flash.style.inset = '0';
+    flash.style.background = 'rgba(0,0,0,.35)';
+    flash.style.pointerEvents = 'none';
+    flash.style.opacity = '0';
+    flash.style.transition = 'opacity .8s ease';
+    document.body.appendChild(flash);
+
+    function dimFlash(){
+      flash.style.opacity = '1';
+      setTimeout(()=>flash.style.opacity='0', 800);
+    }
+    setInterval(()=>{
+      if(Math.random() < 0.18) dimFlash();
+    }, 6000);
+
+    // accessibility: reduce motion
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    function reduceMotionUpdate(e){
+      if(e.matches){
+        document.querySelectorAll('.candle,.fog,.glitch').forEach(el=>el.style.animation='none');
+      }
+    }
+    reduceMotionUpdate(mq);
+    mq.addEventListener('change', reduceMotionUpdate);
   </script>
 </body>
 </html>

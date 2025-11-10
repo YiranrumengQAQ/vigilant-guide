@@ -350,28 +350,23 @@
         const omegaUnlockHint = document.getElementById('omega-unlock-hint');
 
 
-        // --- 1. 隐蔽触发机制 V2.3 (触控/连击修复) ---
+        // --- 1. 隐蔽触发机制 V2.4 (PC/PE 兼容性修复) ---
         
-        function handleTriggerClick(event) {
-            // V7.0：阻止默认事件，特别是移动端的触摸滚动和PC端的拖拽
+        // **V8.0 修复 1：PC Click 逻辑**
+        function handlePCClick(event) {
+            // PC: 仅阻止事件冒泡，不阻止默认行为
             event.stopPropagation();
-            event.preventDefault(); 
             
             if (omegaCore.style.display !== 'none' || stygianKey.style.display === 'block') return; 
 
-            // **连击计时器逻辑：如果间隔过长，则重置计数器**
+            // 连击计时器逻辑
             if (clickTimer) {
                 clearTimeout(clickTimer);
-            } else {
-                if (veilClickCount >= VEIL_TRIGGER_THRESHOLD) {
-                    veilClickCount = 0; // 状态异常保护
-                }
             }
             clickTimer = setTimeout(() => {
-                // 计时器超时，重置计数器
                 veilClickCount = 0; 
                 clickTimer = null;
-                console.log("Click sequence timed out. Resetting count.");
+                console.log("PC Click sequence timed out. Resetting count.");
             }, CLICK_TIMEOUT);
             
             veilClickCount++;
@@ -379,31 +374,70 @@
             
             if (veilClickCount === VEIL_TRIGGER_THRESHOLD) {
                 
-                // 触发成功，清除连击计时器
+                // 触发成功，清除计时器
                 clearTimeout(clickTimer);
                 clickTimer = null;
-                veilClickCount = 0; // 立即重置，防止误触发
+                veilClickCount = 0; 
 
-                // V6.0 修复：显示提示框
+                // 显示提示框
                 rockHint.style.display = 'block'; 
-                setTimeout(() => { rockHint.style.opacity = '1'; }, 10); // 触发CSS过渡
+                setTimeout(() => { rockHint.style.opacity = '1'; }, 10); 
 
                 setTimeout(() => {
                     rockHint.style.opacity = '0';
-                    setTimeout(() => { rockHint.style.display = 'none'; }, 500); // 动画结束后隐藏
+                    setTimeout(() => { rockHint.style.display = 'none'; }, 500); 
                 }, 3000); 
 
-                // 立即显示小石头
+                // 确保小石头立即显示
                 stygianKey.style.display = 'block'; 
                 stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD})`;
             }
         }
+
+        // **V8.0 修复 3：分离事件监听 (PC 监听 click)**
+        triggerChar.addEventListener('click', handlePCClick); 
         
-        // V7.0 修复：同时监听 click (PC) 和 touchend (PE/Touch)
-        triggerChar.addEventListener('click', handleTriggerClick);
-        triggerChar.addEventListener('touchend', handleTriggerClick);
+        // 仅在浏览器支持触摸事件时才添加 touchend 监听器（用于 PE）
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+            function handlePETouch(event) {
+                // PE: 阻止默认行为（如缩放/滚动），确保连击被识别
+                event.stopPropagation();
+                event.preventDefault(); 
+                
+                if (omegaCore.style.display !== 'none' || stygianKey.style.display === 'block') return; 
 
+                // 连击计时器逻辑
+                if (clickTimer) {
+                    clearTimeout(clickTimer);
+                } 
+                clickTimer = setTimeout(() => {
+                    veilClickCount = 0; 
+                    clickTimer = null;
+                    console.log("PE Touch sequence timed out. Resetting count.");
+                }, CLICK_TIMEOUT);
 
+                veilClickCount++;
+                console.log("'寂' Char Touch:", veilClickCount);
+                
+                if (veilClickCount === VEIL_TRIGGER_THRESHOLD) {
+                    clearTimeout(clickTimer);
+                    clickTimer = null;
+                    veilClickCount = 0; 
+
+                    rockHint.style.display = 'block'; 
+                    setTimeout(() => { rockHint.style.opacity = '1'; }, 10); 
+                    setTimeout(() => {
+                        rockHint.style.opacity = '0';
+                        setTimeout(() => { rockHint.style.display = 'none'; }, 500); 
+                    }, 3000); 
+                    stygianKey.style.display = 'block'; 
+                    stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD})`;
+                }
+            }
+            // 监听 touchend
+            triggerChar.addEventListener('touchend', handlePETouch);
+        }
+        
         // 确保点击其他地方不会干扰触发
         veilContainer.addEventListener('click', function(event) {
              if (omegaCore.style.display !== 'none') return;
@@ -440,7 +474,7 @@
             }
         });
         
-        // --- 2. OMEGA 核心逻辑 ---
+        // --- 2. OMEGA 核心逻辑 (保持不变) ---
 
         function calculateFrequency(length, diameter) {
             return (length / 50) + (diameter / 5) + 0.5;
@@ -530,7 +564,7 @@
             }
         }
 
-        // --- 3. 手柄支持 (Gamepad API) (V4.0 - 隐蔽增强) ---
+        // --- 3. 手柄支持 (Gamepad API) (保持不变) ---
 
         window.addEventListener("gamepadconnected", (event) => {
             gamepadIndex = event.gamepad.index;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>寂静之巅 - 摄影作品集</title>
+    <title>寂静之巅 - 风景摄影</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         /* --- 全局美化与动画 --- */
@@ -25,29 +25,28 @@
             font-family: 'Montserrat', sans-serif; /* 新字体 */
             background: linear-gradient(to bottom right, var(--primary-dark), var(--secondary-dark));
             color: var(--text-light);
-            overflow: hidden; /* 保持原样 */
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            /* (已修复) 移除 overflow: hidden 和 height: 100vh */
+            min-height: 100vh; /* 确保 body 至少占满屏幕 */
             
             -webkit-user-select: none;  
             -moz-user-select: none;     
             -ms-user-select: none;      
             user-select: none;          
             cursor: default;
-            position: relative; /* 用于放置全局弹窗 */
+            position: relative; 
         }
 
         /* --- 隐蔽层 CSS：风景主题 (The Veil) --- */
         #veil-container {
             width: 100%;
-            height: 100%;
+            height: 100vh; /* (已修改) 确保占满视口 */
             background-image: url('https://picsum.photos/1920/1080?random=1'); /* 保持背景图 */
             background-size: cover;
             background-position: center;
             transition: opacity 2s ease-in-out; /* 更平滑的过渡 */
-            position: relative;
+            position: fixed; /* (已修改) 固定在屏幕上 */
+            top: 0;
+            left: 0;
             z-index: 10;
             display: flex; /* 便于标题居中 */
             align-items: center;
@@ -55,7 +54,7 @@
         }
         
         #main-title {
-            position: relative; /* 从 absolute 改为 relative，在 flex 容器中居中 */
+            position: relative; 
             font-family: 'Playfair Display', serif; /* 标题字体 */
             font-size: 5em; /* 增大标题 */
             color: white;
@@ -69,11 +68,10 @@
             cursor: default; /* (已修改) 恢复默认光标，增强隐蔽性 */
             position: relative;
             display: inline-block; 
-            /* (已移除) transition: all 0.2s ease-out; */
             transform-origin: center center; 
         }
 
-        /* (已移除) "寂"字点击反馈的动画效果 CSS (trigger-char.clicked 和 @keyframes bounceIn) */
+        /* (已移除) "寂"字点击反馈的动画效果 CSS */
         
         /* --- 石头滚落弹窗 --- */
         #rock-fall-popup {
@@ -127,8 +125,6 @@
             font-weight: 400;
             color: #ccc;
         }
-
-        /* (已移除) 进度条相关 CSS */
         
         #stygian-key {
             position: absolute;
@@ -191,18 +187,20 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            min-height: 100vh; /* (已修改) 确保至少占满屏幕 */
+            height: auto; /* (已添加) 允许高度自动增长 */
             background-color: var(--primary-dark); /* 与 body 保持一致 */
             display: none; 
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 20;
-            padding: 40px; /* 增大内边距 */
+            padding: 80px 40px; /* (已修改) 增加垂直内边距 */
             box-sizing: border-box;
             color: var(--text-light);
             opacity: 0; /* 初始隐藏 */
             transition: opacity 1s ease-in-out; /* 进入动画 */
+            overflow-y: auto; /* (已添加) 允许垂直滚动 */
         }
         #omega-core.show {
             opacity: 1;
@@ -216,6 +214,7 @@
             animation: pulse 2.5s infinite ease-in-out; /* 动画更柔和 */
             margin-bottom: 30px;
             letter-spacing: 2px;
+            text-align: center; /* 确保标题居中 */
         }
         
         @keyframes pulse {
@@ -230,6 +229,7 @@
             font-size: 1.8em;
             margin-bottom: 25px;
             text-shadow: 0 0 8px rgba(255, 105, 180, 0.3);
+            text-align: center; /* 确保居中 */
         }
 
         .input-group {
@@ -242,6 +242,9 @@
             box-shadow: 0 2px 10px var(--shadow-light);
             border: 1px solid var(--border-color);
             transition: all 0.3s ease;
+            width: 90%; /* (已添加) 限制宽度，防止在超宽屏上过宽 */
+            max-width: 500px; /* (已添加) 最大宽度 */
+            box-sizing: border-box; /* 确保 padding 不影响宽度 */
         }
         .input-group:focus-within {
             box-shadow: 0 0 15px var(--accent-pink);
@@ -254,6 +257,7 @@
             font-size: 1.1em;
             margin-right: 15px;
             font-weight: 600;
+            flex-shrink: 0; /* 防止 label 被压缩 */
         }
         .input-group input {
             padding: 12px; /* 增大 */
@@ -261,7 +265,8 @@
             border: 1px solid var(--accent-pink);
             background-color: rgba(255, 255, 255, 0.08); /* 更柔和的输入框背景 */
             color: white;
-            width: 160px; /* 增大 */
+            width: 100%; /* (已修改) 占满剩余空间 */
+            min-width: 80px; /* (已添加) 最小宽度 */
             font-size: 1.05em;
             text-align: center;
             box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.3);
@@ -309,6 +314,7 @@
             text-align: left;
             box-shadow: 0 5px 20px var(--shadow-strong);
             border: 1px solid var(--accent-magenta);
+            box-sizing: border-box; /* 确保 padding 不影响宽度 */
         }
         #status-area h2 {
             font-family: 'Playfair Display', serif;
@@ -324,6 +330,7 @@
             display: flex;
             justify-content: space-between; /* 左右对齐 */
             align-items: center;
+            flex-wrap: wrap; /* (已添加) 允许在小屏幕上换行 */
         }
         #status-area p span {
             font-weight: 700;
@@ -376,17 +383,35 @@
         @media (max-width: 768px) {
             #main-title { font-size: 3em; }
             .omega-header { font-size: 2.5em; }
-            .input-group label { width: 100px; font-size: 1em;}
-            .input-group input { width: 100px; padding: 10px; font-size: 0.9em;}
-            #setup-section h2 { font-size: 1.5em; }
-            #status-area { padding: 20px; }
+            #setup-section { width: 100%; }
+            .input-group { 
+                width: 100%; 
+                flex-direction: column; /* (已修改) 垂直堆叠 */
+                align-items: flex-start; /* 左对齐 */
+                padding: 15px;
+            }
+            .input-group label { 
+                width: 100%; /* 占满宽度 */
+                margin-right: 0;
+                margin-bottom: 8px; /* 增加间距 */
+                font-size: 1em;
+                text-align: left; /* 左对齐 */
+            }
+            .input-group input { 
+                width: 100%; /* 占满宽度 */
+                padding: 12px; 
+                font-size: 1.1em; /* 增大字体 */
+            }
+            #status-area { padding: 20px; width: 100%; }
+            #status-area p { font-size: 1em; } /* 缩小字体 */
             #status-area h2 { font-size: 1.5em; }
             #current-action { font-size: 1.2em; min-height: 40px; }
-            #rock-fall-popup { padding: 20px 30px; font-size: 1.4em; }
+            #rock-fall-popup { padding: 20px 30px; font-size: 1.4em; width: 80%; box-sizing: border-box;}
             #rock-fall-popup .icon { font-size: 2.5em; }
             #stygian-key { width: 45px; height: 45px; font-size: 18px; line-height: 45px; bottom: 15px; right: 15px;}
-            #omega-unlock-hint { padding: 20px 30px; font-size: 1.8em; }
+            #omega-unlock-hint { padding: 20px 30px; font-size: 1.8em; width: 80%; box-sizing: border-box;}
             #start-button, .action-button { padding: 12px 25px; font-size: 1.1em; margin-top: 20px; }
+            #omega-core { padding: 60px 20px; } /* 调整移动端内边距 */
         }
 
         /* 手柄光标/提示 (默认隐藏) */
@@ -526,10 +551,6 @@
             console.log(`Trigger Char Click: ${triggerCharClickCount}/${KEY_TRIGGER_THRESHOLD}`);
 
             // (已移除) 点击反馈：闪烁 (JS 部分)
-            // triggerChar.classList.add('clicked');
-            // setTimeout(() => {
-            //     triggerChar.classList.remove('clicked');
-            // }, 200); 
 
             // 达到阈值
             if (triggerCharClickCount >= KEY_TRIGGER_THRESHOLD) {

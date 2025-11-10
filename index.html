@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>寂静之巅 - 风景摄影</title>
+    <title>寂静之巅 - 摄影作品集</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         /* --- 全局美化与动画 --- */
         :root {
-            --primary-dark: #0a0a0f; /* 更深的背景 */
-            --secondary-dark: #1a1a2e; /* 次要深色 */
-            --text-light: #e0e0e0; /* 柔和浅色文本 */
-            --accent-pink: #ff69b4; /* 强调粉色 */
-            --accent-magenta: #da70d6; /* 强调洋红 */
-            --hover-light: #ffffff1a; /* 悬停时的微光 */
-            --border-color: #333; /* 边框颜色 */
+            --primary-dark: #0a0a0f; 
+            --secondary-dark: #1a1a2e; 
+            --text-light: #e0e0e0; 
+            --accent-pink: #ff69b4; 
+            --accent-magenta: #da70d6; 
+            --hover-light: #ffffff1a; 
+            --border-color: #333; 
             --shadow-light: rgba(0, 0, 0, 0.4);
             --shadow-strong: rgba(0, 0, 0, 0.7);
         }
@@ -22,11 +22,10 @@
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Montserrat', sans-serif; /* 新字体 */
+            font-family: 'Montserrat', sans-serif; 
             background: linear-gradient(to bottom right, var(--primary-dark), var(--secondary-dark));
             color: var(--text-light);
-            /* (已修复) 移除 overflow: hidden 和 height: 100vh */
-            min-height: 100vh; /* 确保 body 至少占满屏幕 */
+            min-height: 100vh; 
             
             -webkit-user-select: none;  
             -moz-user-select: none;     
@@ -39,46 +38,44 @@
         /* --- 隐蔽层 CSS：风景主题 (The Veil) --- */
         #veil-container {
             width: 100%;
-            height: 100vh; /* (已修改) 确保占满视口 */
-            background-image: url('https://picsum.photos/1920/1080?random=1'); /* 保持背景图 */
+            height: 100vh; 
+            background-image: url('https://picsum.photos/1920/1080?random=1'); 
             background-size: cover;
             background-position: center;
-            transition: opacity 2s ease-in-out; /* 更平滑的过渡 */
-            position: fixed; /* (已修改) 固定在屏幕上 */
+            transition: opacity 2s ease-in-out; 
+            position: fixed; 
             top: 0;
             left: 0;
             z-index: 10;
-            display: flex; /* 便于标题居中 */
+            display: flex; 
             align-items: center;
             justify-content: center;
         }
         
         #main-title {
             position: relative; 
-            font-family: 'Playfair Display', serif; /* 标题字体 */
-            font-size: 5em; /* 增大标题 */
+            font-family: 'Playfair Display', serif; 
+            font-size: 5em; 
             color: white;
-            text-shadow: 0 0 15px var(--shadow-strong); /* 增强阴影 */
-            letter-spacing: 5px; /* 字间距 */
+            text-shadow: 0 0 15px var(--shadow-strong); 
+            letter-spacing: 5px; 
             text-align: center;
             line-height: 1.2;
         }
         
         #trigger-char {
-            cursor: default; /* (已修改) 恢复默认光标，增强隐蔽性 */
+            cursor: default; 
             position: relative;
             display: inline-block; 
             transform-origin: center center; 
         }
-
-        /* (已移除) "寂"字点击反馈的动画效果 CSS */
         
         /* --- 石头滚落弹窗 --- */
         #rock-fall-popup {
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(0.5); /* 初始缩小 */
+            transform: translate(-50%, -50%) scale(0.5); 
             background-color: rgba(0, 0, 0, 0.85);
             padding: 30px 50px;
             border-radius: 20px;
@@ -87,11 +84,11 @@
             font-size: 1.8em;
             text-align: center;
             opacity: 0;
-            visibility: hidden; /* 默认隐藏 */
+            visibility: hidden; 
             z-index: 1000;
             transition: all 0.5s ease-out;
             border: 2px solid var(--accent-pink);
-            display: flex; /* 用于垂直居中内容 */
+            display: flex; 
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -99,7 +96,7 @@
         #rock-fall-popup.show {
             opacity: 1;
             visibility: visible;
-            transform: translate(-50%, -50%) scale(1); /* 放大到正常大小 */
+            transform: translate(-50%, -50%) scale(1); 
             animation: fadeInScale 0.6s ease-out;
         }
 
@@ -111,7 +108,7 @@
         #rock-fall-popup .icon {
             font-size: 3em;
             margin-bottom: 15px;
-            animation: rockRoll 1.5s ease-out infinite alternate; /* 石头动画 */
+            animation: rockRoll 1.5s ease-out infinite alternate; 
             display: inline-block;
         }
 
@@ -128,28 +125,28 @@
         
         #stygian-key {
             position: absolute;
-            bottom: 30px; /* 调整位置 */
-            right: 30px; /* 调整位置 */
-            width: 60px; /* 增大 */
-            height: 60px; /* 增大 */
-            background-color: var(--hover-light); /* 更柔和的背景 */
+            bottom: 30px; 
+            right: 30px; 
+            width: 60px; 
+            height: 60px; 
+            background-color: var(--hover-light); 
             border-radius: 50%;
             cursor: pointer;
             display: none; 
-            opacity: 0.7; /* 默认透明度 */
-            transition: all 0.3s ease-in-out; /* 更平滑的过渡 */
+            opacity: 0.7; 
+            transition: all 0.3s ease-in-out; 
             z-index: 11;
-            box-shadow: 0 0 15px var(--shadow-light); /* 增强阴影 */
-            font-size: 24px; /* 增大图标 */
+            box-shadow: 0 0 15px var(--shadow-light); 
+            font-size: 24px; 
             text-align: center;
             line-height: 60px;
-            border: 2px solid var(--accent-magenta); /* 强调边框 */
+            border: 2px solid var(--accent-magenta); 
         }
         #stygian-key:hover {
             opacity: 1;
-            transform: scale(1.1); /* 悬停放大 */
-            background-color: rgba(255, 105, 180, 0.2); /* 悬停颜色 */
-            box-shadow: 0 0 20px var(--accent-pink); /* 悬停发光 */
+            transform: scale(1.1); 
+            background-color: rgba(255, 105, 180, 0.2); 
+            box-shadow: 0 0 20px var(--accent-pink); 
         }
         
         #rock-hint {
@@ -161,17 +158,17 @@
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(0.8); /* 初始略小 */
-            padding: 30px 60px; /* 增大内边距 */
-            background: linear-gradient(45deg, var(--accent-pink), var(--accent-magenta)); /* 渐变背景 */
+            transform: translate(-50%, -50%) scale(0.8); 
+            padding: 30px 60px; 
+            background: linear-gradient(45deg, var(--accent-pink), var(--accent-magenta)); 
             color: white; 
-            border-radius: 20px; /* 圆角更大 */
-            font-family: 'Playfair Display', serif; /* 字体 */
-            font-size: 2.5em; /* 增大字体 */
+            border-radius: 20px; 
+            font-family: 'Playfair Display', serif; 
+            font-size: 2.5em; 
             text-shadow: 0 0 10px rgba(0,0,0,0.5);
             opacity: 0; 
             display: none;
-            transition: all 1s ease-in-out; /* 更平滑的过渡 */
+            transition: all 1s ease-in-out; 
             z-index: 2000;
             text-align: center;
             box-shadow: 0 10px 40px rgba(255, 105, 180, 0.6);
@@ -187,20 +184,20 @@
             top: 0;
             left: 0;
             width: 100%;
-            min-height: 100vh; /* (已修改) 确保至少占满屏幕 */
-            height: auto; /* (已添加) 允许高度自动增长 */
-            background-color: var(--primary-dark); /* 与 body 保持一致 */
+            min-height: 100vh; 
+            height: auto; 
+            background-color: var(--primary-dark); 
             display: none; 
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 20;
-            padding: 80px 40px; /* (已修改) 增加垂直内边距 */
+            padding: 80px 40px; 
             box-sizing: border-box;
             color: var(--text-light);
-            opacity: 0; /* 初始隐藏 */
-            transition: opacity 1s ease-in-out; /* 进入动画 */
-            overflow-y: auto; /* (已添加) 允许垂直滚动 */
+            opacity: 0; 
+            transition: opacity 1s ease-in-out; 
+            overflow-y: auto; 
         }
         #omega-core.show {
             opacity: 1;
@@ -208,18 +205,18 @@
         
         .omega-header {
             font-family: 'Playfair Display', serif;
-            font-size: 3.5em; /* 增大 */
+            font-size: 3.5em; 
             color: var(--accent-pink);
-            text-shadow: 0 0 15px var(--accent-magenta); /* 增强阴影 */
-            animation: pulse 2.5s infinite ease-in-out; /* 动画更柔和 */
+            text-shadow: 0 0 15px var(--accent-magenta); 
+            animation: pulse 2.5s infinite ease-in-out; 
             margin-bottom: 30px;
             letter-spacing: 2px;
-            text-align: center; /* 确保标题居中 */
+            text-align: center; 
         }
         
         @keyframes pulse {
             0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.03); opacity: 0.9; } /* 缩小动画幅度 */
+            50% { transform: scale(1.03); opacity: 0.9; } 
             100% { transform: scale(1); opacity: 1; }
         }
 
@@ -229,22 +226,22 @@
             font-size: 1.8em;
             margin-bottom: 25px;
             text-shadow: 0 0 8px rgba(255, 105, 180, 0.3);
-            text-align: center; /* 确保居中 */
+            text-align: center; 
         }
 
         .input-group {
-            margin: 20px 0; /* 增大间距 */
+            margin: 20px 0; 
             display: flex;
             align-items: center;
-            background-color: var(--secondary-dark); /* 输入组背景 */
+            background-color: var(--secondary-dark); 
             padding: 10px 20px;
             border-radius: 10px;
             box-shadow: 0 2px 10px var(--shadow-light);
             border: 1px solid var(--border-color);
             transition: all 0.3s ease;
-            width: 90%; /* (已添加) 限制宽度，防止在超宽屏上过宽 */
-            max-width: 500px; /* (已添加) 最大宽度 */
-            box-sizing: border-box; /* 确保 padding 不影响宽度 */
+            width: 90%; 
+            max-width: 500px; 
+            box-sizing: border-box; 
         }
         .input-group:focus-within {
             box-shadow: 0 0 15px var(--accent-pink);
@@ -252,21 +249,21 @@
         }
 
         .input-group label {
-            width: 220px; /* 增大 */
+            width: 220px; 
             color: var(--accent-magenta);
             font-size: 1.1em;
             margin-right: 15px;
             font-weight: 600;
-            flex-shrink: 0; /* 防止 label 被压缩 */
+            flex-shrink: 0; 
         }
         .input-group input {
-            padding: 12px; /* 增大 */
-            border-radius: 8px; /* 更圆润 */
+            padding: 12px; 
+            border-radius: 8px; 
             border: 1px solid var(--accent-pink);
-            background-color: rgba(255, 255, 255, 0.08); /* 更柔和的输入框背景 */
+            background-color: rgba(255, 255, 255, 0.08); 
             color: white;
-            width: 100%; /* (已修改) 占满剩余空间 */
-            min-width: 80px; /* (已添加) 最小宽度 */
+            width: 100%; 
+            min-width: 80px; 
             font-size: 1.05em;
             text-align: center;
             box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.3);
@@ -280,23 +277,23 @@
         }
         
         #start-button, .action-button {
-            padding: 15px 35px; /* 增大 */
-            margin-top: 30px; /* 增大间距 */
-            font-size: 1.3em; /* 增大字体 */
+            padding: 15px 35px; 
+            margin-top: 30px; 
+            font-size: 1.3em; 
             border: none;
-            border-radius: 35px; /* 更圆润 */
+            border-radius: 35px; 
             background: linear-gradient(45deg, var(--accent-pink), var(--accent-magenta));
             color: white;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.5); /* 增强阴影 */
-            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease; /* 更平滑的过渡 */
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.5); 
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease; 
             font-weight: 700;
             letter-spacing: 1px;
         }
         #start-button:hover, .action-button:hover {
-            transform: translateY(-4px); /* 悬停抬升更高 */
-            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.9); /* 悬停阴影更强 */
-            background: linear-gradient(45deg, var(--accent-magenta), var(--accent-pink)); /* 渐变反转 */
+            transform: translateY(-4px); 
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.9); 
+            background: linear-gradient(45deg, var(--accent-magenta), var(--accent-pink)); 
         }
         #start-button:active, .action-button:active {
             transform: translateY(-1px);
@@ -305,16 +302,16 @@
 
         /* 实时反馈区域 */
         #status-area {
-            margin-top: 40px; /* 增大间距 */
+            margin-top: 40px; 
             width: 90%;
-            max-width: 700px; /* 增大最大宽度 */
-            background-color: var(--secondary-dark); /* 背景色 */
-            padding: 30px; /* 增大内边距 */
-            border-radius: 15px; /* 更圆润 */
+            max-width: 700px; 
+            background-color: var(--secondary-dark); 
+            padding: 30px; 
+            border-radius: 15px; 
             text-align: left;
             box-shadow: 0 5px 20px var(--shadow-strong);
             border: 1px solid var(--accent-magenta);
-            box-sizing: border-box; /* 确保 padding 不影响宽度 */
+            box-sizing: border-box; 
         }
         #status-area h2 {
             font-family: 'Playfair Display', serif;
@@ -325,32 +322,32 @@
         }
 
         #status-area p {
-            font-size: 1.2em; /* 增大 */
+            font-size: 1.2em; 
             margin-bottom: 12px;
             display: flex;
-            justify-content: space-between; /* 左右对齐 */
+            justify-content: space-between; 
             align-items: center;
-            flex-wrap: wrap; /* (已添加) 允许在小屏幕上换行 */
+            flex-wrap: wrap; 
         }
         #status-area p span {
             font-weight: 700;
-            color: #81c784; /* 更亮的绿色 */
+            color: #81c784; 
         }
         #display-frequency { color: #81c784; }
-        #display-time { color: #64b5f6; } /* 新增蓝色 */
-        #display-progress { color: #ffb74d; } /* 新增橙色 */
+        #display-time { color: #64b5f6; } 
+        #display-progress { color: #ffb74d; } 
 
 
         hr {
             border-color: var(--accent-magenta);
-            margin: 25px 0; /* 增大间距 */
+            margin: 25px 0; 
             opacity: 0.6;
         }
         #current-action {
-            font-size: 1.6em; /* 增大 */
-            min-height: 50px; /* 增大 */
+            font-size: 1.6em; 
+            min-height: 50px; 
             color: var(--accent-pink);
-            animation: blink-text 1.2s infinite; /* 动画更慢 */
+            animation: blink-text 1.2s infinite; 
             white-space: pre-wrap;
             text-align: center;
             font-weight: 700;
@@ -362,8 +359,8 @@
 
         /* 安全/快感提示 */
         .feedback-message {
-            margin-top: 15px; /* 增大间距 */
-            font-size: 1.15em; /* 增大 */
+            margin-top: 15px; 
+            font-size: 1.15em; 
             color: #ffb74d; 
             text-align: center;
             font-style: italic;
@@ -386,24 +383,24 @@
             #setup-section { width: 100%; }
             .input-group { 
                 width: 100%; 
-                flex-direction: column; /* (已修改) 垂直堆叠 */
-                align-items: flex-start; /* 左对齐 */
+                flex-direction: column; 
+                align-items: flex-start; 
                 padding: 15px;
             }
             .input-group label { 
-                width: 100%; /* 占满宽度 */
+                width: 100%; 
                 margin-right: 0;
-                margin-bottom: 8px; /* 增加间距 */
+                margin-bottom: 8px; 
                 font-size: 1em;
-                text-align: left; /* 左对齐 */
+                text-align: left; 
             }
             .input-group input { 
-                width: 100%; /* 占满宽度 */
+                width: 100%; 
                 padding: 12px; 
-                font-size: 1.1em; /* 增大字体 */
+                font-size: 1.1em; 
             }
             #status-area { padding: 20px; width: 100%; }
-            #status-area p { font-size: 1em; } /* 缩小字体 */
+            #status-area p { font-size: 1em; } 
             #status-area h2 { font-size: 1.5em; }
             #current-action { font-size: 1.2em; min-height: 40px; }
             #rock-fall-popup { padding: 20px 30px; font-size: 1.4em; width: 80%; box-sizing: border-box;}
@@ -411,22 +408,28 @@
             #stygian-key { width: 45px; height: 45px; font-size: 18px; line-height: 45px; bottom: 15px; right: 15px;}
             #omega-unlock-hint { padding: 20px 30px; font-size: 1.8em; width: 80%; box-sizing: border-box;}
             #start-button, .action-button { padding: 12px 25px; font-size: 1.1em; margin-top: 20px; }
-            #omega-core { padding: 60px 20px; } /* 调整移动端内边距 */
+            #omega-core { padding: 60px 20px; } 
         }
 
-        /* 手柄光标/提示 (默认隐藏) */
+        /* (已修复) 手柄光标/提示 */
         #gamepad-cursor {
-            position: absolute;
+            position: fixed; /* (已修改) 改为 fixed，使其在滚动时也保持位置 */
             width: 20px;
             height: 20px;
             background-color: rgba(135, 206, 250, 0.8); 
             border-radius: 50%;
             border: 2px solid white;
             pointer-events: none; 
-            z-index: 100;
-            display: none; 
-            transition: transform 0.05s linear;
+            z-index: 9999;
+            visibility: hidden; /* (已修改) 默认隐藏 */
+            opacity: 0; /* (已添加) 默认透明 */
+            transition: opacity 0.3s ease, transform 0.05s linear; /* (已修改) 添加 opacity 过渡 */
         }
+        #gamepad-cursor.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
         #gamepad-status {
             position: fixed;
             top: 10px;
@@ -436,7 +439,13 @@
             border-radius: 5px;
             font-size: 0.9em;
             z-index: 50;
-            display: none; 
+            visibility: hidden; /* (已修改) 默认隐藏 */
+            opacity: 0; /* (已添加) 默认透明 */
+            transition: opacity 0.3s ease; /* (已添加) 过渡效果 */
+        }
+        #gamepad-status.show {
+            visibility: visible;
+            opacity: 1;
         }
     </style>
 </head>
@@ -514,12 +523,13 @@
         const KEY_TRIGGER_THRESHOLD = 10; 
         let triggerCharClickCount = 0; 
         
-        // --- 手柄变量 ---
+        // --- (已修复) 手柄变量 ---
         let gamepadIndex = null;
-        let gamepadInterval;
+        let gamepadInterval = null; // (已修改) 初始为 null
         let cursorX = window.innerWidth / 2;
         let cursorY = window.innerHeight / 2;
         const CURSOR_SPEED = 10;
+        const GAMEPAD_DEADZONE = 0.15; // (已添加) 摇杆死区
 
         // --- DOM 元素引用 ---
         const veilContainer = document.getElementById('veil-container');
@@ -537,78 +547,59 @@
         const triggerChar = document.getElementById('trigger-char'); 
         const rockHint = document.getElementById('rock-hint'); 
         const omegaUnlockHint = document.getElementById('omega-unlock-hint');
-        const rockFallPopup = document.getElementById('rock-fall-popup'); // (新增)
+        const rockFallPopup = document.getElementById('rock-fall-popup'); 
 
         // --- 1. 隐蔽触发机制 (点击10次) ---
 
         triggerChar.addEventListener('click', function(event) {
-            // 如果石头已显示或核心已打开，则不执行任何操作
             if (stygianKey.style.display === 'block' || omegaCore.style.display === 'flex') {
                 return;
             }
-
             triggerCharClickCount++;
             console.log(`Trigger Char Click: ${triggerCharClickCount}/${KEY_TRIGGER_THRESHOLD}`);
 
-            // (已移除) 点击反馈：闪烁 (JS 部分)
-
-            // 达到阈值
             if (triggerCharClickCount >= KEY_TRIGGER_THRESHOLD) {
-                // 显示石头滚落弹窗
                 rockFallPopup.classList.add('show');
-                
                 setTimeout(() => {
                     rockFallPopup.classList.remove('show');
-                    // 弹窗消失后，显示小石头
                     stygianKey.style.display = 'block'; 
                     stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD})`;
-                }, 2000); // 弹窗显示2秒
+                }, 2000); 
             }
         });
 
-        // 确保点击其他地方不会干扰触发
         veilContainer.addEventListener('click', function(event) {
              if (omegaCore.style.display !== 'none') return;
              if (event.target === triggerChar || event.target.closest('#main-title')) {
-                 // 如果点击的是 "寂" 字或标题区域，不重置计数
                  return;
              }
-             
-             // 如果点击的是背景或其他非触发区域，重置 "寂" 字的点击计数
-             if (triggerCharClickCount > 0) { // 只有在计数不为0时才重置
+             if (triggerCharClickCount > 0) { 
                  triggerCharClickCount = 0;
                  console.log("Trigger Char Count Reset due to background click.");
              }
         });
 
-        // "石头"点击事件 (保持不变，阈值为10)
         stygianKey.addEventListener('click', function(event) {
             event.stopPropagation(); 
-            
             if (keyClickCount < KEY_TRIGGER_THRESHOLD - 1) {
                 keyClickCount++;
                 stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD - keyClickCount})`;
-                // 颜色和透明度逐渐变化
                 stygianKey.style.backgroundColor = `rgba(255, 105, 180, ${0.1 + keyClickCount * 0.08})`; 
                 console.log("Key Click:", keyClickCount);
             } else if (keyClickCount === KEY_TRIGGER_THRESHOLD - 1) {
                 keyClickCount++;
-                
-                // 显示最终解锁提示
                 omegaUnlockHint.style.display = 'block';
-                setTimeout(() => { omegaUnlockHint.classList.add('show'); }, 10); // 触发动画
-                
-                veilContainer.style.opacity = '0'; // 隐藏背景
+                setTimeout(() => { omegaUnlockHint.classList.add('show'); }, 10); 
+                veilContainer.style.opacity = '0'; 
                 
                 setTimeout(() => {
-                    omegaUnlockHint.classList.remove('show'); // 移除动画类
+                    omegaUnlockHint.classList.remove('show'); 
                     omegaUnlockHint.style.display = 'none';
-
                     veilContainer.style.display = 'none';
                     omegaCore.style.display = 'flex';
-                    setTimeout(() => { omegaCore.classList.add('show'); }, 10); // 触发 OMEGA 核心动画
+                    setTimeout(() => { omegaCore.classList.add('show'); }, 10); 
                     stygianKey.style.display = 'none';
-                }, 3000); // 提示持续 3 秒
+                }, 3000); 
             }
         });
         
@@ -636,7 +627,6 @@
                 stopSession(true);
                 return;
             }
-
             cycleCount++;
             const currentInsertion = Math.ceil(cycleCount / 2);
 
@@ -650,7 +640,6 @@
                     `<span style="color: #00bcd4;">💙💙💙 < < < < < ${toyLength}cm</span> 完 全 拔 出。 <span style="color: #f0f8ff;">期待下一次的温柔。</span> (放松中)`;
                 liveFeedback.innerHTML = `**[安全提示]** 缓慢撤出，为下一轮深爱做好充分的润滑和准备。`;
             }
-
             loopInterval = setTimeout(pleasureLoop, actionDelay * 1000);
         }
 
@@ -696,7 +685,81 @@
             liveFeedback.innerHTML = "享受这缓慢而深入的探寻...";
         }
         
-        // (手柄逻辑保持不变)
+        
+        // --- (已添加/修复) 3. 手柄控制逻辑 ---
+
+        function applyDeadzone(value) {
+            return Math.abs(value) < GAMEPAD_DEADZONE ? 0 : value;
+        }
+
+        // 核心：更新手柄状态和光标位置
+        function updateGamepadState() {
+            if (gamepadIndex === null) return;
+
+            const gp = navigator.getGamepads()[gamepadIndex];
+            if (!gp) return;
+
+            // 读取摇杆数据 (通常 0, 1 是左摇杆, 2, 3 是右摇杆)
+            // 我们用左摇杆控制
+            let dx = applyDeadzone(gp.axes[0]);
+            let dy = applyDeadzone(gp.axes[1]);
+
+            // 更新光标位置
+            cursorX += dx * CURSOR_SPEED;
+            cursorY += dy * CURSOR_SPEED;
+
+            // 限制光标在屏幕内
+            cursorX = Math.max(0, Math.min(window.innerWidth, cursorX));
+            cursorY = Math.max(0, Math.min(window.innerHeight, cursorY));
+
+            gamepadCursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
+            
+            // (可选) 模拟点击 (使用 A 键，即 buttons[0])
+            if (gp.buttons[0].pressed) {
+                // 模拟点击光标下的元素
+                // (注意：这比较复杂，需要 document.elementFromPoint)
+                // 暂不实现，仅更新光标
+            }
+
+            // 循环调用
+            gamepadInterval = requestAnimationFrame(updateGamepadState);
+        }
+
+        // 监听手柄连接
+        window.addEventListener("gamepadconnected", function(e) {
+            console.log("手柄已连接: ", e.gamepad.id);
+            gamepadIndex = e.gamepad.index;
+            
+            gamepadStatus.textContent = `手柄已连接: ${e.gamepad.id}`;
+            gamepadStatus.classList.add('show');
+            gamepadCursor.classList.add('show'); // 显示光标
+
+            // 开始轮询
+            if (gamepadInterval) {
+                cancelAnimationFrame(gamepadInterval);
+            }
+            updateGamepadState();
+        });
+
+        // 监听手柄断开
+        window.addEventListener("gamepaddisconnected", function(e) {
+            console.log("手柄已断开: ", e.gamepad.id);
+            if (gamepadIndex === e.gamepad.index) {
+                gamepadIndex = null;
+                
+                gamepadStatus.textContent = "手柄状态: 未连接";
+                // 短暂显示“已断开”后淡出
+                setTimeout(() => { gamepadStatus.classList.remove('show'); }, 2000);
+                
+                gamepadCursor.classList.remove('show'); // 隐藏光标
+
+                // 停止轮询
+                if (gamepadInterval) {
+                    cancelAnimationFrame(gamepadInterval);
+                    gamepadInterval = null;
+                }
+            }
+        });
         
     </script>
 </body>

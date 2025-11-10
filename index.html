@@ -3,94 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>寂静之巅 - 风景摄影</title>
+    <title>寂静之巅 - 摄影作品集</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        /* --- 隐蔽层 CSS：风景主题 (The Veil) --- */
+        /* --- 全局美化与动画 --- */
         :root {
-            --primary-veil: #1c2a38;
-            --secondary-veil: #4a6c8e;
-            --text-veil: #e0e6ed;
-            --trigger-color: rgba(255, 255, 255, 0.1);
-            --omega-pink: #ff69b4; 
-            --omega-magenta: #da70d6; 
+            --primary-dark: #0a0a0f; /* 更深的背景 */
+            --secondary-dark: #1a1a2e; /* 次要深色 */
+            --text-light: #e0e0e0; /* 柔和浅色文本 */
+            --accent-pink: #ff69b4; /* 强调粉色 */
+            --accent-magenta: #da70d6; /* 强调洋红 */
+            --hover-light: #ffffff1a; /* 悬停时的微光 */
+            --border-color: #333; /* 边框颜色 */
+            --shadow-light: rgba(0, 0, 0, 0.4);
+            --shadow-strong: rgba(0, 0, 0, 0.7);
         }
+
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(to bottom right, var(--primary-veil), #0a1118);
-            color: var(--text-veil);
-            overflow: hidden;
+            font-family: 'Montserrat', sans-serif; /* 新字体 */
+            background: linear-gradient(to bottom right, var(--primary-dark), var(--secondary-dark));
+            color: var(--text-light);
+            overflow: hidden; /* 保持原样 */
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             
-            /* 禁用文本选择/复制 */
             -webkit-user-select: none;  
             -moz-user-select: none;     
             -ms-user-select: none;      
             user-select: none;          
             cursor: default;
+            position: relative; /* 用于放置全局弹窗 */
         }
 
+        /* --- 隐蔽层 CSS：风景主题 (The Veil) --- */
         #veil-container {
             width: 100%;
             height: 100%;
-            background-image: url('https://picsum.photos/1920/1080?random=1');
+            background-image: url('https://picsum.photos/1920/1080?random=1'); /* 保持背景图 */
             background-size: cover;
             background-position: center;
-            transition: opacity 1.5s ease;
+            transition: opacity 2s ease-in-out; /* 更平滑的过渡 */
             position: relative;
             z-index: 10;
+            display: flex; /* 便于标题居中 */
+            align-items: center;
+            justify-content: center;
         }
         
         #main-title {
-            position: absolute;
-            top: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 4em;
+            position: relative; /* 从 absolute 改为 relative，在 flex 容器中居中 */
+            font-family: 'Playfair Display', serif; /* 标题字体 */
+            font-size: 5em; /* 增大标题 */
             color: white;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+            text-shadow: 0 0 15px var(--shadow-strong); /* 增强阴影 */
+            letter-spacing: 5px; /* 字间距 */
+            text-align: center;
+            line-height: 1.2;
         }
         
         #trigger-char {
-            cursor: pointer; /* 改为可点击指针 */
-            transition: all 0.1s ease-out; /* (已修改) 用于点击反馈 */
+            cursor: pointer;
+            position: relative;
+            display: inline-block; /* 确保动画只作用于单个字 */
+            transition: all 0.2s ease-out; /* 更平滑的过渡 */
+            transform-origin: center center; /* 确保缩放从中心开始 */
         }
 
-        /* (已修改) "寂"字点击反馈的闪烁效果 (更明显) */
+        /* "寂"字点击反馈的动画效果 */
         #trigger-char.clicked {
-            text-shadow: 0 0 20px rgba(255, 255, 255, 1), 0 0 10px rgba(255, 255, 255, 0.8);
-            color: #fff;
-            opacity: 0.8;
-            transform: scale(1.05);
+            color: var(--accent-pink); /* 改变颜色 */
+            text-shadow: 0 0 25px var(--accent-pink), 0 0 15px rgba(255, 255, 255, 0.8);
+            transform: scale(1.1) rotateZ(-2deg); /* 轻微放大和旋转 */
+            opacity: 0.9;
+            animation: bounceIn 0.3s ease-out; /* 新增一个小的回弹动画 */
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.9) rotateZ(0deg); opacity: 0.5; }
+            50% { transform: scale(1.15) rotateZ(-3deg); opacity: 1; }
+            100% { transform: scale(1) rotateZ(-2deg); opacity: 0.9; }
+        }
+
+        /* --- 石头滚落弹窗 --- */
+        #rock-fall-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5); /* 初始缩小 */
+            background-color: rgba(0, 0, 0, 0.85);
+            padding: 30px 50px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px var(--shadow-strong);
+            color: white;
+            font-size: 1.8em;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden; /* 默认隐藏 */
+            z-index: 1000;
+            transition: all 0.5s ease-out;
+            border: 2px solid var(--accent-pink);
+            display: flex; /* 用于垂直居中内容 */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #rock-fall-popup.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1); /* 放大到正常大小 */
+            animation: fadeInScale 0.6s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        #rock-fall-popup .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            animation: rockRoll 1.5s ease-out infinite alternate; /* 石头动画 */
+            display: inline-block;
+        }
+
+        @keyframes rockRoll {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #rock-fall-popup .text {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+            color: #ccc;
         }
 
         /* (已移除) 进度条相关 CSS */
         
         #stygian-key {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            background-color: var(--trigger-color);
+            bottom: 30px; /* 调整位置 */
+            right: 30px; /* 调整位置 */
+            width: 60px; /* 增大 */
+            height: 60px; /* 增大 */
+            background-color: var(--hover-light); /* 更柔和的背景 */
             border-radius: 50%;
             cursor: pointer;
             display: none; 
-            opacity: 0.5;
-            transition: background-color 0.3s, opacity 0.3s;
+            opacity: 0.7; /* 默认透明度 */
+            transition: all 0.3s ease-in-out; /* 更平滑的过渡 */
             z-index: 11;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            font-size: 20px;
+            box-shadow: 0 0 15px var(--shadow-light); /* 增强阴影 */
+            font-size: 24px; /* 增大图标 */
             text-align: center;
-            line-height: 50px;
-            border: 2px solid var(--trigger-color);
+            line-height: 60px;
+            border: 2px solid var(--accent-magenta); /* 强调边框 */
         }
         #stygian-key:hover {
-            opacity: 0.8;
+            opacity: 1;
+            transform: scale(1.1); /* 悬停放大 */
+            background-color: rgba(255, 105, 180, 0.2); /* 悬停颜色 */
+            box-shadow: 0 0 20px var(--accent-pink); /* 悬停发光 */
         }
         
         #rock-hint {
@@ -102,17 +178,24 @@
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 20px 40px;
-            background-color: rgba(255, 105, 180, 0.95); 
+            transform: translate(-50%, -50%) scale(0.8); /* 初始略小 */
+            padding: 30px 60px; /* 增大内边距 */
+            background: linear-gradient(45deg, var(--accent-pink), var(--accent-magenta)); /* 渐变背景 */
             color: white; 
-            border-radius: 15px;
-            font-size: 2em;
+            border-radius: 20px; /* 圆角更大 */
+            font-family: 'Playfair Display', serif; /* 字体 */
+            font-size: 2.5em; /* 增大字体 */
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
             opacity: 0; 
             display: none;
-            transition: opacity 1s;
+            transition: all 1s ease-in-out; /* 更平滑的过渡 */
             z-index: 2000;
             text-align: center;
+            box-shadow: 0 10px 40px rgba(255, 105, 180, 0.6);
+        }
+        #omega-unlock-hint.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
         }
 
         /* --- 核心应用 CSS：OMEGA Core --- */
@@ -122,110 +205,201 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
+            background-color: var(--primary-dark); /* 与 body 保持一致 */
             display: none; 
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 20;
-            padding: 20px;
+            padding: 40px; /* 增大内边距 */
             box-sizing: border-box;
-            color: white;
+            color: var(--text-light);
+            opacity: 0; /* 初始隐藏 */
+            transition: opacity 1s ease-in-out; /* 进入动画 */
+        }
+        #omega-core.show {
+            opacity: 1;
         }
         
         .omega-header {
-            font-size: 3em;
-            color: var(--omega-pink);
-            text-shadow: 0 0 10px var(--omega-magenta);
-            animation: pulse 2s infinite;
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5em; /* 增大 */
+            color: var(--accent-pink);
+            text-shadow: 0 0 15px var(--accent-magenta); /* 增强阴影 */
+            animation: pulse 2.5s infinite ease-in-out; /* 动画更柔和 */
+            margin-bottom: 30px;
+            letter-spacing: 2px;
         }
         
         @keyframes pulse {
             0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
+            50% { transform: scale(1.03); opacity: 0.9; } /* 缩小动画幅度 */
             100% { transform: scale(1); opacity: 1; }
         }
 
+        #setup-section h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--accent-magenta);
+            font-size: 1.8em;
+            margin-bottom: 25px;
+            text-shadow: 0 0 8px rgba(255, 105, 180, 0.3);
+        }
+
         .input-group {
-            margin: 15px 0;
+            margin: 20px 0; /* 增大间距 */
             display: flex;
             align-items: center;
+            background-color: var(--secondary-dark); /* 输入组背景 */
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px var(--shadow-light);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
         }
+        .input-group:focus-within {
+            box-shadow: 0 0 15px var(--accent-pink);
+            border-color: var(--accent-pink);
+        }
+
         .input-group label {
-            width: 200px;
-            color: var(--omega-magenta);
+            width: 220px; /* 增大 */
+            color: var(--accent-magenta);
             font-size: 1.1em;
-            margin-right: 10px;
+            margin-right: 15px;
+            font-weight: 600;
         }
         .input-group input {
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid var(--omega-pink);
-            background-color: rgba(255, 255, 255, 0.1);
+            padding: 12px; /* 增大 */
+            border-radius: 8px; /* 更圆润 */
+            border: 1px solid var(--accent-pink);
+            background-color: rgba(255, 255, 255, 0.08); /* 更柔和的输入框背景 */
             color: white;
-            width: 150px;
-            font-size: 1em;
+            width: 160px; /* 增大 */
+            font-size: 1.05em;
             text-align: center;
+            box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--accent-magenta);
+            background-color: rgba(255, 255, 255, 0.15);
+            box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.5), 0 0 8px var(--accent-pink);
         }
         
         #start-button, .action-button {
-            padding: 12px 30px;
-            margin-top: 20px;
-            font-size: 1.2em;
+            padding: 15px 35px; /* 增大 */
+            margin-top: 30px; /* 增大间距 */
+            font-size: 1.3em; /* 增大字体 */
             border: none;
-            border-radius: 30px;
-            background: linear-gradient(45deg, var(--omega-pink), var(--omega-magenta));
+            border-radius: 35px; /* 更圆润 */
+            background: linear-gradient(45deg, var(--accent-pink), var(--accent-magenta));
             color: white;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.5);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.5); /* 增强阴影 */
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease; /* 更平滑的过渡 */
+            font-weight: 700;
+            letter-spacing: 1px;
         }
         #start-button:hover, .action-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.8);
+            transform: translateY(-4px); /* 悬停抬升更高 */
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.9); /* 悬停阴影更强 */
+            background: linear-gradient(45deg, var(--accent-magenta), var(--accent-pink)); /* 渐变反转 */
+        }
+        #start-button:active, .action-button:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.5);
         }
 
         /* 实时反馈区域 */
         #status-area {
-            margin-top: 30px;
+            margin-top: 40px; /* 增大间距 */
             width: 90%;
-            max-width: 600px;
-            background-color: rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 10px;
+            max-width: 700px; /* 增大最大宽度 */
+            background-color: var(--secondary-dark); /* 背景色 */
+            padding: 30px; /* 增大内边距 */
+            border-radius: 15px; /* 更圆润 */
             text-align: left;
+            box-shadow: 0 5px 20px var(--shadow-strong);
+            border: 1px solid var(--accent-magenta);
+        }
+        #status-area h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--accent-pink);
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #status-area p {
+            font-size: 1.2em; /* 增大 */
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between; /* 左右对齐 */
+            align-items: center;
+        }
+        #status-area p span {
+            font-weight: 700;
+            color: #81c784; /* 更亮的绿色 */
+        }
+        #display-frequency { color: #81c784; }
+        #display-time { color: #64b5f6; } /* 新增蓝色 */
+        #display-progress { color: #ffb74d; } /* 新增橙色 */
+
+
+        hr {
+            border-color: var(--accent-magenta);
+            margin: 25px 0; /* 增大间距 */
+            opacity: 0.6;
         }
         #current-action {
-            font-size: 1.5em;
-            min-height: 40px;
-            color: var(--omega-pink);
-            animation: blink-text 1s infinite;
+            font-size: 1.6em; /* 增大 */
+            min-height: 50px; /* 增大 */
+            color: var(--accent-pink);
+            animation: blink-text 1.2s infinite; /* 动画更慢 */
             white-space: pre-wrap;
+            text-align: center;
+            font-weight: 700;
         }
         @keyframes blink-text {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+            50% { opacity: 0.6; }
         }
 
         /* 安全/快感提示 */
         .feedback-message {
-            margin-top: 10px;
-            font-size: 1.1em;
+            margin-top: 15px; /* 增大间距 */
+            font-size: 1.15em; /* 增大 */
             color: #ffb74d; 
+            text-align: center;
+            font-style: italic;
         }
         .safe-warning {
             color: #ef5350; 
             font-weight: bold;
+            text-shadow: 0 0 5px rgba(239, 83, 80, 0.5);
         }
         .pleasure-boost {
             color: #81c784; 
             font-style: italic;
+            text-shadow: 0 0 5px rgba(129, 199, 132, 0.5);
         }
         
         /* 移动端/手柄兼容性 */
         @media (max-width: 768px) {
-            .omega-header { font-size: 2em; }
-            .input-group label { width: 120px; }
+            #main-title { font-size: 3em; }
+            .omega-header { font-size: 2.5em; }
+            .input-group label { width: 100px; font-size: 1em;}
+            .input-group input { width: 100px; padding: 10px; font-size: 0.9em;}
+            #setup-section h2 { font-size: 1.5em; }
+            #status-area { padding: 20px; }
+            #status-area h2 { font-size: 1.5em; }
+            #current-action { font-size: 1.2em; min-height: 40px; }
+            #rock-fall-popup { padding: 20px 30px; font-size: 1.4em; }
+            #rock-fall-popup .icon { font-size: 2.5em; }
+            #stygian-key { width: 45px; height: 45px; font-size: 18px; line-height: 45px; bottom: 15px; right: 15px;}
+            #omega-unlock-hint { padding: 20px 30px; font-size: 1.8em; }
+            #start-button, .action-button { padding: 12px 25px; font-size: 1.1em; margin-top: 20px; }
         }
 
         /* 手柄光标/提示 (默认隐藏) */
@@ -262,9 +436,12 @@
         <div id="stygian-key">🪨</div>
     </div>
     
-    <div id="rock-hint">深处传来一声巨响，通道正在开启...</div>
+    <div id="rock-fall-popup">
+        <span class="icon">🪨</span>
+        <span class="text">一块小石头滚落了...</span>
+    </div>
     
-    <div id="omega-unlock-hint">✨ 隐藏的通道已开启。欢迎来到 OMEGA 核心界面。✨</div>
+    <div id="rock-hint">深处传来一声巨响，通道正在开启...</div> <div id="omega-unlock-hint">✨ 隐藏的通道已开启。欢迎来到 OMEGA 核心界面。✨</div>
 
     <div id="omega-core">
         <h1 class="omega-header">💖 L O V E L Y  P L E A S U R E  L O O P  V3.7.9 💖</h1>
@@ -290,9 +467,10 @@
 
         <div id="status-area" style="display: none;">
             <h2>实时状态与温柔反馈</h2>
-            <p>💖 **目标频率 (秒/次动作):** <span id="display-frequency" style="color: #4CAF50;">0.0</span></p>
-            <p>⏱️ **会话时长:** <span id="display-time">00:00:00</span> | 🔄 **进度:** <span id="display-progress">0/0</span></p>
-            <hr style="border-color: var(--omega-magenta); margin: 10px 0;">
+            <p>💖 **目标频率 (秒/次动作):** <span id="display-frequency">0.0</span></p>
+            <p>⏱️ **会话时长:** <span id="display-time">00:00:00</span></p>
+            <p>🔄 **进度:** <span id="display-progress">0/0</span></p>
+            <hr>
             <div id="current-action">等待启动...</div>
             <p class="feedback-message"><span id="live-feedback">享受这缓慢而深入的探寻...</span></p>
             
@@ -319,8 +497,8 @@
 
         // --- 隐蔽触发变量 ---
         let keyClickCount = 0;
-        const KEY_TRIGGER_THRESHOLD = 10; // "寂"字和"石头"都需要点击10次
-        let triggerCharClickCount = 0; // "寂"字点击计数器
+        const KEY_TRIGGER_THRESHOLD = 10; 
+        let triggerCharClickCount = 0; 
         
         // --- 手柄变量 ---
         let gamepadIndex = null;
@@ -345,14 +523,11 @@
         const triggerChar = document.getElementById('trigger-char'); 
         const rockHint = document.getElementById('rock-hint'); 
         const omegaUnlockHint = document.getElementById('omega-unlock-hint');
+        const rockFallPopup = document.getElementById('rock-fall-popup'); // (新增)
 
+        // --- 1. 隐蔽触发机制 (点击10次) ---
 
-        // --- 1. (已修复) 隐蔽触发机制 (点击10次) ---
-
-        // (已修复) "寂"字点击事件
         triggerChar.addEventListener('click', function(event) {
-            // (已移除) event.stopPropagation(); 这行代码是导致点击无效的元凶
-            
             // 如果石头已显示或核心已打开，则不执行任何操作
             if (stygianKey.style.display === 'block' || omegaCore.style.display === 'flex') {
                 return;
@@ -361,35 +536,44 @@
             triggerCharClickCount++;
             console.log(`Trigger Char Click: ${triggerCharClickCount}/${KEY_TRIGGER_THRESHOLD}`);
 
-            // 点击反馈：闪烁 (更明显的 CSS)
+            // 点击反馈：闪烁
             triggerChar.classList.add('clicked');
             setTimeout(() => {
                 triggerChar.classList.remove('clicked');
-            }, 100); // 闪烁持续 100毫秒
+            }, 200); // 闪烁时间稍长，与动画匹配
 
             // 达到阈值
             if (triggerCharClickCount >= KEY_TRIGGER_THRESHOLD) {
-                // 触发成功，小石头出现
-                stygianKey.style.display = 'block'; 
-                stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD})`;
+                // 显示石头滚落弹窗
+                rockFallPopup.classList.add('show');
+                
+                setTimeout(() => {
+                    rockFallPopup.classList.remove('show');
+                    // 弹窗消失后，显示小石头
+                    stygianKey.style.display = 'block'; 
+                    stygianKey.innerHTML = `🪨 (${KEY_TRIGGER_THRESHOLD})`;
+                }, 2000); // 弹窗显示2秒
             }
         });
 
         // 确保点击其他地方不会干扰触发
         veilContainer.addEventListener('click', function(event) {
              if (omegaCore.style.display !== 'none') return;
-             // (已修复) 检查点击目标是否为 "寂" 字，如果是则忽略，因为 "寂" 有自己的监听器
-             if (event.target === triggerChar) return;
+             if (event.target === triggerChar || event.target.closest('#main-title')) {
+                 // 如果点击的是 "寂" 字或标题区域，不重置计数
+                 return;
+             }
              
-             console.log("Veil Click (Non-Trigger Area): Ignored.");
-             // (已添加) 重置 "寂" 字的点击计数，防止误触
-             triggerCharClickCount = 0;
-             console.log("Trigger Char Count Reset.");
+             // 如果点击的是背景或其他非触发区域，重置 "寂" 字的点击计数
+             if (triggerCharClickCount > 0) { // 只有在计数不为0时才重置
+                 triggerCharClickCount = 0;
+                 console.log("Trigger Char Count Reset due to background click.");
+             }
         });
 
         // "石头"点击事件 (保持不变，阈值为10)
         stygianKey.addEventListener('click', function(event) {
-            event.stopPropagation(); // 在这里阻止冒泡是正确的，防止点石头重置计数
+            event.stopPropagation(); 
             
             if (keyClickCount < KEY_TRIGGER_THRESHOLD - 1) {
                 keyClickCount++;
@@ -400,19 +584,19 @@
             } else if (keyClickCount === KEY_TRIGGER_THRESHOLD - 1) {
                 keyClickCount++;
                 
-                // 使用美观的提示替换 alert()
+                // 显示最终解锁提示
                 omegaUnlockHint.style.display = 'block';
-                setTimeout(() => { omegaUnlockHint.style.opacity = '1'; }, 10);
+                setTimeout(() => { omegaUnlockHint.classList.add('show'); }, 10); // 触发动画
                 
                 veilContainer.style.opacity = '0'; // 隐藏背景
                 
                 setTimeout(() => {
-                    // 隐藏提示并切换到核心界面
-                    omegaUnlockHint.style.opacity = '0';
+                    omegaUnlockHint.classList.remove('show'); // 移除动画类
                     omegaUnlockHint.style.display = 'none';
 
                     veilContainer.style.display = 'none';
                     omegaCore.style.display = 'flex';
+                    setTimeout(() => { omegaCore.classList.add('show'); }, 10); // 触发 OMEGA 核心动画
                     stygianKey.style.display = 'none';
                 }, 3000); // 提示持续 3 秒
             }

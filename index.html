@@ -2,766 +2,227 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>3D Minecraft 模拟器 (Three.js)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft 皮肤查看器</title>
+    <script src="https://cdn.jsdelivr.net/npm/skinview3d@latest/dist/skinview3d.bundle.js"></script>
     
     <style>
-        /* 全局和基础样式 */
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: 'Press Start 2P', cursive;
-            color: white;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-touch-callout: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        /* Three.js 渲染器容器 */
-        #game-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: block;
-            touch-action: none; /* 禁用浏览器默认触摸行为 */
-        }
-
-        /* UI 覆盖层 */
-        .ui-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none; /* 允许点击穿透到 canvas */
-            z-index: 10;
-        }
-
-        /* 准星 */
-        .crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 2px;
-            height: 2px;
-            background-color: white;
-            border: 1px solid black;
-            box-shadow: 0 0 0 1px rgba(0,0,0,0.5);
-            pointer-events: none;
-        }
-
-        /* 快捷栏 */
-        .hotbar-container {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+        /* 1. 全局样式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: #ecf0f1;
             display: flex;
-            background-color: rgba(0, 0, 0, 0.4);
-            border: 2px solid #333;
-            padding: 4px;
-            z-index: 30;
-            pointer-events: auto; /* 可点击 */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
         }
 
-        .hotbar-slot {
-            width: 50px;
-            height: 50px;
-            background-color: #8B8B8B;
-            border: 2px solid #373737;
-            margin: 2px;
-            box-shadow: inset 2px 2px 0px 0px #585858;
-            position: relative;
-            cursor: pointer;
-            box-sizing: border-box;
-            background-size: cover;
-            background-position: center;
-            /* 确保背景图是像素风 */
-            image-rendering: pixelated;
+        /* 2. 主应用容器 (卡片) */
+        .skin-app {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px;
+            gap: 20px;
+            width: 350px;
         }
-        .hotbar-slot.active::before {
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0;
+            color: #fff;
+        }
+
+        /* 3. 3D 视图画布 */
+        #skin-viewer-canvas {
+            width: 300px;
+            height: 350px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: grab;
+        }
+        #skin-viewer-canvas:active {
+            cursor: grabbing;
+        }
+
+        /* 4. 控制区域 */
+        .controls {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* 5. 自定义文件上传按钮 */
+        .file-label {
+            background: #3498db;
+            color: #fff;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .file-label:hover {
+            background: #2980b9;
+        }
+        /* 隐藏原始的文件输入框 */
+        #skin-file-input {
+            display: none;
+        }
+
+        /* 6. 模型切换 (分段控件) */
+        .model-options {
+            display: flex;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .model-option {
+            flex: 1; /* 均分空间 */
+            text-align: center;
+            padding: 10px 0;
+            color: #bdc3c7;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease, color 0.3s ease;
+            position: relative; /* 用于伪元素定位 */
+        }
+        
+        /* 隐藏原始的 radio 按钮 */
+        .model-options input[type="radio"] {
+            display: none;
+        }
+
+        /* 选中状态的样式 */
+        .model-options input[type="radio"]:checked + .model-option {
+            background: #2ecc71;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+        }
+
+        /* 分割线 */
+        .model-option:first-of-type::after {
             content: '';
             position: absolute;
-            top: -5px; left: -5px; right: -5px; bottom: -5px;
-            border: 3px solid white;
-            pointer-events: none;
+            right: 0;
+            top: 20%;
+            bottom: 20%;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.1);
         }
 
-        /* 虚拟摇杆 (左侧) */
-        .joystick-container {
-            position: absolute;
-            bottom: 30px;
-            left: 30px;
-            width: 120px;
-            height: 120px;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            pointer-events: auto;
-            touch-action: none;
-        }
-        .joystick-handle {
-            width: 60px;
-            height: 60px;
-            background-color: rgba(255, 255, 255, 0.4);
-            border-radius: 50%;
-            pointer-events: none; /* 句柄不接收事件 */
-        }
-
-        /* 跳跃按钮 (右侧) */
-        .jump-button {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
-            width: 80px;
-            height: 80px;
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        /* 提示文字 */
+        .info-text {
             font-size: 14px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
-            pointer-events: auto;
-            touch-action: none;
+            color: #95a5a6;
+            text-align: center;
         }
-        .jump-button:active {
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        /* 方块纹理 (使用 Data URI 或外部图片) */
-        /* 为了简化，这里暂时用纯色，实际项目中会用图片纹理 */
-        .hotbar-slot[data-block-type="grass"] { background-color: #6A994E; }
-        .hotbar-slot[data-block-type="dirt"] { background-color: #7F5539; }
-        .hotbar-slot[data-block-type="stone"] { background-color: #808080; }
-        .hotbar-slot[data-block-type="wood"] { background-color: #A68A64; }
 
     </style>
 </head>
 <body>
 
-    <canvas id="game-canvas"></canvas>
+    <div class="skin-app">
+        <h1>3D 皮肤查看器</h1>
+        
+        <canvas id="skin-viewer-canvas"></canvas>
 
-    <div class="ui-overlay">
-        <div class="crosshair"></div>
+        <p class="info-text" id="info-text">请上传皮肤 .png 文件</p>
 
-        <div class="hotbar-container" id="hotbar">
-            <div class="hotbar-slot active" data-block-type="grass"></div>
-            <div class="hotbar-slot" data-block-type="dirt"></div>
-            <div class="hotbar-slot" data-block-type="stone"></div>
-            <div class="hotbar-slot" data-block-type="wood"></div>
+        <div class="controls">
+            <label for="skin-file-input" class="file-label">上传皮肤</label>
+            <input type="file" id="skin-file-input" accept="image/png">
+
+            <div class="model-options">
+                <input type="radio" id="model-classic" name="model-type" value="classic" checked>
+                <label class="model-option" for="model-classic">经典 (Classic)</label>
+                
+                <input type="radio" id="model-slim" name="model-type" value="slim">
+                <label class="model-option" for="model-slim">纤细 (Slim)</label>
+            </div>
         </div>
-
-        <div class="joystick-container" id="joystick-container">
-            <div class="joystick-handle" id="joystick-handle"></div>
-        </div>
-        <div class="jump-button" id="jump-button">JUMP</div>
     </div>
 
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
-        }
-    </script>
-    <script type="module">
-        import * as THREE from 'three';
+    <script>
+        // 1. 获取 DOM 元素
+        const canvas = document.getElementById('skin-viewer-canvas');
+        const fileInput = document.getElementById('skin-file-input');
+        const modelRadios = document.querySelectorAll('input[name="model-type"]');
+        const infoText = document.getElementById('info-text');
 
-        // --- 1. 场景设置 ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: document.getElementById('game-canvas') });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        // 2. 初始化 3D 查看器
+        let skinViewer = new skinview3d.SkinViewer({
+            canvas: canvas,
+            width: 300,
+            height: 350,
+        });
 
-        // --- 2. 方块纹理和材质 ---
-        // 实际 Minecraft 纹理需要加载图片，这里为了简化先用颜色
-        const blockMaterials = {
-            grass: new THREE.MeshPhongMaterial({ color: 0x6A994E }),
-            dirt: new THREE.MeshPhongMaterial({ color: 0x7F5539 }),
-            stone: new THREE.MeshPhongMaterial({ color: 0x808080 }),
-            wood: new THREE.MeshPhongMaterial({ color: 0xA68A64 }),
-        };
-        const blockGeometry = new THREE.BoxGeometry(1, 1, 1); // 单位方块
+        // 3. 添加轨道控制 (允许鼠标拖动旋转)
+        let control = skinview3d.createOrbitControls(skinViewer);
+        control.enableZoom = false; // 禁用缩放，保持简洁
+        control.enablePan = false; // 禁用平移
 
-        // --- 3. 世界生成 ---
-        const WORLD_SIZE = 32; // 世界大小 (WORLD_SIZE x WORLD_SIZE)
-        const GROUND_LEVEL = 0; // 地面 Y 坐标
-        const BLOCK_GRID = []; // 存储方块对象
-        const CHUNK_SIZE = 16; // 优化：按区块存储方块
-        const CHUNKS = {}; // { 'x,z': THREE.Group }
+        // 4. 添加行走动画 (让其更生动)
+        skinViewer.animation = new skinview3d.WalkingAnimation();
+        skinViewer.animation.speed = 1.5;
 
-        function getChunkKey(x, z) {
-            return `${Math.floor(x / CHUNK_SIZE)},${Math.floor(z / CHUNK_SIZE)}`;
-        }
+        // 5. 存储当前皮肤和模型
+        let currentSkinUrl = null;
+        let currentModel = 'classic';
 
-        function getChunk(x, z) {
-            const key = getChunkKey(x, z);
-            if (!CHUNKS[key]) {
-                const chunk = new THREE.Group();
-                chunk.position.set(
-                    Math.floor(x / CHUNK_SIZE) * CHUNK_SIZE,
-                    0,
-                    Math.floor(z / CHUNK_SIZE) * CHUNK_SIZE
-                );
-                scene.add(chunk);
-                CHUNKS[key] = chunk;
-            }
-            return CHUNKS[key];
-        }
-
-        function setBlock(x, y, z, type) {
-            // 移除旧方块
-            const oldBlockMesh = getBlock(x, y, z);
-            if (oldBlockMesh) {
-                const chunk = getChunk(x, z);
-                chunk.remove(oldBlockMesh);
-                oldBlockMesh.geometry.dispose();
-                // oldBlockMesh.material.dispose(); // 如果材质是独立的
-            }
-
-            // 如果是空气，则只移除不添加
-            if (type === 'air') {
-                if (BLOCK_GRID[x] && BLOCK_GRID[x][y]) {
-                    BLOCK_GRID[x][y][z] = null;
-                }
+        // 6. 更新查看器的函数
+        function updateViewer() {
+            // 只有当皮肤 URL 存在时才加载
+            if (!currentSkinUrl) {
                 return;
             }
-
-            // 添加新方块
-            const material = blockMaterials[type];
-            if (!material) {
-                console.warn(`Unknown block type: ${type}`);
-                return;
-            }
-
-            const blockMesh = new THREE.Mesh(blockGeometry, material);
-            blockMesh.position.set(x, y, z);
-            blockMesh.castShadow = true;
-            blockMesh.receiveShadow = true;
-            blockMesh.userData = { type: type, x, y, z }; // 存储方块数据
-
-            // 存入网格
-            if (!BLOCK_GRID[x]) BLOCK_GRID[x] = [];
-            if (!BLOCK_GRID[x][y]) BLOCK_GRID[x][y] = [];
-            BLOCK_GRID[x][y][z] = blockMesh;
-
-            // 添加到对应的 Chunk
-            const chunk = getChunk(x, z);
-            chunk.add(blockMesh);
-        }
-
-        function getBlock(x, y, z) {
-            if (x < 0 || x >= WORLD_SIZE || y < -10 || y > 100 || z < 0 || z >= WORLD_SIZE) {
-                return null; // 超出世界范围
-            }
-            return BLOCK_GRID[x] && BLOCK_GRID[x][y] ? BLOCK_GRID[x][y][z] : null;
-        }
-
-        function initWorld() {
-            for (let x = 0; x < WORLD_SIZE; x++) {
-                for (let z = 0; z < WORLD_SIZE; z++) {
-                    // 最上层草方块
-                    setBlock(x, GROUND_LEVEL, z, 'grass');
-                    // 下面是泥土
-                    setBlock(x, GROUND_LEVEL - 1, z, 'dirt');
-                    setBlock(x, GROUND_LEVEL - 2, z, 'dirt');
-                    setBlock(x, GROUND_LEVEL - 3, z, 'dirt');
-                    // 更下面是石头
-                    for (let y = GROUND_LEVEL - 4; y > GROUND_LEVEL - 10; y--) {
-                        setBlock(x, y, z, 'stone');
-                    }
-                }
-            }
-        }
-        initWorld();
-
-        // --- 4. 玩家和摄像机 ---
-        const player = {
-            position: new THREE.Vector3(WORLD_SIZE / 2, GROUND_LEVEL + 1.8, WORLD_SIZE / 2),
-            velocity: new THREE.Vector3(),
-            height: 1.8,
-            radius: 0.3,
-            onGround: false,
-            rotationY: 0, // 玩家水平旋转
-            lookPitch: 0, // 摄像机垂直旋转 (俯仰角)
-        };
-        const cameraOffset = new THREE.Vector3(-4, 2, 0); // 摄像机相对玩家的偏移
-
-        camera.position.set(
-            player.position.x + cameraOffset.x,
-            player.position.y + cameraOffset.y,
-            player.position.z + cameraOffset.z
-        );
-        camera.lookAt(player.position.x, player.position.y, player.position.z); // 初始看向玩家
-
-        // --- 5. 日夜循环和光照 ---
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.5); // 环境光
-        scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // 太阳光
-        directionalLight.position.set(0, 50, 0);
-        directionalLight.castShadow = true;
-        directionalLight.shadow.mapSize.width = 1024;
-        directionalLight.shadow.mapSize.height = 1024;
-        directionalLight.shadow.camera.near = 0.5;
-        directionalLight.shadow.camera.far = 100;
-        directionalLight.shadow.camera.left = -50;
-        directionalLight.shadow.camera.right = 50;
-        directionalLight.shadow.camera.top = 50;
-        directionalLight.shadow.camera.bottom = -50;
-        scene.add(directionalLight);
-
-        // 天空盒 (简化版，只改变颜色)
-        const skyColor = new THREE.Color();
-        const NIGHT_COLOR = new THREE.Color(0x0a0a20);
-        const DAY_COLOR = new THREE.Color(0x87CEEB);
-        const SUNSET_COLOR = new THREE.Color(0xFF6347);
-        const NIGHT_LIGHT_INTENSITY = 0.1;
-        const DAY_LIGHT_INTENSITY = 1;
-
-        let gameTime = 0; // 0-24000
-        const DAY_DURATION = 24000;
-        const TIME_FACTOR = 10; // 游戏时间流逝速度 (真实秒数 = DAY_DURATION / TIME_FACTOR / 60 / 60 )
-
-        function updateDayNightCycle(deltaTime) {
-            gameTime = (gameTime + deltaTime * TIME_FACTOR) % DAY_DURATION;
-            const cyclePercent = gameTime / DAY_DURATION; // 0.0 - 1.0
-
-            // 太阳/月亮位置
-            const angle = (cyclePercent * Math.PI * 2) - Math.PI / 2; // -PI/2 = 正上方，0 = 东
-            const radius = 100;
-            directionalLight.position.set(
-                Math.cos(angle) * radius,
-                Math.sin(angle) * radius,
-                0
-            );
-
-            // 天空颜色和光照强度
-            if (cyclePercent > 0.1 && cyclePercent < 0.4) { // 白天
-                skyColor.copy(DAY_COLOR);
-                directionalLight.intensity = DAY_LIGHT_INTENSITY;
-                ambientLight.intensity = 0.5;
-            } else if (cyclePercent >= 0.4 && cyclePercent < 0.5) { // 日落
-                skyColor.lerpColors(DAY_COLOR, SUNSET_COLOR, (cyclePercent - 0.4) * 10);
-                directionalLight.intensity = THREE.MathUtils.lerp(DAY_LIGHT_INTENSITY, NIGHT_LIGHT_INTENSITY, (cyclePercent - 0.4) * 10);
-                ambientLight.intensity = THREE.MathUtils.lerp(0.5, 0.2, (cyclePercent - 0.4) * 10);
-            } else if (cyclePercent >= 0.5 && cyclePercent < 0.9) { // 夜晚
-                skyColor.copy(NIGHT_COLOR);
-                directionalLight.intensity = NIGHT_LIGHT_INTENSITY;
-                ambientLight.intensity = 0.2;
-            } else { // 日出
-                skyColor.lerpColors(NIGHT_COLOR, DAY_COLOR, (cyclePercent - 0.9) * 10);
-                directionalLight.intensity = THREE.MathUtils.lerp(NIGHT_LIGHT_INTENSITY, DAY_LIGHT_INTENSITY, (cyclePercent - 0.9) * 10);
-                ambientLight.intensity = THREE.MathUtils.lerp(0.2, 0.5, (cyclePercent - 0.9) * 10);
-            }
-            scene.background = skyColor;
-        }
-
-        // --- 6. 物理和碰撞检测 ---
-        const GRAVITY = -20;
-        const JUMP_FORCE = 8;
-        const TERMINAL_VELOCITY = -20; // 最大下落速度
-
-        function checkCollision(pos) {
-            const x = Math.floor(pos.x);
-            const y = Math.floor(pos.y);
-            const z = Math.floor(pos.z);
-
-            // 检查玩家 AABB (Axis-Aligned Bounding Box) 可能占据的方块
-            // 玩家高度 1.8，占据两个方块高 (Y和 Y+1)
-            for (let dy = 0; dy < Math.ceil(player.height); dy++) {
-                for (let dx = -Math.floor(player.radius); dx <= Math.floor(player.radius); dx++) {
-                    for (let dz = -Math.floor(player.radius); dz <= Math.floor(player.radius); dz++) {
-                        const block = getBlock(x + dx, y + dy, z + dz);
-                        if (block && block.userData.type !== 'air') {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-
-        function updatePlayerPhysics(deltaTime) {
-            // 应用重力
-            player.velocity.y += GRAVITY * deltaTime;
-            if (player.velocity.y < TERMINAL_VELOCITY) player.velocity.y = TERMINAL_VELOCITY;
-
-            const oldPos = player.position.clone();
-            let newPos = player.position.clone().add(player.velocity.clone().multiplyScalar(deltaTime));
-
-            // 水平碰撞 (X, Z)
-            const targetX = newPos.x;
-            const targetZ = newPos.z;
-
-            // 尝试移动 X
-            player.position.x = targetX;
-            if (checkCollision(player.position)) {
-                player.position.x = oldPos.x; // 恢复
-                player.velocity.x = 0;
-            }
-
-            // 尝试移动 Z
-            player.position.z = targetZ;
-            if (checkCollision(player.position)) {
-                player.position.z = oldPos.z; // 恢复
-                player.velocity.z = 0;
-            }
-
-            // 垂直碰撞 (Y)
-            player.position.y = newPos.y;
-            player.onGround = false;
-            if (checkCollision(player.position)) {
-                if (player.velocity.y < 0) { // 下落时碰到地面
-                    player.position.y = Math.floor(oldPos.y); // 停在方块顶部
-                    player.velocity.y = 0;
-                    player.onGround = true;
-                } else { // 上升时碰到天花板
-                    player.position.y = oldPos.y; // 恢复
-                    player.velocity.y = 0;
-                }
-            }
-        }
-
-        // --- 7. 输入处理 (PC 和 手机) ---
-        const keys = {};
-        let selectedBlockType = 'grass';
-        let isMouseDown = false;
-        let isRightMouseDown = false;
-        let lastMouseX = 0;
-        let lastMouseY = 0;
-
-        // PC 键盘
-        document.addEventListener('keydown', (event) => {
-            keys[event.key.toLowerCase()] = true;
-        });
-        document.addEventListener('keyup', (event) => {
-            keys[event.key.toLowerCase()] = false;
-        });
-
-        // PC 鼠标
-        document.getElementById('game-canvas').addEventListener('mousedown', (event) => {
-            if (event.button === 0) { // 左键
-                isMouseDown = true;
-                performBlockAction();
-            } else if (event.button === 2) { // 右键
-                isRightMouseDown = true;
-                lastMouseX = event.clientX;
-                lastMouseY = event.clientY;
-                document.getElementById('game-canvas').style.cursor = 'grabbing';
-            }
-        });
-        document.getElementById('game-canvas').addEventListener('mouseup', (event) => {
-            if (event.button === 0) isMouseDown = false;
-            if (event.button === 2) {
-                isRightMouseDown = false;
-                document.getElementById('game-canvas').style.cursor = 'default';
-            }
-        });
-        document.getElementById('game-canvas').addEventListener('mousemove', (event) => {
-            if (isRightMouseDown) {
-                const deltaX = event.clientX - lastMouseX;
-                const deltaY = event.clientY - lastMouseY;
-
-                // 旋转玩家 Y 轴 (水平旋转)
-                player.rotationY -= deltaX * 0.005;
-
-                // 旋转摄像机俯仰角 (垂直旋转)
-                player.lookPitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, player.lookPitch - deltaY * 0.005));
-
-                lastMouseX = event.clientX;
-                lastMouseY = event.clientY;
-            }
-        });
-        // 阻止右键菜单
-        document.getElementById('game-canvas').addEventListener('contextmenu', (event) => {
-            event.preventDefault();
-        });
-
-        // 手机触摸 (虚拟摇杆和跳跃按钮)
-        const joystickContainer = document.getElementById('joystick-container');
-        const joystickHandle = document.getElementById('joystick-handle');
-        const jumpButton = document.getElementById('jump-button');
-
-        let joystickActive = false;
-        let joystickStartX = 0;
-        let joystickStartY = 0;
-
-        let touchRotationActive = false; // 用于旋转视角的触摸
-        let lastTouchX = 0;
-        let lastTouchY = 0;
-        let activeRotationTouchId = null;
-
-        let lastTapTime = 0;
-        const TAP_THRESHOLD = 300; // ms
-
-        joystickContainer.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            joystickActive = true;
-            joystickStartX = e.touches[0].clientX;
-            joystickStartY = e.touches[0].clientY;
-        }, { passive: false });
-
-        joystickContainer.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            if (joystickActive) {
-                const deltaX = e.touches[0].clientX - joystickStartX;
-                const deltaY = e.touches[0].clientY - joystickStartY;
-
-                const angle = Math.atan2(deltaY, deltaX);
-                const magnitude = Math.min(60, Math.sqrt(deltaX * deltaX + deltaY * deltaY));
-
-                joystickHandle.style.transform = `translate(${Math.cos(angle) * magnitude}px, ${Math.sin(angle) * magnitude}px)`;
-
-                // 更新玩家速度
-                keys['forward'] = magnitude > 20 && angle > -Math.PI * 0.75 && angle < -Math.PI * 0.25;
-                keys['backward'] = magnitude > 20 && angle > Math.PI * 0.25 && angle < Math.PI * 0.75;
-                keys['left'] = magnitude > 20 && angle < -Math.PI * 0.75 || angle > Math.PI * 0.75;
-                keys['right'] = magnitude > 20 && angle > -Math.PI * 0.25 && angle < Math.PI * 0.25;
-            }
-        }, { passive: false });
-
-        joystickContainer.addEventListener('touchend', (e) => {
-            joystickActive = false;
-            joystickHandle.style.transform = `translate(0px, 0px)`;
-            keys['forward'] = keys['backward'] = keys['left'] = keys['right'] = false;
-        });
-
-        jumpButton.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            keys['space'] = true;
-        }, { passive: false });
-        jumpButton.addEventListener('touchend', (e) => {
-            keys['space'] = false;
-        });
-
-        // 屏幕滑动旋转视角 或 方块操作
-        document.getElementById('game-canvas').addEventListener('touchstart', (e) => {
-            e.preventDefault(); // 阻止默认的滚动和缩放
-            if (e.touches.length === 1 && !joystickActive) { // 单指触摸且不在摇杆上
-                const touch = e.touches[0];
-                const currentTime = Date.now();
-
-                // 判断是否是双击（放置/破坏）
-                if (currentTime - lastTapTime < TAP_THRESHOLD) {
-                    performBlockAction(); // 执行方块操作
-                } else {
-                    // 开始旋转视角
-                    touchRotationActive = true;
-                    lastTouchX = touch.clientX;
-                    lastTouchY = touch.clientY;
-                    activeRotationTouchId = touch.identifier;
-                }
-                lastTapTime = currentTime;
-            }
-        }, { passive: false });
-
-        document.getElementById('game-canvas').addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            if (touchRotationActive && activeRotationTouchId !== null) {
-                for (let i = 0; i < e.touches.length; i++) {
-                    if (e.touches[i].identifier === activeRotationTouchId) {
-                        const touch = e.touches[i];
-                        const deltaX = touch.clientX - lastTouchX;
-                        const deltaY = touch.clientY - lastTouchY;
-
-                        player.rotationY -= deltaX * 0.005;
-                        player.lookPitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, player.lookPitch - deltaY * 0.005));
-
-                        lastTouchX = touch.clientX;
-                        lastTouchY = touch.clientY;
-                        break;
-                    }
-                }
-            }
-        }, { passive: false });
-
-        document.getElementById('game-canvas').addEventListener('touchend', (e) => {
-            if (activeRotationTouchId !== null) {
-                let touchEnded = true;
-                for (let i = 0; i < e.changedTouches.length; i++) {
-                    if (e.changedTouches[i].identifier === activeRotationTouchId) {
-                        touchRotationActive = false;
-                        activeRotationTouchId = null;
-                        break;
-                    }
-                }
-            }
-        });
-
-        // 快捷栏操作
-        const hotbarSlots = document.querySelectorAll('.hotbar-slot');
-        hotbarSlots.forEach(slot => {
-            slot.addEventListener('click', () => {
-                hotbarSlots.forEach(s => s.classList.remove('active'));
-                slot.classList.add('active');
-                selectedBlockType = slot.dataset.blockType;
-            });
-        });
-
-        // --- 8. 方块操作 (破坏/放置) ---
-        const raycaster = new THREE.Raycaster();
-        const pointer = new THREE.Vector2();
-
-        function performBlockAction() {
-            // 获取屏幕中心点
-            pointer.set(0, 0); // 中心点在 Three.js NDC 坐标系中是 (0,0)
-
-            raycaster.setFromCamera(pointer, camera);
-            const intersects = raycaster.intersectObjects(scene.children, true);
-
-            if (intersects.length > 0) {
-                const intersect = intersects[0];
-                const faceNormal = intersect.face.normal;
-                const intersectedBlock = intersect.object;
-
-                // 确保点击的是方块
-                if (intersectedBlock.userData.type) {
-                    const blockX = intersectedBlock.userData.x;
-                    const blockY = intersectedBlock.userData.y;
-                    const blockZ = intersectedBlock.userData.z;
-
-                    // 鼠标左键 (PC) 或 单点触摸 (手机) 默认是破坏
-                    setBlock(blockX, blockY, blockZ, 'air');
-                }
-            } else {
-                // 如果没有点击到方块，尝试在玩家准星前方放置方块
-                // 找到玩家前方最近的非空气方块的面
-                const origin = raycaster.ray.origin;
-                const direction = raycaster.ray.direction;
-                
-                // 模拟一个短距离的射线
-                const tempRaycaster = new THREE.Raycaster(origin, direction, 0, 5); // 5个方块距离
-                const tempIntersects = tempRaycaster.intersectObjects(scene.children, true);
-
-                if (tempIntersects.length > 0) {
-                    const tempIntersect = tempIntersects[0];
-                    const faceNormal = tempIntersect.face.normal;
-                    const intersectedBlock = tempIntersect.object;
-
-                    const blockX = intersectedBlock.userData.x;
-                    const blockY = intersectedBlock.userData.y;
-                    const blockZ = intersectedBlock.userData.z;
-
-                    // 计算放置位置
-                    const placeX = blockX + faceNormal.x;
-                    const placeY = blockY + faceNormal.y;
-                    const placeZ = blockZ + faceNormal.z;
-
-                    // 检查放置位置是否与玩家自身重叠
-                    const playerMin = new THREE.Vector3(player.position.x - player.radius, player.position.y, player.position.z - player.radius);
-                    const playerMax = new THREE.Vector3(player.position.x + player.radius, player.position.y + player.height, player.position.z + player.radius);
-                    
-                    const newBlockMin = new THREE.Vector3(placeX, placeY, placeZ);
-                    const newBlockMax = new THREE.Vector3(placeX + 1, placeY + 1, placeZ + 1);
-
-                    const intersectsPlayer = (
-                        playerMin.x < newBlockMax.x && playerMax.x > newBlockMin.x &&
-                        playerMin.y < newBlockMax.y && playerMax.y > newBlockMin.y &&
-                        playerMin.z < newBlockMax.z && playerMax.z > newBlockMin.z
-                    );
-
-                    if (!intersectsPlayer && getBlock(placeX, placeY, placeZ) === null) { // 确保不是空气方块
-                        setBlock(placeX, placeY, placeZ, selectedBlockType);
-                    }
-                }
-            }
-        }
-
-        // --- 9. 主渲染循环 ---
-        const clock = new THREE.Clock();
-        function animate() {
-            requestAnimationFrame(animate);
-
-            const deltaTime = clock.getDelta();
-
-            // 玩家移动
-            const moveSpeed = MOVE_SPEED * deltaTime;
-            const forwardVector = new THREE.Vector3(0, 0, -1);
-            forwardVector.applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotationY); // 考虑玩家水平旋转
-
-            if (keys['w'] || keys['forward']) {
-                player.velocity.x += forwardVector.x * moveSpeed * 50;
-                player.velocity.z += forwardVector.z * moveSpeed * 50;
-            }
-            if (keys['s'] || keys['backward']) {
-                player.velocity.x -= forwardVector.x * moveSpeed * 50;
-                player.velocity.z -= forwardVector.z * moveSpeed * 50;
-            }
-            if (keys['a'] || keys['left']) { // 侧向移动
-                const leftVector = new THREE.Vector3(-1, 0, 0);
-                leftVector.applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotationY);
-                player.velocity.x += leftVector.x * moveSpeed * 50;
-                player.velocity.z += leftVector.z * moveSpeed * 50;
-            }
-            if (keys['d'] || keys['right']) { // 侧向移动
-                const rightVector = new THREE.Vector3(1, 0, 0);
-                rightVector.applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotationY);
-                player.velocity.x += rightVector.x * moveSpeed * 50;
-                player.velocity.z += rightVector.z * moveSpeed * 50;
-            }
-
-            // 限制玩家水平速度
-            const horizontalSpeed = new THREE.Vector2(player.velocity.x, player.velocity.z).length();
-            const maxHorizontalSpeed = MOVE_SPEED;
-            if (horizontalSpeed > maxHorizontalSpeed) {
-                player.velocity.x *= maxHorizontalSpeed / horizontalSpeed;
-                player.velocity.z *= maxHorizontalSpeed / horizontalSpeed;
-            }
-
-            // 跳跃
-            if ((keys[' '] || keys['space']) && player.onGround) {
-                player.velocity.y = JUMP_FORCE;
-                player.onGround = false;
-            }
-
-            // 更新玩家物理
-            updatePlayerPhysics(deltaTime);
-
-            // 摄像机跟随玩家
-            const rotatedCameraOffset = cameraOffset.clone();
-            rotatedCameraOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), player.rotationY); // 水平旋转
             
-            // 垂直旋转 (俯仰角)
-            const pitchQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), player.lookPitch);
-            rotatedCameraOffset.applyQuaternion(pitchQuaternion);
+            // 获取当前选中的模型
+            currentModel = document.querySelector('input[name="model-type"]:checked').value;
 
-            camera.position.copy(player.position).add(rotatedCameraOffset);
-            camera.lookAt(player.position);
-
-            // 更新日夜循环
-            updateDayNightCycle(deltaTime);
-
-            renderer.render(scene, camera);
+            // 加载皮肤和模型
+            skinViewer.loadSkin(currentSkinUrl, { model: currentModel });
+            
+            // 更新提示文字
+            infoText.textContent = "可拖动鼠标旋转模型";
         }
 
-        animate();
+        // 7. 监听文件上传事件
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    // 将文件读取为 Data URL
+                    currentSkinUrl = reader.result;
+                    // 更新查看器
+                    updateViewer();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
 
-        // --- 10. 窗口大小调整 ---
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        // 8. 监听模型切换事件
+        modelRadios.forEach(radio => {
+            radio.addEventListener('change', updateViewer);
         });
 
     </script>
+
 </body>
 </html>

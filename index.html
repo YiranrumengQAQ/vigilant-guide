@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Minecraft Bedrock UI 风格</title>
+    <title>风景描述站 (MC-UI 风格)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -15,31 +15,27 @@
             padding: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden; /* 隐藏滚动条，模拟全屏游戏 */
+            overflow: hidden;
             background-color: #000;
-            font-family: 'Press Start 2P', cursive;
+            font-family: 'Press-Start-2P', 'Noto Sans SC', sans-serif; /* 像素字体为主, 中文备用 */
             color: white;
-            /* 禁用默认的触摸高亮和选择 */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
+            cursor: default; /* 默认隐藏系统光标，我们将用手柄光标 */
         }
 
-        /* 2. 游戏主容器 */
+        /* 2. 游戏主容器 (风景背景) */
         .game-container {
             position: relative;
             width: 100vw;
             height: 100vh;
-            /* 使用一个简单的渐变作为风景背景 */
-            background: linear-gradient(to bottom, #74b9ff 0%, #a2d2ff 60%, #55a630 60%, #588157 100%);
-            /* 如果你想用图片，取消注释下面这行 */
-            /* background-image: url('https://placehold.co/1920x1080/87CEEB/78C850.png?text=Minecraft+Landscape'); */
+            /* 使用一个真实的风景图片 (来自 unsplash) */
+            background-image: url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
             background-size: cover;
             background-position: center;
-            /* 保持像素风的锐利 */
-            image-rendering: pixelated;
         }
 
         /* 3. UI 覆盖层 */
@@ -49,101 +45,45 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* 关键：让覆盖层本身不接收点击，但子元素可以 */
-            pointer-events: none;
+            pointer-events: none; /* 覆盖层本身不接收点击 */
         }
 
         /* 4. 通用 UI 按钮样式 (Minecraft 风格) */
         .ui-button {
-            pointer-events: auto; /* 重新启用按钮的点击事件 */
+            pointer-events: auto; /* 按钮可点击 */
             background-color: #707070;
             border: 2px solid #000000;
-            /* 核心：使用 inset box-shadow 模拟 3D 浮雕效果 */
-            box-shadow: inset 3px 3px 0px 0px rgba(255, 255, 255, 0.5), /* 顶部和左侧的亮边 */
-                        inset -3px -3px 0px 0px rgba(0, 0, 0, 0.5); /* 底部和右侧的暗边 */
+            box-shadow: inset 3px 3px 0px 0px rgba(255, 255, 255, 0.5),
+                        inset -3px -3px 0px 0px rgba(0, 0, 0, 0.5);
             color: white;
             font-family: 'Press Start 2P', cursive;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            /* 禁用按钮的默认外观 */
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
+            padding: 10px;
         }
 
-        /* 按钮按下时的样式：反转阴影 */
-        .ui-button:active {
+        .ui-button:active, .ui-button.pseudo-active {
             background-color: #606060;
             box-shadow: inset -3px -3px 0px 0px rgba(255, 255, 255, 0.5),
                         inset 3px 3px 0px 0px rgba(0, 0, 0, 0.5);
-            transform: scale(0.98); /* 轻微缩小 */
-        }
-
-        /* 5. 左侧 D-pad (方向键) */
-        .dpad-container {
-            position: absolute;
-            bottom: 70px;
-            left: 30px;
-            display: grid;
-            grid-template-areas:
-                ".   up   ."
-                "left . right"
-                ".  down  .";
-            width: 180px;
-            height: 180px;
-        }
-
-        .dpad-button {
-            width: 60px;
-            height: 60px;
-            font-size: 24px;
-            /* 基岩版特有的半透明按钮 */
-            background-color: rgba(100, 100, 100, 0.7);
-            border-width: 3px;
-        }
-
-        /* 分配网格区域 */
-        #dpad-up    { grid-area: up; }
-        #dpad-down  { grid-area: down; }
-        #dpad-left  { grid-area: left; }
-        #dpad-right { grid-area: right; }
-
-        /* 6. 右侧动作按钮 (跳跃) */
-        .action-buttons {
-            position: absolute;
-            bottom: 70px;
-            right: 30px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .action-button {
-            width: 80px;
-            height: 80px;
-            /* 基岩版标志性的圆形按钮 */
-            border-radius: 50%;
-            font-size: 14px;
-            background-color: rgba(100, 100, 100, 0.7);
-            border-width: 3px;
+            transform: scale(0.98);
         }
         
-        #jump-button {
-            /* 简单的跳跃图标 (或文字) */
-            content: "Jump";
-        }
-        
-        /* 7. 顶部 UI (暂停按钮和日志) */
+        /* 5. 顶部 UI (暂停按钮和描述框) */
         .top-bar {
             position: absolute;
-            top: 10px;
+            top: 15px;
             width: 100%;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 0 10px;
+            align-items: flex-start;
+            padding: 0 15px;
+            box-sizing: border-box; /* 确保 padding 不影响宽度 */
         }
 
         .pause-button {
@@ -151,89 +91,115 @@
             height: 40px;
             font-size: 20px;
             padding: 0;
-            margin-left: auto; /* 推到最右侧 */
+            margin-left: 20px; /* 和描述框拉开距离 */
+            flex-shrink: 0; /* 防止按钮被压缩 */
         }
 
-        .log-output {
+        /* 这是新的描述框 */
+        #description-box {
             font-size: 14px;
-            text-shadow: 2px 2px #000;
-            padding: 5px;
-            min-height: 1.2em; /* 保持高度稳定 */
+            line-height: 1.6;
+            text-shadow: 2px 2px 2px #000;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 2px solid #333;
+            min-height: 100px;
+            width: 400px; /* 给一个固定宽度 */
+            max-width: 60%; /* 最大占60% */
+            /* 使用像素风格的边框 */
+            box-shadow: inset 2px 2px 0px 0px #222, 
+                        inset -2px -2px 0px 0px #222;
         }
 
-        /* 8. 底部快捷栏 (Hotbar) */
+        /* 6. 底部快捷栏 (Hotbar) */
         .hotbar-container {
             position: absolute;
-            bottom: 10px;
+            bottom: 20px;
             left: 50%;
-            transform: translateX(-50%); /* 水平居中 */
+            transform: translateX(-50%);
             display: flex;
             background-color: rgba(0, 0, 0, 0.4);
             border: 2px solid #333;
             padding: 2px;
-            pointer-events: auto; /* 快捷栏容器可点击 */
+            pointer-events: auto;
         }
 
         .hotbar-slot {
-            width: 44px;
-            height: 44px;
+            width: 50px;
+            height: 50px;
             background-color: #8B8B8B;
             border: 2px solid #373737;
             margin: 2px;
-            box-shadow: inset 2px 2px 0px 0px #585858; /* 快捷栏格子的内阴影 */
+            box-shadow: inset 2px 2px 0px 0px #585858;
             position: relative;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 10px;
+            padding: 5px;
+            text-align: center;
+            line-height: 1.2;
+            overflow: hidden;
+            /* 适配中文 */
+            font-family: 'Noto Sans SC', 'Press Start 2P', sans-serif;
+            font-weight: bold;
         }
         
-        /* 快捷栏选中状态 */
         .hotbar-slot.active::before {
             content: '';
             position: absolute;
-            top: -4px;
-            left: -4px;
-            right: -4px;
-            bottom: -4px;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
             border: 3px solid white;
-            image-rendering: pixelated; /* 保持边框锐利 */
-            pointer-events: none; /* 确保不影响点击 */
+            image-rendering: pixelated;
+            pointer-events: none;
+        }
+
+        /* 7. 手柄光标 (关键!) */
+        #gamepad-cursor {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 2px solid black;
+            border-radius: 2px; /* 稍微圆润一点 */
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.5);
+            z-index: 9999;
+            pointer-events: none; /* 穿透鼠标事件 */
+            display: none; /* 默认隐藏 */
+            image-rendering: pixelated;
+            /* 把它放在屏幕中央 (JS会更新) */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
     </style>
 </head>
 <body>
 
+    <div id="gamepad-cursor"></div>
+
     <div class="game-container">
         
         <div class="ui-overlay">
 
             <div class="top-bar">
-                <div class="log-output" id="log-output">Welcome!</div>
+                <div id="description-box">请点击下方的快捷栏或使用手柄选择一个风景主题...</div>
                 
                 <button class="ui-button pause-button" id="pause-button">||</button>
             </div>
 
-            <div class="dpad-container">
-                <button class="ui-button dpad-button" id="dpad-up">▲</button>
-                <button class="ui-button dpad-button" id="dpad-left">◀</button>
-                <button class="ui-button dpad-button" id="dpad-right">▶</button>
-                <button class="ui-button dpad-button" id="dpad-down">▼</button>
-            </div>
-
-            <div class="action-buttons">
-                <button class="ui-button action-button" id="jump-button">JUMP</button>
-            </div>
-
             <div class="hotbar-container" id="hotbar">
-                <div class="hotbar-slot active" data-index="1">Slot 1</div>
-                <div class="hotbar-slot" data-index="2">Slot 2</div>
-                <div class="hotbar-slot" data-index="3">Slot 3</div>
-                <div class="hotbar-slot" data-index="4">Slot 4</div>
-                <div class="hotbar-slot" data-index="5">Slot 5</div>
-                <div class="hotbar-slot" data-index="6">Slot 6</div>
+                <div class="hotbar-slot active" data-index="0" data-key="sky">天空</div>
+                <div class="hotbar-slot" data-index="1" data-key="mountains">山脉</div>
+                <div class="hotbar-slot" data-index="2" data-key="river">河流</div>
+                <div class="hotbar-slot" data-index="3" data-key="forest">森林</div>
+                <div class="hotbar-slot" data-index="4" data-key="sunset">日落</div>
+                <div class="hotbar-slot" data-index="5" data-key="night">星空</div>
             </div>
 
         </div>
@@ -241,82 +207,206 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const logOutput = document.getElementById('log-output');
-            let logTimer;
 
-            // 1. 日志输出函数
-            function logAction(message) {
-                // 清除上一个计时器（如果存在）
-                if (logTimer) {
-                    clearTimeout(logTimer);
-                }
-                
-                logOutput.textContent = message;
-                
-                // 2 秒后清除日志
-                logTimer = setTimeout(() => {
-                    logOutput.textContent = '';
-                }, 2000);
+            // --- 1. 内容数据 ---
+            const sceneryDescriptions = {
+                sky: "天空是蔚蓝色的，几朵白云悠闲地飘过。阳光透过云层，洒下金色的光辉，给人一种宁静和广阔的感觉。",
+                mountains: "远处的山脉连绵起伏，轮廓在雾气中若隐若现。山顶上覆盖着皑皑白雪，显得庄严而神秘。",
+                river: "一条清澈的河流蜿蜒流淌，水面波光粼粼。河岸两旁绿树成荫，偶尔有几只水鸟掠过水面。",
+                forest: "茂密的森林中，古树参天。阳光穿过树叶的缝隙，在布满苔藓的地面上投下斑驳的光影。",
+                sunset: "夕阳西下，天空被染成了温暖的橙红色。太阳缓缓沉入地平线，留下满天绚丽的晚霞。",
+                night: "夜幕降临，繁星点点。一轮明月高挂空中，银色的月光洒满大地，万物俱寂，只有虫鸣声。",
+                paused: "已暂停。这是一个描述风景的网站，UI风格模仿了 Minecraft 基岩版。你可以使用鼠标、触摸或手柄进行操作。"
+            };
+
+            // --- 2. 元素获取 ---
+            const descriptionBox = document.getElementById('description-box');
+            const hotbar = document.getElementById('hotbar');
+            const hotbarSlots = document.querySelectorAll('.hotbar-slot');
+            const pauseButton = document.getElementById('pause-button');
+            const gamepadCursor = document.getElementById('gamepad-cursor');
+
+            let currentHotbarIndex = 0;
+
+            // --- 3. 核心功能函数 ---
+
+            /**
+             * 更新描述框的内容
+             * @param {string} key - sceneryDescriptions 中的键
+             */
+            function showDescription(key) {
+                descriptionBox.textContent = sceneryDescriptions[key] || "没有找到相关描述。";
             }
 
-            // 2. 为所有 UI 按钮添加点击事件
-            document.querySelectorAll('.ui-button').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    let action = 'Unknown Action';
-                    
-                    switch (e.currentTarget.id) {
-                        case 'dpad-up':
-                            action = 'Move: Forward';
-                            break;
-                        case 'dpad-down':
-                            action = 'Move: Backward';
-                            break;
-                        case 'dpad-left':
-                            action = 'Move: Left';
-                            break;
-                        case 'dpad-right':
-                            action = 'Move: Right';
-                            break;
-                        case 'jump-button':
-                            action = 'Action: Jump!';
-                            break;
-                        case 'pause-button':
-                            action = 'Game Paused';
-                            break;
-                    }
-                    logAction(action);
-                });
-            });
+            /**
+             * 更新快捷栏的选中状态 (用于 D-Pad)
+             * @param {number} newIndex - 新的格子索引
+             */
+            function updateHotbarSelection(newIndex) {
+                // 移除旧的 active
+                hotbarSlots[currentHotbarIndex].classList.remove('active');
+                
+                // 确保索引在范围内循环
+                if (newIndex >= hotbarSlots.length) {
+                    newIndex = 0;
+                } else if (newIndex < 0) {
+                    newIndex = hotbarSlots.length - 1;
+                }
+                
+                // 添加新的 active
+                hotbarSlots[newIndex].classList.add('active');
+                currentHotbarIndex = newIndex;
+                
+                // 显示新选中项的描述
+                const key = hotbarSlots[newIndex].dataset.key;
+                showDescription(key);
+            }
 
-            // 3. 为快捷栏添加点击事件
-            const hotbar = document.getElementById('hotbar');
+            // --- 4. 鼠标和触摸事件 ---
+
+            // A. 点击快捷栏
             hotbar.addEventListener('click', (e) => {
-                // 检查点击的是否是 slot
-                if (e.target.classList.contains('hotbar-slot')) {
-                    const clickedSlot = e.target;
+                const clickedSlot = e.target.closest('.hotbar-slot');
+                if (clickedSlot) {
+                    const key = clickedSlot.dataset.key;
+                    const index = parseInt(clickedSlot.dataset.index, 10);
                     
                     // 移除所有格子的 active 状态
-                    hotbar.querySelectorAll('.hotbar-slot').forEach(slot => {
-                        slot.classList.remove('active');
-                    });
-                    
+                    hotbarSlots.forEach(slot => slot.classList.remove('active'));
                     // 为被点击的格子添加 active 状态
                     clickedSlot.classList.add('active');
                     
-                    // 在日志中显示
-                    logAction(`Selected Hotbar Slot ${clickedSlot.dataset.index}`);
+                    currentHotbarIndex = index;
+                    showDescription(key);
                 }
             });
 
-            // 4. 阻止在控件上滑动时页面滚动 (移动端优化)
-            document.querySelector('.ui-overlay').addEventListener('touchmove', (e) => {
-                if (e.target.classList.contains('ui-button') || e.target.classList.contains('hotbar-slot')) {
-                    e.preventDefault();
+            // B. 点击暂停按钮
+            pauseButton.addEventListener('click', () => {
+                showDescription('paused');
+            });
+
+
+            // --- 5. 手柄 (Gamepad API) 支持 ---
+
+            let gamepadIndex = null;
+            let gameLoopId = null;
+            let cursorPosition = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+            const GAMEPAD_SENSITIVITY = 8;
+
+            // 按钮防抖状态
+            let buttonPressed = {
+                A: false,
+                Start: false,
+                DpadLeft: false,
+                DpadRight: false
+            };
+
+            window.addEventListener('gamepadconnected', (e) => {
+                console.log('手柄已连接:', e.gamepad.id);
+                gamepadIndex = e.gamepad.index;
+                gamepadCursor.style.display = 'block'; // 显示光标
+                if (!gameLoopId) {
+                    gameLoop(); // 开始游戏循环
                 }
-            }, { passive: false });
-            
-            // 初始日志
-            logAction('UI Loaded. Ready!');
+            });
+
+            window.addEventListener('gamepaddisconnected', (e) => {
+                console.log('手柄已断开:', e.gamepad.id);
+                if (gamepadIndex === e.gamepad.index) {
+                    gamepadIndex = null;
+                    gamepadCursor.style.display = 'none'; // 隐藏光标
+                    if (gameLoopId) {
+                        cancelAnimationFrame(gameLoopId); // 停止游戏循环
+                        gameLoopId = null;
+                    }
+                }
+            });
+
+            function gameLoop() {
+                if (gamepadIndex === null) return;
+
+                const gp = navigator.getGamepads()[gamepadIndex];
+                if (!gp) return;
+
+                // A. 左摇杆: 移动光标
+                const axisX = gp.axes[0];
+                const axisY = gp.axes[1];
+                const deadzone = 0.15;
+
+                if (Math.abs(axisX) > deadzone) {
+                    cursorPosition.x += axisX * GAMEPAD_SENSITIVITY;
+                }
+                if (Math.abs(axisY) > deadzone) {
+                    cursorPosition.y += axisY * GAMEPAD_SENSITIVITY;
+                }
+
+                // 限制光标在屏幕内
+                cursorPosition.x = Math.max(0, Math.min(window.innerWidth, cursorPosition.x));
+                cursorPosition.y = Math.max(0, Math.min(window.innerHeight, cursorPosition.y));
+                
+                // 更新光标位置 (使用 translate 性能更好)
+                gamepadCursor.style.transform = `translate3d(${cursorPosition.x}px, ${cursorPosition.y}px, 0)`;
+
+                // B. 'A' 键 (buttons[0]): 模拟点击
+                if (gp.buttons[0].pressed) {
+                    if (!buttonPressed.A) {
+                        buttonPressed.A = true;
+                        
+                        // 模拟点击
+                        // 1. 暂时隐藏光标，以免点到光标自己
+                        gamepadCursor.style.display = 'none';
+                        // 2. 找到光标下的元素
+                        const elementUnderCursor = document.elementFromPoint(cursorPosition.x, cursorPosition.y);
+                        // 3. 重新显示光标
+                        gamepadCursor.style.display = 'block';
+
+                        if (elementUnderCursor) {
+                            // 4. 触发点击
+                            elementUnderCursor.click();
+                            // 5. (可选) 给被点击的按钮一个视觉反馈
+                            if (elementUnderCursor.classList.contains('ui-button')) {
+                                elementUnderCursor.classList.add('pseudo-active');
+                                setTimeout(() => elementUnderCursor.classList.remove('pseudo-active'), 150);
+                            }
+                        }
+                    }
+                } else {
+                    buttonPressed.A = false;
+                }
+
+                // C. 'Start' 键 (buttons[9]): 点击暂停
+                if (gp.buttons[9].pressed) {
+                    if (!buttonPressed.Start) {
+                        buttonPressed.Start = true;
+                        pauseButton.click();
+                    }
+                } else {
+                    buttonPressed.Start = false;
+                }
+
+                // D. D-Pad (十字键) 左/右 (buttons[14], buttons[15]): 切换快捷栏
+                if (gp.buttons[14].pressed) { // D-pad Left
+                    if (!buttonPressed.DpadLeft) {
+                        buttonPressed.DpadLeft = true;
+                        updateHotbarSelection(currentHotbarIndex - 1);
+                    }
+                } else {
+                    buttonPressed.DpadLeft = false;
+                }
+
+                if (gp.buttons[15].pressed) { // D-pad Right
+                    if (!buttonPressed.DpadRight) {
+                        buttonPressed.DpadRight = true;
+                        updateHotbarSelection(currentHotbarIndex + 1);
+                    }
+                } else {
+                    buttonPressed.DpadRight = false;
+                }
+
+                // 持续循环
+                gameLoopId = requestAnimationFrame(gameLoop);
+            }
         });
     </script>
 

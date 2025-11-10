@@ -186,7 +186,12 @@
             width: 100%;
             min-height: 100vh; 
             height: auto; 
-            background-color: var(--primary-dark); 
+            /* (已修改) 更换为图片背景 */
+            background-image: url('https://im.gurl.eu.org/file/AgACAgEAAxkDAAEBUUBpEa1fwaDRnuUkESBIVfkkzHAa0gACLgtrGzH-iER7pFZfk6MW8wEAAwIAA3gAAzYE.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* (可选) 让背景图固定，内容滚动 */
+            
             display: none; 
             flex-direction: column;
             align-items: center;
@@ -233,7 +238,7 @@
             margin: 20px 0; 
             display: flex;
             align-items: center;
-            background-color: var(--secondary-dark); 
+            background-color: rgba(26, 26, 46, 0.8); /* (已修改) 半透明，让背景图可见 */
             padding: 10px 20px;
             border-radius: 10px;
             box-shadow: 0 2px 10px var(--shadow-light);
@@ -305,7 +310,7 @@
             margin-top: 40px; 
             width: 90%;
             max-width: 700px; 
-            background-color: var(--secondary-dark); 
+            background-color: rgba(26, 26, 46, 0.8); /* (已修改) 半透明，让背景图可见 */
             padding: 30px; 
             border-radius: 15px; 
             text-align: left;
@@ -411,9 +416,9 @@
             #omega-core { padding: 60px 20px; } 
         }
 
-        /* (已修复) 手柄光标/提示 */
+        /* 手柄光标/提示 */
         #gamepad-cursor {
-            position: fixed; /* (已修改) 改为 fixed，使其在滚动时也保持位置 */
+            position: fixed; 
             width: 20px;
             height: 20px;
             background-color: rgba(135, 206, 250, 0.8); 
@@ -421,9 +426,9 @@
             border: 2px solid white;
             pointer-events: none; 
             z-index: 9999;
-            visibility: hidden; /* (已修改) 默认隐藏 */
-            opacity: 0; /* (已添加) 默认透明 */
-            transition: opacity 0.3s ease, transform 0.05s linear; /* (已修改) 添加 opacity 过渡 */
+            visibility: hidden; 
+            opacity: 0; 
+            transition: opacity 0.3s ease, transform 0.05s linear; 
         }
         #gamepad-cursor.show {
             visibility: visible;
@@ -439,9 +444,9 @@
             border-radius: 5px;
             font-size: 0.9em;
             z-index: 50;
-            visibility: hidden; /* (已修改) 默认隐藏 */
-            opacity: 0; /* (已添加) 默认透明 */
-            transition: opacity 0.3s ease; /* (已添加) 过渡效果 */
+            visibility: hidden; 
+            opacity: 0; 
+            transition: opacity 0.3s ease; 
         }
         #gamepad-status.show {
             visibility: visible;
@@ -523,13 +528,15 @@
         const KEY_TRIGGER_THRESHOLD = 10; 
         let triggerCharClickCount = 0; 
         
-        // --- (已修复) 手柄变量 ---
+        // --- 手柄变量 ---
         let gamepadIndex = null;
-        let gamepadInterval = null; // (已修改) 初始为 null
+        let gamepadInterval = null; 
         let cursorX = window.innerWidth / 2;
         let cursorY = window.innerHeight / 2;
         const CURSOR_SPEED = 10;
-        const GAMEPAD_DEADZONE = 0.15; // (已添加) 摇杆死区
+        const SCROLL_SPEED = 15; // 右摇杆滚动速度
+        const GAMEPAD_DEADZONE = 0.15; // 摇杆死区
+        let aButtonWasPressed = false; // 用于检测A键按键（非长按）
 
         // --- DOM 元素引用 ---
         const veilContainer = document.getElementById('veil-container');
@@ -686,7 +693,7 @@
         }
         
         
-        // --- (已添加/修复) 3. 手柄控制逻辑 ---
+        // --- 3. 手柄控制逻辑 ---
 
         function applyDeadzone(value) {
             return Math.abs(value) < GAMEPAD_DEADZONE ? 0 : value;
@@ -699,8 +706,7 @@
             const gp = navigator.getGamepads()[gamepadIndex];
             if (!gp) return;
 
-            // 读取摇杆数据 (通常 0, 1 是左摇杆, 2, 3 是右摇杆)
-            // 我们用左摇杆控制
+            // --- 1. 左摇杆 (axes 0, 1) - 控制光标 ---
             let dx = applyDeadzone(gp.axes[0]);
             let dy = applyDeadzone(gp.axes[1]);
 
@@ -714,11 +720,52 @@
 
             gamepadCursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
             
-            // (可选) 模拟点击 (使用 A 键，即 buttons[0])
+            // --- 2. 右摇杆 (axes 3) - 控制滚动 ---
+            // (通常 2 是水平, 3 是垂直)
+            // 确保手柄有足够的轴 (某些手柄可能只有 4 个轴)
+            let scrollInput = (gp.axes.length > 3) ? applyDeadzone(gp.axes[3]) : 0;
+            if (scrollInput !== 0) {
+                // 检查 OMEGA 核心是否可见
+                if (omegaCore.style.display === 'flex' && omegaCore.classList.contains('show')) {
+                    // 滚动 OMEGA 核心
+                    omegaCore.scrollTop += scrollInput * SCROLL_SPEED;
+                } else {
+                    // 滚动主窗口 (在这种设计下，通常只有OMEGA核心需要滚动)
+                    window.scrollBy(0, scrollInput * SCROLL_SPEED);
+                }
+            }
+
+            // --- 3. A 键 (buttons 0) - 模拟点击 ---
+            // 我们需要检测 "按下" 瞬间，而不是 "按住"
             if (gp.buttons[0].pressed) {
-                // 模拟点击光标下的元素
-                // (注意：这比较复杂，需要 document.elementFromPoint)
-                // 暂不实现，仅更新光标
+                if (!aButtonWasPressed) {
+                    // A 键刚刚被按下
+                    aButtonWasPressed = true;
+                    
+                    // 隐藏光标，执行点击，然后显示光标
+                    // 这可以防止光标遮挡导致点到光标自己
+                    gamepadCursor.style.visibility = 'hidden'; 
+                    
+                    // 找到光标下的元素
+                    let element = document.elementFromPoint(cursorX, cursorY);
+                    
+                    // 恢复光标
+                    gamepadCursor.style.visibility = 'visible';
+
+                    if (element) {
+                        console.log("手柄点击了: ", element);
+                        // 触发点击事件
+                        element.click();
+                        
+                        // 额外处理：如果点击的是输入框，使其聚焦
+                        if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                            element.focus();
+                        }
+                    }
+                }
+            } else {
+                // A 键已松开
+                aButtonWasPressed = false;
             }
 
             // 循环调用
